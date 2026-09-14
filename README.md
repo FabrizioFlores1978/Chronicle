@@ -19,8 +19,7 @@
 
   [**Launch Online Studio**](https://pazvanti.github.io/Chronicle/app/) •
   [**Website & Tour**](https://pazvanti.github.io/Chronicle/) •
-  [**Download for Windows**](https://pazvanti.github.io/Chronicle/downloads/Chronicle.exe) •
-  [**Download for macOS**](https://pazvanti.github.io/Chronicle/downloads/Chronicle.dmg)
+  [**Get Desktop App on Gumroad**](https://pazvanti.gumroad.com/l/Chronicle)
 
 </div>
 
@@ -29,6 +28,8 @@
 <div align="center">
   <img src="docs/assets/screenshot-editor.png" alt="Chronicle Writing Studio Interface" width="100%" style="border-radius: 12px; box-shadow: 0 12px 36px rgba(0,0,0,0.5);" />
 </div>
+
+*Note: This software was developed with the assistant of AI. Certain parts of the code have been generated using LLMs. However, the software does not collect any data from the user. The software is open source and free to use. The software is licensed under the AGPL v3 license.*
 
 ---
 
@@ -40,7 +41,7 @@ Writing a novel shouldn't require juggling four separate paid subscriptions. **C
 * Replaces **Vellum** with publication-ready Vector PDF typesetting and standard EPUB 3 exports.
 * Replaces **World Anvil** with an integrated, private Worldbuilding Codex for character psychology and sensory locations.
 * Replaces **Plottr / Aeon Timeline** with visual, multi-strand narrative timelines that prevent plot-hole collisions.
-* Replaces paid **TTS proofreaders** with private, on-device Kokoro AI neural voice audio.
+* Replaces paid **TTS proofreaders** with private, on-device Kokoro Text-to-Speech voice audio.
 
 ### 🛡️ 100% Local-First & Private
 * **Zero Telemetry**: Chronicle collects no metrics, no trackers, and has no remote database.
@@ -82,8 +83,8 @@ Writing a novel shouldn't require juggling four separate paid subscriptions. **C
 * Craft typography-rich, custom book covers without leaving the app.
 * Configure titles, subtitles, author credits, backgrounds, gradients, borders, and decorative emblems with high-resolution export.
 
-### 🎙️ Offline Kokoro AI Neural Voices
-* Listen to your chapters read aloud by state-of-the-art Kokoro AI neural voice models running directly on your computer via WebGPU / WASM.
+### 🎙️ Offline Kokoro TTS Voices
+* Listen to your chapters read aloud by state-of-the-art Kokoro TTS voice models running directly on your computer via WebGPU / WASM.
 * Catch clunky phrasing, dialogue hitches, and typos without sending a single byte of your story to external servers.
 
 ### 🖨️ Publication-Grade Exporters
@@ -96,16 +97,15 @@ Writing a novel shouldn't require juggling four separate paid subscriptions. **C
 
 ## 💻 Cross-Platform & Downloads
 
-Chronicle is available as both a native standalone desktop app and an in-browser web app:
+Chronicle is available as both a native standalone desktop app (Windows & macOS) and an in-browser web app:
 
 | Platform | Format | Description | Download / Launch |
 | :--- | :--- | :--- | :--- |
 | **In-Browser** | Web Studio | Runs client-side in Chrome, Edge, Safari, Firefox | [**Launch Online**](https://pazvanti.github.io/Chronicle/app/) |
-| **Windows** | Portable `.exe` | Standalone executable — **no installer required** | [**Download for Windows**](https://pazvanti.github.io/Chronicle/downloads/Chronicle.exe) |
-| **macOS** | Disk Image `.dmg` | Drag-and-drop standalone image (Apple Silicon & Intel) | [**Download for macOS**](https://pazvanti.github.io/Chronicle/downloads/Chronicle.dmg) |
+| **Desktop App** | Windows (`.exe`) & macOS (`.dmg`) | Standalone desktop app — **Pay What You Want ($0+)** | [**Get on Gumroad**](https://pazvanti.gumroad.com/l/Chronicle) |
 
 > [!TIP]
-> The desktop application does not need an installer or administrative rights. Simply download `Chronicle.exe` or `Chronicle.dmg`, open it, and start writing immediately.
+> The desktop application does not need an installer or administrative rights. Get it on [Gumroad](https://pazvanti.gumroad.com/l/Chronicle) for free or with an optional donation to support open-source software! Open it, and start writing immediately.
 
 ---
 
