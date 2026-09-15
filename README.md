@@ -6,7 +6,7 @@
 
   **The Premier All-in-One Authoring & Publishing Studio for Novelists**
 
-  *Distraction-free writing, dual-view author comments, visual narrative timelines, worldbuilding codex, offline neural audio proofreading, book cover designer, and print-ready Vector PDF / EPUB 3 typesetter.*
+  *Distraction-free writing, dual-view author comments, visual narrative timelines, worldbuilding codex, offline neural audio proofreading, book cover designer, and print-ready PDF / EPUB 3 typesetter.*
 
   [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
   [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Web-purple.svg)](#cross-platform--downloads)
@@ -38,7 +38,7 @@
 Writing a novel shouldn't require juggling four separate paid subscriptions. **Chronicle** unifies the entire creative pipeline into one cohesive, distraction-free powerhouse:
 
 * Replaces **Scrivener** with a fast, modern WYSIWYG chapter binder and dual-view author annotations.
-* Replaces **Vellum** with publication-ready Vector PDF typesetting and standard EPUB 3 exports.
+* Replaces **Vellum** with publication-ready PDF typesetting and standard EPUB 3 exports.
 * Replaces **World Anvil** with an integrated, private Worldbuilding Codex for character psychology and sensory locations.
 * Replaces **Plottr / Aeon Timeline** with visual, multi-strand narrative timelines that prevent plot-hole collisions.
 * Replaces paid **TTS proofreaders** with private, on-device Kokoro Text-to-Speech voice audio.
@@ -88,7 +88,7 @@ Writing a novel shouldn't require juggling four separate paid subscriptions. **C
 * Catch clunky phrasing, dialogue hitches, and typos without sending a single byte of your story to external servers.
 
 ### 🖨️ Publication-Grade Exporters
-* **Print Vector PDF**: Automated book formatting with mirror margins, running headers, drop caps, Roman numeral front matter, and proper chapter page breaks.
+* **Print PDF**: Automated book formatting with mirror margins, running headers, drop caps, Roman numeral front matter, and proper chapter page breaks.
 * **Standard EPUB 3**: Valid, reflowable EPUB files verified for Amazon Kobo, Kindle, and Apple Books.
 * **Shunn Manuscript Format (DOCX)**: Formats your manuscript strictly according to the industry-standard William Shunn format for literary agent and editor submissions.
 * **Chronicle Project (`.chronicle`)**: Comprehensive project backup preserving all drafts, codex dossiers, timelines, covers, and author comments in an open ZIP package.
