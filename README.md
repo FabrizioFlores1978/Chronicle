@@ -49,6 +49,8 @@ Writing a novel shouldn't require juggling four separate paid subscriptions. **C
 * **No Cloud Lock-in**: Your work is saved in the open `.chronicle` format (a standard ZIP archive containing plain JSON and raw XHTML).
 * **Optional Private Sync**: Sync directly to your own self-hosted WebDAV server (Nextcloud, ownCloud, Fastmail) with end-to-end credential storage.
 
+*NOTE: The Website and web-app use SimpleAnalytics to check the number of visitor that are accessing the website. SimpleAnalytics is a privacy-focuse analytics platform. The desktop app doesn't use any analytics. No data related to the way the app is being used, the content that is being written or the user is being collected or stored anywhere.* 
+
 ---
 
 ## 🚀 Key Features
