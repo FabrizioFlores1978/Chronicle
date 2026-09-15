@@ -23,6 +23,8 @@ import { CloudDesktopNoticeModal } from './components/Cloud/CloudDesktopNoticeMo
 import { WelcomeModal } from './components/Welcome/WelcomeModal';
 import { UnsavedChangesModal } from './components/Common/UnsavedChangesModal';
 import { SettingsModal } from './components/Settings/SettingsModal';
+import { MobileNoticeModal } from './components/Mobile/MobileNoticeModal';
+import { useSmallScreenDetector } from './hooks/useSmallScreenDetector';
 import { Upload, Loader2 } from 'lucide-react';
 
 const AppContent: React.FC = () => {
@@ -55,6 +57,7 @@ const AppContent: React.FC = () => {
     pendingUnsavedAction,
   } = useEpub();
   const { stopAudio } = useTts();
+  const { showNotice: showMobileNotice, dismiss: dismissMobileNotice } = useSmallScreenDetector();
 
   const [isDraggingOver, setIsDraggingOver] = useState<boolean>(false);
   const globalFileInputRef = useRef<HTMLInputElement>(null);
@@ -236,6 +239,11 @@ const AppContent: React.FC = () => {
           initialTab={settingsInitialTab}
           onClose={closeSettings}
         />
+      )}
+
+      {/* Small Screen / Mobile Device Handheld Notice Modal */}
+      {showMobileNotice && (
+        <MobileNoticeModal onDismiss={dismissMobileNotice} />
       )}
 
       {/* Unsaved Changes Confirmation Modal */}
