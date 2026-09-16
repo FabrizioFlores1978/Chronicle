@@ -1,9 +1,151 @@
 /**
- * Chronicle Presentation Website — Interactive Logic
+ * Chronicle Presentation Website — Interactive Literary Sanctuary Logic
+ * Starlight Celestial Canvas, Showcase Tour, Hotspots & Lightbox
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // 1. Tabbed Showcase Feature Switcher
+  // --------------------------------------------------------------------------
+  // 1. Celestial Starlight Background Canvas
+  // --------------------------------------------------------------------------
+  const canvas = document.getElementById('celestial-canvas');
+  if (canvas) {
+    const ctx = canvas.getContext('2d');
+    let width = (canvas.width = window.innerWidth);
+    let height = (canvas.height = window.innerHeight);
+
+    window.addEventListener('resize', () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+      initStars();
+    });
+
+    const themeStarPalettes = {
+      default: [
+        'rgba(255, 255, 255, ',
+        'rgba(245, 225, 175, ', // Starlight Gold
+        'rgba(195, 185, 245, ', // Lavender
+        'rgba(180, 220, 250, '  // Pale Cyan Starlight
+      ],
+      scifi: [
+        'rgba(255, 255, 255, ',
+        'rgba(0, 240, 255, ',   // Cyber Cyan
+        'rgba(168, 85, 247, ',  // Neon Purple
+        'rgba(56, 189, 248, '   // Bright Sky
+      ],
+      romance: [
+        'rgba(255, 255, 255, ',
+        'rgba(253, 164, 175, ', // Rose Gold
+        'rgba(244, 63, 94, ',   // Velvet Ruby
+        'rgba(232, 121, 249, '  // Soft Orchid
+      ]
+    };
+
+    let currentStarColors = themeStarPalettes.default;
+
+    window.updateCelestialTheme = function(themeName) {
+      currentStarColors = themeStarPalettes[themeName] || themeStarPalettes.default;
+      stars.forEach(s => {
+        s.colorPrefix = currentStarColors[Math.floor(Math.random() * currentStarColors.length)];
+      });
+    };
+
+    let stars = [];
+    const numStars = Math.min(Math.floor((width * height) / 4500), 280);
+
+    function initStars() {
+      stars = [];
+      for (let i = 0; i < numStars; i++) {
+        stars.push({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          radius: Math.random() * 1.35 + 0.35,
+          colorPrefix: currentStarColors[Math.floor(Math.random() * currentStarColors.length)],
+          baseAlpha: Math.random() * 0.55 + 0.25,
+          twinkleSpeed: Math.random() * 0.02 + 0.005,
+          phase: Math.random() * Math.PI * 2
+        });
+      }
+    }
+
+    // Occasional gentle shooting star
+    let shootingStar = null;
+    function maybeSpawnShootingStar() {
+      if (!shootingStar && Math.random() < 0.008) {
+        shootingStar = {
+          x: Math.random() * width * 0.7,
+          y: Math.random() * (height * 0.4),
+          length: Math.random() * 80 + 50,
+          speed: Math.random() * 7 + 6,
+          angle: Math.PI / 4 + (Math.random() - 0.5) * 0.2,
+          life: 0,
+          maxLife: 45
+        };
+      }
+    }
+
+    initStars();
+
+    let animationFrameId;
+    function renderCelestialSky() {
+      ctx.clearRect(0, 0, width, height);
+
+      // Draw Twinkling Stars
+      const time = Date.now() * 0.001;
+      for (let i = 0; i < stars.length; i++) {
+        const s = stars[i];
+        const alpha = s.baseAlpha + Math.sin(time * s.twinkleSpeed * 60 + s.phase) * 0.28;
+        const clampedAlpha = Math.max(0.1, Math.min(1, alpha));
+
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `${s.colorPrefix}${clampedAlpha})`;
+        ctx.fill();
+
+        // Subtle glow around larger stars
+        if (s.radius > 1.2) {
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.radius * 2.2, 0, Math.PI * 2);
+          ctx.fillStyle = `${s.colorPrefix}${clampedAlpha * 0.15})`;
+          ctx.fill();
+        }
+      }
+
+      // Draw Shooting Star if active
+      maybeSpawnShootingStar();
+      if (shootingStar) {
+        shootingStar.life++;
+        const progress = shootingStar.life / shootingStar.maxLife;
+        const tailX = shootingStar.x - Math.cos(shootingStar.angle) * shootingStar.length * (1 - progress * 0.4);
+        const tailY = shootingStar.y - Math.sin(shootingStar.angle) * shootingStar.length * (1 - progress * 0.4);
+
+        const grad = ctx.createLinearGradient(tailX, tailY, shootingStar.x, shootingStar.y);
+        grad.addColorStop(0, 'rgba(230, 190, 117, 0)');
+        grad.addColorStop(1, `rgba(255, 245, 215, ${1 - progress})`);
+
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(tailX, tailY);
+        ctx.lineTo(shootingStar.x, shootingStar.y);
+        ctx.stroke();
+
+        shootingStar.x += Math.cos(shootingStar.angle) * shootingStar.speed;
+        shootingStar.y += Math.sin(shootingStar.angle) * shootingStar.speed;
+
+        if (shootingStar.life >= shootingStar.maxLife) {
+          shootingStar = null;
+        }
+      }
+
+      animationFrameId = requestAnimationFrame(renderCelestialSky);
+    }
+
+    renderCelestialSky();
+  }
+
+  // --------------------------------------------------------------------------
+  // 2. Showcase Tour Tab Navigation
+  // --------------------------------------------------------------------------
   const tabButtons = document.querySelectorAll('.tab-btn');
   const panels = document.querySelectorAll('.showcase-content-panel');
 
@@ -24,21 +166,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Dynamic Cursor Spotlight Tracking for Bento Cards
-  const bentoCards = document.querySelectorAll('.bento-card');
-  bentoCards.forEach(card => {
-    card.addEventListener('mousemove', (e) => {
-      const rect = card.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      card.style.setProperty('--mouse-x', `${x}px`);
-      card.style.setProperty('--mouse-y', `${y}px`);
-    });
-  });
-
-  // 2. Interactive 3D Perspective Tilt & Dynamic Glare Tracking
+  // --------------------------------------------------------------------------
+  // 3. Tactile 3D Perspective Tilt on Screenshots
+  // --------------------------------------------------------------------------
   const screenWraps = document.querySelectorAll('.screenshot-screen-wrap');
-
   screenWraps.forEach(wrap => {
     const glare = wrap.querySelector('.screenshot-glare');
 
@@ -49,14 +180,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const percentX = (x / rect.width) * 100;
       const percentY = (y / rect.height) * 100;
 
-      // Subtle physical tilt: max +/- 3.5 deg
-      const rotY = ((x - rect.width / 2) / (rect.width / 2)) * 3.5;
-      const rotX = -((y - rect.height / 2) / (rect.height / 2)) * 3.5;
+      const rotY = ((x - rect.width / 2) / (rect.width / 2)) * 3;
+      const rotX = -((y - rect.height / 2) / (rect.height / 2)) * 3;
 
       wrap.style.transform = `perspective(1000px) rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg)`;
 
       if (glare) {
-        glare.style.background = `radial-gradient(circle at ${percentX.toFixed(1)}% ${percentY.toFixed(1)}%, rgba(255, 255, 255, 0.18) 0%, transparent 60%)`;
+        glare.style.background = `radial-gradient(circle at ${percentX.toFixed(1)}% ${percentY.toFixed(1)}%, rgba(230, 190, 117, 0.18) 0%, transparent 60%)`;
       }
     });
 
@@ -65,14 +195,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // 3. Feature Hotspot Pin Interactions
+  // --------------------------------------------------------------------------
+  // 4. Feature Hotspot Pins
+  // --------------------------------------------------------------------------
   const hotspots = document.querySelectorAll('.hotspot');
   hotspots.forEach(hotspot => {
     const pin = hotspot.querySelector('.hotspot-pin');
     if (!pin) return;
 
     pin.addEventListener('click', (e) => {
-      e.stopPropagation(); // Do not trigger screenshot lightbox zoom
+      e.stopPropagation();
       const isActive = hotspot.classList.contains('active');
       hotspots.forEach(h => h.classList.remove('active'));
       if (!isActive) {
@@ -81,14 +213,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Click outside to close active hotspot
   document.addEventListener('click', (e) => {
     if (!e.target.closest('.hotspot')) {
       hotspots.forEach(h => h.classList.remove('active'));
     }
   });
 
-  // 4. Interactive Fullscreen Screenshot Lightbox
+  // --------------------------------------------------------------------------
+  // 5. Fullscreen Screenshot Lightbox Modal
+  // --------------------------------------------------------------------------
   const lightbox = document.getElementById('screenshot-lightbox');
   const lightboxImg = document.getElementById('lightbox-img');
   const lightboxTitle = document.getElementById('lightbox-title');
@@ -103,36 +236,36 @@ document.addEventListener('DOMContentLoaded', () => {
   const studioScreens = [
     {
       tabId: 'tab-writer',
-      tag: 'Workspace Studio',
-      title: 'Writer Studio — Clean Distraction-Free Composition',
+      tag: 'Chapter Authoring',
+      title: "Writer's Sanctuary — Clean Distraction-Free Composition & Annotations",
       src: 'assets/screenshot-editor.png',
       tryUrl: 'app/index.html?view=editor&welcome=false'
     },
     {
       tabId: 'tab-timeline',
-      tag: 'Chronology Studio',
-      title: 'Timeline Studio — Visual Story Arcs & Chronologies',
+      tag: 'Narrative Chronology',
+      title: 'Timeline Studio — Visual Story Arcs & Collision-Free Plot Beats',
       src: 'assets/screenshot-timeline.png',
       tryUrl: 'app/index.html?view=timeline&welcome=false'
     },
     {
       tabId: 'tab-reader',
-      tag: 'Immersion Studio',
-      title: 'Reading Mode — Paper Tones & Audio Narrator',
+      tag: 'Sensory Immersion',
+      title: 'Reading & Acoustic Studio — Paper Tones & On-Device Voice Audio',
       src: 'assets/screenshot-reader.png',
       tryUrl: 'app/index.html?view=reader&welcome=false'
     },
     {
       tabId: 'tab-codex',
-      tag: 'Worldbuilding Studio',
-      title: 'World Codex — Characters, Lore & Location Dossiers',
+      tag: 'Living Codex',
+      title: 'World Codex — Living Characters, Sensory Places & Archetypes',
       src: 'assets/screenshot-codex.png',
       tryUrl: 'app/index.html'
     },
     {
       tabId: 'tab-publishing',
-      tag: 'Typesetting & Export',
-      title: 'Publishing Hub — Multi-Format Vector PDF, EPUB & Shunn DOCX',
+      tag: 'Fine Typesetting',
+      title: 'Publishing Hub — Print-Ready PDF with Drop Caps, EPUB 3 & Shunn DOCX',
       src: 'assets/screenshot-styles.png',
       tryUrl: 'app/index.html'
     }
@@ -155,7 +288,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (lightboxTryBtn) lightboxTryBtn.href = screen.tryUrl;
     if (lightboxCounter) lightboxCounter.textContent = `${currentScreenIndex + 1} / ${studioScreens.length}`;
 
-    // Synchronize active tab in background
     switchTab(screen.tabId);
   }
 
@@ -174,11 +306,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.style.overflow = '';
   }
 
-  // Open on clicking screenshot container or zoom button
   const screenshotContainers = document.querySelectorAll('.interactive-screenshot-container');
   screenshotContainers.forEach(container => {
     container.addEventListener('click', (e) => {
-      // Ignore clicks on hotspots
       if (e.target.closest('.hotspot')) return;
       const index = parseInt(container.getAttribute('data-tab-index') || '0', 10);
       openLightbox(index);
@@ -200,7 +330,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Keyboard navigation: Escape, ArrowLeft, ArrowRight
   document.addEventListener('keydown', (e) => {
     if (!lightbox || !lightbox.classList.contains('active')) return;
     if (e.key === 'Escape') closeLightbox();
@@ -208,7 +337,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.key === 'ArrowRight') renderLightbox(currentScreenIndex + 1);
   });
 
-  // 5. FAQ Accordion Interactions
+  // --------------------------------------------------------------------------
+  // 6. FAQ Accordion Mechanics
+  // --------------------------------------------------------------------------
   const faqItems = document.querySelectorAll('.faq-item');
   faqItems.forEach(item => {
     const question = item.querySelector('.faq-question');
@@ -217,7 +348,6 @@ document.addEventListener('DOMContentLoaded', () => {
     question.addEventListener('click', () => {
       const isActive = item.classList.contains('active');
 
-      // Close other open items for clean single-expand accordion UX
       faqItems.forEach(i => {
         i.classList.remove('active');
         const q = i.querySelector('.faq-question');
@@ -231,57 +361,105 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // 6. Navbar scroll styling
+  // --------------------------------------------------------------------------
+  // 7. Navbar Scroll Blur & Starlight Border Effect
+  // --------------------------------------------------------------------------
   const navbar = document.querySelector('.navbar');
   if (navbar) {
     window.addEventListener('scroll', () => {
       if (window.scrollY > 40) {
-        navbar.style.borderBottomColor = 'rgba(255, 255, 255, 0.12)';
-        navbar.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.5)';
+        navbar.style.borderBottomColor = 'rgba(230, 190, 117, 0.28)';
+        navbar.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(230, 190, 117, 0.05)';
       } else {
-        navbar.style.borderBottomColor = 'rgba(255, 255, 255, 0.07)';
+        navbar.style.borderBottomColor = 'var(--border-starlight)';
         navbar.style.boxShadow = 'none';
       }
     });
   }
 
-  // 7. Dynamic Copyright Year
+  // --------------------------------------------------------------------------
+  // 8. Dynamic Copyright Year
+  // --------------------------------------------------------------------------
   const yearSpan = document.getElementById('current-year');
   if (yearSpan) {
     yearSpan.textContent = new Date().getFullYear();
   }
 
-  // 8. Auto-detect platform and highlight recommended download button
-  const isMac = /Macintosh|Mac OS X|MacIntel/i.test(navigator.userAgent);
-  const winBtn = document.getElementById('btn-download-windows');
-  const macBtn = document.getElementById('btn-download-mac');
-  const winBadge = document.getElementById('badge-windows');
-  const macBadge = document.getElementById('badge-mac');
+  // --------------------------------------------------------------------------
+  // 9. Floating Theme Selector Drawer Logic
+  // --------------------------------------------------------------------------
+  const themeDrawer = document.getElementById('theme-drawer');
+  const themeDrawerTab = document.getElementById('theme-drawer-tab');
+  const themeOptionButtons = document.querySelectorAll('.theme-option-btn');
+  const themeStylesheet = document.getElementById('theme-stylesheet');
 
-  if (isMac) {
-    macBtn?.classList.add('recommended-platform');
-    if (macBadge) macBadge.textContent = '★ Recommended for macOS';
-  } else {
-    winBtn?.classList.add('recommended-platform');
-    if (winBadge) winBadge.textContent = '★ Recommended for Windows';
+  function applyTheme(themeName) {
+    document.documentElement.setAttribute('data-theme', themeName);
+
+    if (themeStylesheet) {
+      themeStylesheet.href = `themes/theme-${themeName}.css`;
+    }
+
+    try {
+      localStorage.setItem('chronicle_landing_theme', themeName);
+    } catch (e) {
+      // localStorage might be unavailable in private browsing
+    }
+
+    themeOptionButtons.forEach(btn => {
+      const match = btn.getAttribute('data-theme-value') === themeName;
+      btn.classList.toggle('active', match);
+      btn.setAttribute('aria-checked', match ? 'true' : 'false');
+    });
+
+    if (typeof window.updateCelestialTheme === 'function') {
+      window.updateCelestialTheme(themeName);
+    }
   }
 
-  // Load manifest.json to display actual file sizes if available
-  fetch('downloads/manifest.json')
-    .then(r => r.ok ? r.json() : null)
-    .then(manifest => {
-      if (manifest && Array.isArray(manifest.distributables)) {
-        const winItem = manifest.distributables.find(d => d.name === 'Chronicle.exe');
-        const macItem = manifest.distributables.find(d => d.name === 'Chronicle.dmg');
-        if (winItem) {
-          const sub = document.querySelector('#btn-download-windows .platform-btn-sub');
-          if (sub) sub.textContent = `Chronicle.exe • ${winItem.sizeMB} MB (Direct Run, No Install)`;
-        }
-        if (macItem) {
-          const sub = document.querySelector('#btn-download-mac .platform-btn-sub');
-          if (sub) sub.textContent = `Chronicle.dmg • ${macItem.sizeMB} MB (Standalone Image)`;
-        }
+  themeOptionButtons.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const chosenTheme = btn.getAttribute('data-theme-value');
+      applyTheme(chosenTheme);
+    });
+  });
+
+  if (themeDrawer && themeDrawerTab) {
+    themeDrawerTab.addEventListener('click', (e) => {
+      e.stopPropagation();
+      themeDrawer.classList.toggle('open');
+    });
+
+    // Close when clicking outside drawer
+    document.addEventListener('click', (e) => {
+      if (!themeDrawer.contains(e.target)) {
+        themeDrawer.classList.remove('open');
       }
-    })
-    .catch(() => { });
+    });
+
+    // Close on Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && themeDrawer.classList.contains('open')) {
+        themeDrawer.classList.remove('open');
+      }
+    });
+  }
+
+  // Restore theme from URL query param, saved theme, or default on initial load
+  const initialTheme = (() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const urlTheme = (params.get('theme') || '').toLowerCase().trim();
+      if (urlTheme === 'romance') return 'romance';
+      if (urlTheme === 'scifi' || urlTheme === 'sci-fi') return 'scifi';
+      if (urlTheme === 'classic' || urlTheme === 'default' || urlTheme === 'gold') return 'default';
+
+      return localStorage.getItem('chronicle_landing_theme') || 'default';
+    } catch (e) {
+      return 'default';
+    }
+  })();
+  applyTheme(initialTheme);
 });
+

@@ -1,0 +1,176 @@
+/* ==========================================================================
+   Chronicle Theme: Default (Nocturnal Sanctuary — Literary & Human)
+   File: docs/themes/theme-default.css
+   ========================================================================== */
+
+:root,
+[data-theme="default"] {
+  /* Typography */
+  --font-serif-display: 'Cinzel', Georgia, 'Times New Roman', serif;
+  --font-serif-title: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* Nocturnal Celestial Palette */
+  --bg-void: #05060a;
+  --bg-sky-night: #090b14;
+  --bg-sky-twilight: #120e22;
+  --bg-sky-dusk: #1b1227;
+  --bg-sky-ember: #251322;
+  --bg-sky-deep-dawn: #090a10;
+
+  /* Card Surfaces with Starlight Tint */
+  --bg-surface: rgba(18, 17, 30, 0.72);
+  --bg-surface-elevated: rgba(26, 23, 42, 0.85);
+  --bg-surface-hover: rgba(36, 31, 56, 0.95);
+  --bg-surface-solid: #141322;
+  --bg-parchment-glass: rgba(247, 244, 236, 0.04);
+
+  /* Candlelight & Starlight Accents */
+  --gold-primary: #e6be75;
+  --gold-bright: #fae19c;
+  --gold-muted: #b89350;
+  --gold-glow: rgba(230, 190, 117, 0.22);
+  --gold-shadow: rgba(230, 190, 117, 0.12);
+
+  /* Twilight Secondary Tones */
+  --twilight-violet: #a388ee;
+  --twilight-rose: #e88296;
+  --twilight-amber: #f59e0b;
+  --twilight-sky: #70b4e8;
+  --twilight-emerald: #5ec99b;
+
+  /* Borders & Dividers */
+  --border-starlight: rgba(230, 190, 117, 0.14);
+  --border-starlight-hover: rgba(230, 190, 117, 0.35);
+  --border-dim: rgba(255, 255, 255, 0.08);
+
+  /* Literary Text Palette */
+  --text-parchment: #f7f4ec;
+  --text-parchment-bright: #ffffff;
+  --text-secondary: #b4b6c9;
+  --text-muted: #797c94;
+
+  /* Tactile Shadows */
+  --shadow-subtle: 0 4px 20px rgba(0, 0, 0, 0.5);
+  --shadow-card: 0 12px 40px -10px rgba(0, 0, 0, 0.7), 0 0 25px rgba(230, 190, 117, 0.05);
+  --shadow-elevated: 0 20px 60px -15px rgba(0, 0, 0, 0.85), 0 0 35px rgba(230, 190, 117, 0.1);
+  --shadow-gold-focus: 0 0 30px rgba(230, 190, 117, 0.25);
+}
+
+/* Headings Typography */
+.hero-title {
+  font-family: var(--font-serif-title);
+  letter-spacing: -0.01em;
+}
+
+.hero-title-italic {
+  font-family: var(--font-serif-title);
+  font-style: italic;
+  font-weight: 500;
+  background: linear-gradient(135deg, var(--gold-bright) 0%, var(--gold-primary) 50%, #f0a672 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.section-title,
+.showcase-title,
+.bento-title,
+.pillar-title,
+.faq-question {
+  font-family: var(--font-serif-title);
+}
+
+.section-tag,
+.hero-badge,
+.bento-tag,
+.tab-tag,
+.pillar-roman {
+  font-family: var(--font-serif-display);
+  letter-spacing: 0.14em;
+}
+
+/* Horizon Landscape Silhouette Dividers */
+.horizon-divider {
+  display: block;
+  position: relative;
+  width: 100%;
+  line-height: 0;
+  overflow: hidden;
+  z-index: 3;
+  margin-top: -1px;
+  margin-bottom: -1px;
+}
+
+.horizon-divider svg {
+  display: block;
+  width: 100%;
+  height: clamp(80px, 12vw, 150px);
+}
+
+/* Section Gradients */
+.section-twilight {
+  background: linear-gradient(180deg, var(--bg-sky-twilight) 0%, #151025 100%);
+}
+
+.section-dusk {
+  background: linear-gradient(180deg, #151025 0%, var(--bg-sky-dusk) 50%, #201328 100%);
+}
+
+.section-ember {
+  background: linear-gradient(180deg, #201328 0%, var(--bg-sky-ember) 50%, #1b1122 100%);
+}
+
+.section-night {
+  background: linear-gradient(180deg, #1b1122 0%, var(--bg-sky-night) 60%, var(--bg-void) 100%);
+}
+
+/* Buttons */
+.btn-primary {
+  background: linear-gradient(135deg, var(--gold-bright) 0%, var(--gold-primary) 60%, #d89b45 100%);
+  color: #170d1a;
+  border-color: rgba(230, 190, 117, 0.6);
+  box-shadow: 0 4px 20px rgba(230, 190, 117, 0.3);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #ffffff 0%, var(--gold-bright) 50%, var(--gold-primary) 100%);
+  box-shadow: 0 8px 30px rgba(230, 190, 117, 0.5);
+}
+
+/* Ambient Dusk Glow Orbs */
+.glow-dusk-1 {
+  background: radial-gradient(circle, rgba(163, 136, 238, 0.12) 0%, transparent 70%);
+}
+
+.glow-dusk-2 {
+  background: radial-gradient(circle, rgba(232, 130, 150, 0.12) 0%, transparent 70%);
+}
+
+/* Interactive Hotspot Pins */
+.hotspot-pin {
+  background: var(--gold-primary);
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 14px var(--gold-primary);
+}
+
+.hotspot-ping {
+  border-color: var(--gold-primary);
+}
+
+.hotspot-title {
+  color: var(--gold-bright);
+  font-family: var(--font-serif-title);
+}
+
+/* Comparison Table */
+.ledger-table .col-chronicle {
+  background: rgba(230, 190, 117, 0.05);
+  border-left: 1px solid rgba(230, 190, 117, 0.2);
+  border-right: 1px solid rgba(230, 190, 117, 0.2);
+}
+
+.ledger-table th.col-chronicle {
+  background: linear-gradient(180deg, rgba(230, 190, 117, 0.15) 0%, rgba(230, 190, 117, 0.08) 100%);
+  color: var(--gold-bright);
+}

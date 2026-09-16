@@ -94,8 +94,9 @@ html, body, #root {
   display: flex;
   align-items: center;
   gap: 0.55rem;
-  flex-shrink: 0;
-  max-width: 50%;
+  flex-shrink: 1;
+  min-width: 0;
+  max-width: 35%;
 }
 
 .brand-badge {
@@ -152,8 +153,8 @@ html, body, #root {
   border: 1px solid var(--border-subtle);
   cursor: pointer;
   transition: var(--transition-fast);
-  min-width: 140px;
-  max-width: 380px;
+  min-width: 120px;
+  max-width: 280px;
   flex-shrink: 1;
   user-select: none;
 }
@@ -234,11 +235,18 @@ html, body, #root {
   gap: 3px;
   max-width: 100%;
   overflow-x: auto;
-  scrollbar-width: none;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-medium) transparent;
+  flex-shrink: 0;
 }
 .segmented-nav-control::-webkit-scrollbar,
 .view-tabs::-webkit-scrollbar {
-  display: none;
+  height: 3px;
+}
+.segmented-nav-control::-webkit-scrollbar-thumb,
+.view-tabs::-webkit-scrollbar-thumb {
+  background: var(--border-medium);
+  border-radius: 3px;
 }
 
 .segmented-pill,
@@ -318,7 +326,7 @@ html, body, #root {
 }
 
 /* Responsive Breakpoints for Header Overlap Prevention */
-@media (max-width: 1550px) {
+@media (max-width: 2150px) {
   .header-btn-collapsible {
     display: none !important;
   }
@@ -327,7 +335,7 @@ html, body, #root {
   }
 }
 
-@media (max-width: 1350px) {
+@media (max-width: 1250px) {
   /* Center segmented control: hide text on inactive pills, keep clean icon */
   .segmented-pill:not(.active) span {
     display: none;
@@ -336,8 +344,8 @@ html, body, #root {
     padding: 0.38rem 0.55rem;
   }
   .document-title-pill {
-    min-width: 160px;
-    max-width: 250px;
+    min-width: 110px;
+    max-width: 200px;
   }
 }
 
@@ -349,8 +357,8 @@ html, body, #root {
     display: flex !important;
   }
   .document-title-pill {
-    min-width: 120px;
-    max-width: 180px;
+    min-width: 100px;
+    max-width: 160px;
   }
   .document-author-subtext {
     display: none;

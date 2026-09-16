@@ -1,0 +1,245 @@
+/* ==========================================================================
+   Chronicle Theme: Romance (Velvet Rose & Champagne — Passionate & Dreamy)
+   File: docs/themes/theme-romance.css
+   ========================================================================== */
+
+:root,
+[data-theme="romance"] {
+  /* Dreamy Romantic Typography */
+  --font-heading: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-serif-display: 'Playfair Display', Georgia, serif;
+  --font-serif-title: 'Playfair Display', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'Fira Code', monospace;
+
+  /* Deep Velvet Night & Rich Wine Plum Base */
+  --bg-void: #0d060b;
+  --bg-sky-night: #140812;
+  --bg-sky-twilight: #1e0b1c;
+  --bg-sky-dusk: #280e25;
+  --bg-sky-ember: #33112f;
+  --bg-sky-deep-dawn: #10060e;
+
+  /* Card Surfaces with Velvet Starlight Tint */
+  --bg-surface: rgba(34, 14, 30, 0.82);
+  --bg-surface-elevated: rgba(46, 18, 41, 0.9);
+  --bg-surface-hover: rgba(62, 24, 55, 0.95);
+  --bg-surface-solid: #220d1e;
+  --bg-parchment-glass: rgba(253, 164, 175, 0.05);
+
+  /* Rose Gold & Champagne Accents */
+  --gold-primary: #f43f5e;
+  --gold-bright: #fda4af;
+  --gold-muted: #e11d48;
+  --gold-glow: rgba(244, 63, 94, 0.38);
+  --gold-shadow: rgba(244, 63, 94, 0.2);
+
+  /* Romantic Secondary Accents */
+  --twilight-violet: #d946ef;
+  --twilight-rose: #fb7185;
+  --twilight-amber: #fecdd3;
+  --twilight-sky: #c084fc;
+  --twilight-emerald: #fb7185;
+
+  /* Velvet Rose Borders */
+  --border-starlight: rgba(244, 63, 94, 0.22);
+  --border-starlight-hover: rgba(251, 113, 133, 0.6);
+  --border-dim: rgba(255, 255, 255, 0.08);
+
+  /* Soft Velvet & Blush Text Palette */
+  --text-parchment: #fdf2f4;
+  --text-parchment-bright: #ffffff;
+  --text-secondary: #d4a5b8;
+  --text-muted: #a36c84;
+
+  /* Tactile Shadows */
+  --shadow-subtle: 0 4px 20px rgba(0, 0, 0, 0.6);
+  --shadow-card: 0 12px 40px -10px rgba(0, 0, 0, 0.8), 0 0 25px rgba(244, 63, 94, 0.15);
+  --shadow-elevated: 0 20px 60px -15px rgba(0, 0, 0, 0.92), 0 0 35px rgba(244, 63, 94, 0.25);
+  --shadow-gold-focus: 0 0 30px rgba(244, 63, 94, 0.45);
+}
+
+/* ==========================================================================
+   Typography: Pure Playfair Display Romantic Flourish
+   ========================================================================== */
+body {
+  background-color: var(--bg-void) !important;
+  color: var(--text-parchment) !important;
+}
+
+h1, h2, h3, h4, h5, h6,
+.hero-title,
+.section-title,
+.showcase-title,
+.bento-title,
+.pillar-title,
+.faq-question,
+.ledger-table th {
+  font-family: var(--font-heading) !important;
+  letter-spacing: -0.015em !important;
+}
+
+.hero-title {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+.hero-title-italic {
+  font-family: var(--font-heading) !important;
+  font-style: italic !important;
+  font-weight: 600 !important;
+  background: linear-gradient(135deg, #fff1f2 0%, #fda4af 35%, #f43f5e 75%, #fb7185 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  text-shadow: 0 0 35px rgba(244, 63, 94, 0.4) !important;
+}
+
+.section-tag,
+.hero-badge,
+.bento-tag,
+.tab-tag {
+  font-family: var(--font-heading) !important;
+  font-style: italic !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.08em !important;
+  background: rgba(244, 63, 94, 0.1) !important;
+  border-color: rgba(244, 63, 94, 0.35) !important;
+  color: #fda4af !important;
+}
+
+.pillar-roman {
+  font-family: var(--font-heading) !important;
+  font-style: italic !important;
+  background: transparent !important;
+  border: none !important;
+  color: #fb7185 !important;
+}
+
+/* ==========================================================================
+   Eliminate Shared Landscape/Fantasy Dividers (Trees, Huts, Spires)
+   ========================================================================== */
+.horizon-divider {
+  display: none !important;
+}
+
+/* Subtle Romantic Section Dividers */
+.section {
+  position: relative;
+  border-bottom: 1px solid rgba(244, 63, 94, 0.14) !important;
+}
+
+.section-twilight,
+.section-dusk,
+.section-ember,
+.section-night {
+  background: transparent !important;
+}
+
+/* ==========================================================================
+   Romantic Velvet Buttons
+   ========================================================================== */
+.btn-primary {
+  background: linear-gradient(135deg, #f43f5e 0%, #e11d48 50%, #be123c 100%) !important;
+  color: #ffffff !important;
+  font-family: var(--font-sans) !important;
+  font-weight: 600 !important;
+  border: 1px solid rgba(251, 113, 133, 0.6) !important;
+  box-shadow: 0 4px 20px rgba(244, 63, 94, 0.4), 0 0 15px rgba(225, 29, 72, 0.25) !important;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #fb7185 0%, #f43f5e 50%, #e11d48 100%) !important;
+  box-shadow: 0 8px 30px rgba(244, 63, 94, 0.65), 0 0 25px rgba(251, 113, 133, 0.4) !important;
+  color: #ffffff !important;
+}
+
+.btn-secondary {
+  background: rgba(34, 14, 30, 0.8) !important;
+  border: 1px solid rgba(244, 63, 94, 0.3) !important;
+  color: #fdf2f4 !important;
+  font-family: var(--font-sans) !important;
+}
+
+.btn-secondary:hover {
+  border-color: rgba(244, 63, 94, 0.65) !important;
+  background: rgba(244, 63, 94, 0.15) !important;
+  color: #fda4af !important;
+  box-shadow: 0 0 20px rgba(244, 63, 94, 0.3) !important;
+}
+
+/* ==========================================================================
+   Ambient Rose & Dusk Orbs
+   ========================================================================== */
+.glow-dusk-1 {
+  background: radial-gradient(circle, rgba(244, 63, 94, 0.2) 0%, transparent 70%) !important;
+}
+
+.glow-dusk-2 {
+  background: radial-gradient(circle, rgba(217, 70, 239, 0.16) 0%, transparent 70%) !important;
+}
+
+/* ==========================================================================
+   Interactive Hotspot Pins & Badges
+   ========================================================================== */
+.hotspot-pin {
+  background: #f43f5e !important;
+  border: 2px solid #ffffff !important;
+  box-shadow: 0 0 16px #f43f5e, 0 0 30px rgba(244, 63, 94, 0.5) !important;
+}
+
+.hotspot-ping {
+  border-color: #f43f5e !important;
+}
+
+.hotspot-tooltip {
+  background: #1f091c !important;
+  border-color: rgba(244, 63, 94, 0.45) !important;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.88), 0 0 25px rgba(244, 63, 94, 0.25) !important;
+}
+
+.hotspot-title {
+  color: #fda4af !important;
+  font-family: var(--font-heading) !important;
+}
+
+.floating-badge {
+  background: rgba(36, 14, 32, 0.94) !important;
+  border-color: rgba(244, 63, 94, 0.35) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(244, 63, 94, 0.2) !important;
+}
+
+.badge-text {
+  color: #fdf2f4 !important;
+  font-family: var(--font-heading) !important;
+  font-weight: 600 !important;
+}
+
+/* Active Tour Tab */
+.tab-btn.active {
+  background: rgba(244, 63, 94, 0.18) !important;
+  border-color: rgba(244, 63, 94, 0.6) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 22px rgba(244, 63, 94, 0.3) !important;
+}
+
+/* Comparison Table */
+.ledger-table .col-chronicle {
+  background: rgba(244, 63, 94, 0.08) !important;
+  border-left: 1px solid rgba(244, 63, 94, 0.28) !important;
+  border-right: 1px solid rgba(244, 63, 94, 0.28) !important;
+}
+
+.ledger-table th.col-chronicle {
+  background: linear-gradient(180deg, rgba(244, 63, 94, 0.25) 0%, rgba(244, 63, 94, 0.1) 100%) !important;
+  color: #fda4af !important;
+}
+
+/* FAQ Active Item */
+.faq-item.active {
+  border-color: rgba(244, 63, 94, 0.5) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45), 0 0 20px rgba(244, 63, 94, 0.2) !important;
+}
+
+.faq-item.active .faq-chevron {
+  color: #f43f5e !important;
+}

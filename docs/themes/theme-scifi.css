@@ -1,0 +1,229 @@
+/* ==========================================================================
+   Chronicle Theme: Sci-Fi (Luminous Cyber Studio — High-Tech Neon)
+   File: docs/themes/theme-scifi.css
+   ========================================================================== */
+
+:root,
+[data-theme="scifi"] {
+  /* High-Tech Sans & Monospace Typography */
+  --font-heading: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-serif-display: var(--font-heading);
+  --font-serif-title: var(--font-heading);
+
+  /* Void Obsidian Base & Electric Neon Accents */
+  --bg-void: #030509;
+  --bg-sky-night: #060913;
+  --bg-sky-twilight: #0a0f24;
+  --bg-sky-dusk: #101734;
+  --bg-sky-ember: #151032;
+  --bg-sky-deep-dawn: #05070f;
+
+  /* Card Surfaces with Cyber Tint */
+  --bg-surface: rgba(8, 14, 28, 0.82);
+  --bg-surface-elevated: rgba(14, 24, 44, 0.9);
+  --bg-surface-hover: rgba(22, 36, 64, 0.95);
+  --bg-surface-solid: #090f1d;
+  --bg-parchment-glass: rgba(0, 240, 255, 0.03);
+
+  /* Luminous Cyber Accents */
+  --gold-primary: #00f0ff;
+  --gold-bright: #38bdf8;
+  --gold-muted: #0284c7;
+  --gold-glow: rgba(0, 240, 255, 0.35);
+  --gold-shadow: rgba(0, 240, 255, 0.18);
+
+  /* Electric Secondary Accents */
+  --twilight-violet: #a855f7;
+  --twilight-rose: #f43f5e;
+  --twilight-amber: #00f0ff;
+  --twilight-sky: #38bdf8;
+  --twilight-emerald: #10b981;
+
+  /* Neon Borders & Laser Dividers */
+  --border-starlight: rgba(0, 240, 255, 0.16);
+  --border-starlight-hover: rgba(0, 240, 255, 0.55);
+  --border-dim: rgba(255, 255, 255, 0.08);
+
+  /* High-Tech Text Palette */
+  --text-parchment: #e2e8f0;
+  --text-parchment-bright: #ffffff;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+
+  /* Laser Glow Shadows */
+  --shadow-subtle: 0 4px 20px rgba(0, 0, 0, 0.6);
+  --shadow-card: 0 12px 40px -10px rgba(0, 0, 0, 0.8), 0 0 25px rgba(0, 240, 255, 0.1);
+  --shadow-elevated: 0 20px 60px -15px rgba(0, 0, 0, 0.9), 0 0 35px rgba(0, 240, 255, 0.2);
+  --shadow-gold-focus: 0 0 30px rgba(0, 240, 255, 0.35);
+}
+
+/* ==========================================================================
+   Typography Overrides: Pure High-Tech Sans (No Literary Serif)
+   ========================================================================== */
+body {
+  font-family: var(--font-sans) !important;
+  background-color: var(--bg-void) !important;
+  color: var(--text-parchment) !important;
+}
+
+h1, h2, h3, h4, h5, h6,
+.hero-title,
+.section-title,
+.showcase-title,
+.bento-title,
+.pillar-title,
+.faq-question,
+.ledger-table th {
+  font-family: var(--font-heading) !important;
+  letter-spacing: -0.025em !important;
+  font-weight: 700 !important;
+}
+
+.hero-title-italic {
+  font-family: var(--font-heading) !important;
+  font-style: normal !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.025em !important;
+  background: linear-gradient(135deg, #00f0ff 0%, #38bdf8 45%, #a855f7 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+.section-tag,
+.hero-badge,
+.bento-tag,
+.tab-tag,
+.pillar-roman {
+  font-family: var(--font-heading) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+  background: rgba(0, 240, 255, 0.08) !important;
+  border-color: rgba(0, 240, 255, 0.3) !important;
+  color: #00f0ff !important;
+}
+
+.pillar-roman {
+  background: transparent !important;
+  border: none !important;
+  color: var(--gold-bright) !important;
+}
+
+/* ==========================================================================
+   Eliminate Fantasy Elements (Pine Trees, Medieval Spires, Fantasy Huts)
+   ========================================================================== */
+.horizon-divider {
+  display: none !important;
+}
+
+/* Sleek Cyber Section Dividers */
+.section {
+  position: relative;
+  border-bottom: 1px solid rgba(0, 240, 255, 0.12) !important;
+}
+
+.section-twilight,
+.section-dusk,
+.section-ember,
+.section-night {
+  background: transparent !important;
+}
+
+/* ==========================================================================
+   Cyber Buttons
+   ========================================================================== */
+.btn-primary {
+  background: linear-gradient(135deg, #00f0ff 0%, #a855f7 100%) !important;
+  color: #030509 !important;
+  font-family: var(--font-heading) !important;
+  font-weight: 700 !important;
+  border: 1px solid rgba(0, 240, 255, 0.6) !important;
+  box-shadow: 0 4px 20px rgba(0, 240, 255, 0.35), 0 0 15px rgba(168, 85, 247, 0.2) !important;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #38bdf8 0%, #c084fc 100%) !important;
+  box-shadow: 0 8px 32px rgba(0, 240, 255, 0.6), 0 0 25px rgba(168, 85, 247, 0.4) !important;
+}
+
+.btn-secondary {
+  background: rgba(8, 14, 28, 0.75) !important;
+  border: 1px solid rgba(0, 240, 255, 0.25) !important;
+  color: #f1f5f9 !important;
+  font-family: var(--font-heading) !important;
+}
+
+.btn-secondary:hover {
+  border-color: rgba(0, 240, 255, 0.6) !important;
+  background: rgba(0, 240, 255, 0.12) !important;
+  color: #00f0ff !important;
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.25) !important;
+}
+
+/* ==========================================================================
+   Ambient Laser Glow Orbs
+   ========================================================================== */
+.glow-dusk-1 {
+  background: radial-gradient(circle, rgba(0, 240, 255, 0.18) 0%, transparent 70%) !important;
+}
+
+.glow-dusk-2 {
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.18) 0%, transparent 70%) !important;
+}
+
+/* ==========================================================================
+   Interactive Hotspot Pins & Badges
+   ========================================================================== */
+.hotspot-pin {
+  background: #00f0ff !important;
+  border: 2px solid #ffffff !important;
+  box-shadow: 0 0 16px #00f0ff, 0 0 30px rgba(0, 240, 255, 0.5) !important;
+}
+
+.hotspot-ping {
+  border-color: #00f0ff !important;
+}
+
+.hotspot-tooltip {
+  background: #080c14 !important;
+  border-color: rgba(0, 240, 255, 0.35) !important;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.85), 0 0 25px rgba(0, 240, 255, 0.2) !important;
+}
+
+.hotspot-title {
+  color: #00f0ff !important;
+  font-family: var(--font-heading) !important;
+}
+
+.floating-badge {
+  background: rgba(8, 14, 28, 0.92) !important;
+  border-color: rgba(0, 240, 255, 0.25) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 240, 255, 0.15) !important;
+}
+
+.badge-text {
+  font-family: var(--font-heading) !important;
+  color: #f1f5f9 !important;
+}
+
+/* Active Tour Tab */
+.tab-btn.active {
+  background: rgba(0, 240, 255, 0.12) !important;
+  border-color: rgba(0, 240, 255, 0.5) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.25) !important;
+}
+
+/* Comparison Table */
+.ledger-table .col-chronicle {
+  background: rgba(0, 240, 255, 0.06) !important;
+  border-left: 1px solid rgba(0, 240, 255, 0.25) !important;
+  border-right: 1px solid rgba(0, 240, 255, 0.25) !important;
+}
+
+.ledger-table th.col-chronicle {
+  background: linear-gradient(180deg, rgba(0, 240, 255, 0.22) 0%, rgba(0, 240, 255, 0.08) 100%) !important;
+  color: #00f0ff !important;
+}
