@@ -89,6 +89,29 @@ export function ensureCargoInPath() {
 
 ensureCargoInPath();
 
+// Ensure macOS DMG background is generated
+if (isMac) {
+  const dmgBgPath = path.resolve(projectRoot, 'src-tauri', 'icons', 'dmg-background.png');
+  const swiftGenerator = path.resolve(projectRoot, 'scripts', 'generate-dmg-background.swift');
+  if (!fs.existsSync(dmgBgPath) && fs.existsSync(swiftGenerator)) {
+    console.log('[Installer] Generating high-resolution DMG background artwork...');
+    spawnSync('swift', [swiftGenerator, dmgBgPath], { stdio: 'inherit' });
+  }
+
+  // Detach any leftover /Volumes/Chronicle mounts from previous interrupted builds
+  try {
+    const hdiutilInfo = spawnSync('hdiutil', ['info'], { encoding: 'utf8' }).stdout || '';
+    const matchLines = hdiutilInfo.split('\n').filter(l => l.includes('/Volumes/Chronicle'));
+    for (const line of matchLines) {
+      const devMatch = line.trim().split(/\s+/)[0];
+      if (devMatch && devMatch.startsWith('/dev/')) {
+        console.log(`[Cleaner] Detaching lingering disk image: ${devMatch}`);
+        spawnSync('hdiutil', ['detach', devMatch, '-force'], { stdio: 'ignore' });
+      }
+    }
+  } catch {}
+}
+
 // 3. Build Tauri App
 console.log('\n[1/2] Compiling Tauri Rust Standalone Executable...');
 const tauriArgs = ['@tauri-apps/cli', 'build'];
