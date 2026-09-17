@@ -291,7 +291,7 @@ export const TTSModelModal: React.FC = () => {
                   <option value="">✨ Auto (Prioritize High-Fidelity Natural Voice)</option>
                   {availableSystemVoices.map(v => (
                     <option key={v.id} value={v.name}>
-                      {v.is ? '⚡ [Studio] ' : '• '}{v.name} ({v.lang})
+                      {v.isNeural ? '⚡ [Studio] ' : '• '}{v.name} ({v.lang})
                     </option>
                   ))}
                 </select>

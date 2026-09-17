@@ -12,6 +12,9 @@ import { StyleStudio } from './components/StyleStudio/StyleStudio';
 import { AssetManager } from './components/Assets/AssetManager';
 import { EpubInspector } from './components/Inspector/EpubInspector';
 import { TimelineStudio } from './components/Timeline/TimelineStudio';
+import { CastPresenceGrid } from './components/CastPresence/CastPresenceGrid';
+import { CharacterStudio } from './components/Characters/CharacterStudio';
+import { LocationStudio } from './components/Locations/LocationStudio';
 import { StatusBar } from './components/StatusBar/StatusBar';
 import { WelcomeScreen } from './components/Welcome/WelcomeScreen';
 import { NotificationToast } from './components/NotificationToast';
@@ -182,6 +185,9 @@ const AppContent: React.FC = () => {
             <>
               {viewMode === 'reader' && <ReaderView />}
               {viewMode === 'editor' && <EditorContainer />}
+              {viewMode === 'characters' && <CharacterStudio />}
+              {viewMode === 'locations' && <LocationStudio />}
+              {viewMode === 'cast-grid' && <CastPresenceGrid />}
               {viewMode === 'timeline' && <TimelineStudio />}
               {viewMode === 'toc' && <TocManager />}
               {viewMode === 'metadata' && <MetadataEditor />}

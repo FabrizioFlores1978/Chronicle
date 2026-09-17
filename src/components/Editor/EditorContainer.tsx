@@ -6,7 +6,7 @@ import { CharacterSheetPanel } from '../Characters/CharacterSheetPanel';
 import { CharacterDetailModal } from '../Characters/CharacterDetailModal';
 import { LocationCodexPanel } from '../Locations/LocationCodexPanel';
 import { LocationDetailModal } from '../Locations/LocationDetailModal';
-import { Eye, Code, Users, Clock, Compass } from 'lucide-react';
+import { Eye, Code, Users, Clock, Compass, LayoutGrid } from 'lucide-react';
 
 export const EditorContainer: React.FC = () => {
   const { editorSubMode, setEditorSubMode, characters, locations, timelines, setViewMode } = useEpub();
@@ -48,8 +48,40 @@ export const EditorContainer: React.FC = () => {
           </div>
         </div>
 
-        {/* Right side: Timeline, Character Sheets & Locations Codex */}
+        {/* Right side: Cast Grid, Timeline, Character Sheets & Locations Codex */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <button
+            className="btn btn-sm btn-ghost"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              color: 'var(--text-secondary)',
+              borderRadius: '8px',
+              padding: '0.35rem 0.65rem',
+            }}
+            onClick={() => setViewMode('cast-grid')}
+            title="Open Cast Presence Grid"
+          >
+            <LayoutGrid size={14} />
+            <span>Cast Grid</span>
+            {(characters.length > 0 || locations.length > 0) && (
+              <span
+                style={{
+                  fontSize: '0.72rem',
+                  padding: '1px 6px',
+                  borderRadius: '10px',
+                  backgroundColor: 'var(--bg-surface-elevated)',
+                  border: '1px solid var(--border-subtle)',
+                  fontWeight: 600,
+                  marginLeft: '2px',
+                }}
+              >
+                {characters.length + locations.length}
+              </span>
+            )}
+          </button>
+
           <button
             className="btn btn-sm btn-ghost"
             style={{

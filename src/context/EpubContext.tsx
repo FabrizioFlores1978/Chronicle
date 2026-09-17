@@ -18,7 +18,9 @@ import {
   LocationCodexEntry,
   LocationFeatureItem,
   AuthorComment,
+  CastPresenceMatrix,
 } from '../types/epub';
+import { analyzeCastPresence, AnalysisProgress } from '../services/analysis/presenceAnalysisService';
 import {
   unwrapCommentHighlightInHtml,
   updateCommentHighlightColorInHtml,
@@ -199,6 +201,13 @@ interface EpubContextType {
   ) => AuthorComment;
   updateComment: (commentId: string, updates: { comment?: string; color?: string }) => void;
   deleteComment: (commentId: string) => void;
+
+  castPresenceData: CastPresenceMatrix | null;
+  isPresenceCacheValid: boolean;
+  isPresenceAnalyzing: boolean;
+  presenceProgress: AnalysisProgress | null;
+  runCastPresenceAnalysis: (force?: boolean) => Promise<CastPresenceMatrix | null>;
+  invalidatePresenceCache: () => void;
 }
 
 const EpubContext = createContext<EpubContextType | undefined>(undefined);
@@ -233,6 +242,15 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [isCloudDesktopNoticeOpen, setIsCloudDesktopNoticeOpen] = useState<boolean>(false);
 
   const [uiTheme, setUiThemeState] = useState<UiTheme>('modernx-dark');
+
+  const [castPresenceData, setCastPresenceData] = useState<CastPresenceMatrix | null>(null);
+  const [isPresenceCacheValid, setIsPresenceCacheValid] = useState<boolean>(false);
+  const [isPresenceAnalyzing, setIsPresenceAnalyzing] = useState<boolean>(false);
+  const [presenceProgress, setPresenceProgress] = useState<AnalysisProgress | null>(null);
+
+  const invalidatePresenceCache = useCallback(() => {
+    setIsPresenceCacheValid(false);
+  }, []);
 
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
   const [settingsInitialTab, setSettingsInitialTab] = useState<'appearance' | 'cloud' | 'editor' | 'general'>('appearance');
@@ -348,6 +366,9 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (dirty && isSavingRef.current) {
       return;
     }
+    if (dirty) {
+      setIsPresenceCacheValid(false);
+    }
     setIsDirtyState(dirty);
   }, []);
   const [notification, setNotification] = useState<NotificationState | null>(null);
@@ -415,6 +436,40 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }, 4000);
   }, []);
 
+  const runCastPresenceAnalysis = useCallback(
+    async (force: boolean = false): Promise<CastPresenceMatrix | null> => {
+      const currentBook = bookRef.current;
+      if (!currentBook) return null;
+      if (!force && isPresenceCacheValid && castPresenceData) {
+        return castPresenceData;
+      }
+      setIsPresenceAnalyzing(true);
+      setPresenceProgress({
+        current: 0,
+        total: currentBook.chapters.length,
+        chapterTitle: 'Initializing manuscript analysis...',
+        percent: 0,
+      });
+
+      try {
+        const matrix = await analyzeCastPresence(currentBook, progress => {
+          setPresenceProgress(progress);
+        });
+        setCastPresenceData(matrix);
+        setIsPresenceCacheValid(true);
+        return matrix;
+      } catch (err) {
+        console.error('Cast presence analysis failed:', err);
+        showNotification('error', 'Failed to analyze cast presence in manuscript');
+        return null;
+      } finally {
+        setIsPresenceAnalyzing(false);
+        setPresenceProgress(null);
+      }
+    },
+    [isPresenceCacheValid, castPresenceData, showNotification]
+  );
+
   // Helper to extract CSS from loaded book
   const extractCssFromBook = (loadedBook: EpubBook) => {
     const cssAsset = loadedBook.assets.find(a => a.mediaType.includes('css'));
@@ -471,6 +526,8 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
       setStorageTarget(null);
       setCloudFileName(null);
+      setCastPresenceData(null);
+      setIsPresenceCacheValid(false);
       setIsDirty(false);
       showNotification('success', 'Loaded sample book: Alice’s Adventures in Wonderland');
     } catch (err) {
@@ -507,6 +564,8 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
         setStorageTarget(null);
         setCloudFileName(null);
+        setCastPresenceData(null);
+        setIsPresenceCacheValid(false);
         setIsDirty(true);
         setViewModeState('editor');
         showNotification('success', `Created new blank manuscript: "${title}"`);
@@ -549,6 +608,8 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           }
           setStorageTarget('local');
           setCloudFileName(null);
+          setCastPresenceData(null);
+          setIsPresenceCacheValid(false);
           setIsDirty(false);
           showNotification('success', `Opened Chronicle "${projectBook.metadata.title}" successfully!`);
         } else {
@@ -561,6 +622,8 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           }
           setStorageTarget('local');
           setCloudFileName(null);
+          setCastPresenceData(null);
+          setIsPresenceCacheValid(false);
           setIsDirty(false);
           showNotification('success', `Imported EPUB "${parsed.metadata.title}" successfully!`);
         }
@@ -1004,6 +1067,8 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           }
           setStorageTarget('cloud');
           setCloudFileName(storedPath);
+          setCastPresenceData(null);
+          setIsPresenceCacheValid(false);
           setIsDirtyState(false);
           showNotification('success', `Opened Chronicle "${projectBook.metadata.title}" from WebDAV!`);
         } else {
@@ -1016,6 +1081,8 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           }
           setStorageTarget('cloud');
           setCloudFileName(storedPath.replace(/\.epub$/i, '.chronicle'));
+          setCastPresenceData(null);
+          setIsPresenceCacheValid(false);
           setIsDirtyState(false);
           showNotification('success', `Imported EPUB "${parsed.metadata.title}" from WebDAV!`);
         }
@@ -2117,6 +2184,12 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         addComment,
         updateComment,
         deleteComment,
+        castPresenceData,
+        isPresenceCacheValid,
+        isPresenceAnalyzing,
+        presenceProgress,
+        runCastPresenceAnalysis,
+        invalidatePresenceCache,
       }}
     >
       {children}

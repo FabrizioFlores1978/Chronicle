@@ -203,7 +203,76 @@ export interface EpubBook {
   writerData?: WriterProjectData;
 }
 
-export type AppViewMode = 'reader' | 'editor' | 'toc' | 'metadata' | 'cover' | 'styles' | 'assets' | 'inspector' | 'timeline';
+export type AppViewMode =
+  | 'reader'
+  | 'editor'
+  | 'toc'
+  | 'metadata'
+  | 'cover'
+  | 'styles'
+  | 'assets'
+  | 'inspector'
+  | 'timeline'
+  | 'cast-grid'
+  | 'characters'
+  | 'locations';
 export type EditorSubMode = 'visual' | 'code' | 'split';
 export type ReaderTheme = 'light' | 'sepia' | 'dark' | 'obsidian';
 export type ReaderFont = 'serif' | 'sans' | 'literata' | 'opendyslexic' | 'mono';
+
+export type PresenceEntityType = 'character' | 'location';
+
+export interface PresenceOccurrence {
+  start: number;
+  end: number;
+  matchedText: string;
+  snippet: string;
+  charOffset: number;
+}
+
+export interface EntityChapterPresence {
+  entityId: string;
+  entityType: PresenceEntityType;
+  chapterId: string;
+  chapterOrder: number;
+  count: number;
+  present: boolean;
+  firstMentionOffset: number | null;
+  occurrences: PresenceOccurrence[];
+}
+
+export interface CastPresenceEntity {
+  id: string;
+  name: string;
+  type: PresenceEntityType;
+  roleOrType: string;
+  color: string;
+  aliases: string[];
+  avatarUrl?: string;
+  totalMentions: number;
+  chaptersPresentCount: number;
+  firstChapterOrder: number | null;
+  lastChapterOrder: number | null;
+  peakChapterId: string | null;
+  peakChapterTitle: string | null;
+  peakCount: number;
+}
+
+export interface CastPresenceChapterSummary {
+  id: string;
+  order: number;
+  title: string;
+  wordCount: number;
+  distinctEntitiesCount: number;
+  totalMentionsCount: number;
+}
+
+export interface CastPresenceMatrix {
+  generatedAt: number;
+  bookTitle: string;
+  totalChapters: number;
+  chapters: CastPresenceChapterSummary[];
+  entities: CastPresenceEntity[];
+  // Key format: `${entityId}::${chapterId}`
+  presenceMap: Record<string, EntityChapterPresence>;
+}

@@ -330,7 +330,7 @@ export function getAvailableSystemVoices(): SystemVoiceInfo[] {
   return voices
     .map(v => {
       const nameLower = v.name.toLowerCase();
-      const is =
+      const isNeural =
         nameLower.includes('natural') ||
         nameLower.includes('neural') ||
         nameLower.includes('online') ||
@@ -365,8 +365,8 @@ export function getAvailableSystemVoices(): SystemVoiceInfo[] {
       };
     })
     .sort((a, b) => {
-      if (a.is && !b.isNeural) return -1;
-      if (!a.is && b.isNeural) return 1;
+      if (a.isNeural && !b.isNeural) return -1;
+      if (!a.isNeural && b.isNeural) return 1;
       return a.name.localeCompare(b.name);
     });
 }

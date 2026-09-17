@@ -18,6 +18,7 @@ import {
   History,
   FileText,
   User,
+  LayoutGrid,
 } from 'lucide-react';
 
 interface CharacterSheetPanelProps {
@@ -69,6 +70,7 @@ export const CharacterSheetPanel: React.FC<CharacterSheetPanelProps> = ({
     toggleCharacterTrait,
     addCharacterTrait,
     removeCharacterTrait,
+    setViewMode,
   } = useEpub();
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -150,6 +152,26 @@ export const CharacterSheetPanel: React.FC<CharacterSheetPanelProps> = ({
               <span className="char-count-badge">{characters.length}</span>
             </div>
             <div className="char-panel-header-actions">
+              <button
+                className="btn btn-sm btn-ghost"
+                onClick={() => {
+                  setViewMode('characters');
+                  onClose();
+                }}
+                title="Open Full Character Studio Screen"
+              >
+                <Maximize2 size={14} />
+              </button>
+              <button
+                className="btn btn-sm btn-ghost"
+                onClick={() => {
+                  setViewMode('cast-grid');
+                  onClose();
+                }}
+                title="Open Cast Presence Grid"
+              >
+                <LayoutGrid size={14} />
+              </button>
               <button
                 className="btn btn-sm btn-primary"
                 onClick={handleCreateNewCharacter}
@@ -313,6 +335,18 @@ export const CharacterSheetPanel: React.FC<CharacterSheetPanelProps> = ({
               <span>Characters</span>
             </button>
             <div className="char-detail-nav-actions">
+              <button
+                className="btn btn-sm btn-ghost"
+                title="Open in Full Character Studio Screen"
+                onClick={() => {
+                  setViewMode('characters');
+                  onClose();
+                }}
+                style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}
+              >
+                <Users size={13} />
+                <span>Studio</span>
+              </button>
               <button
                 className="btn btn-sm btn-outline"
                 title="Expand to Full Sheet Modal"

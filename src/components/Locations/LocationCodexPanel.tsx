@@ -18,6 +18,7 @@ import {
   MapPin,
   Layers,
   FileText,
+  LayoutGrid,
 } from 'lucide-react';
 
 interface LocationCodexPanelProps {
@@ -80,6 +81,7 @@ export const LocationCodexPanel: React.FC<LocationCodexPanelProps> = ({
     toggleLocationFeature,
     addLocationFeature,
     removeLocationFeature,
+    setViewMode,
   } = useEpub();
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -178,6 +180,26 @@ export const LocationCodexPanel: React.FC<LocationCodexPanelProps> = ({
               <span className="char-count-badge">{locations.length}</span>
             </div>
             <div className="char-panel-header-actions">
+              <button
+                className="btn btn-sm btn-ghost"
+                onClick={() => {
+                  setViewMode('locations');
+                  onClose();
+                }}
+                title="Open Full Location Codex Screen"
+              >
+                <Maximize2 size={14} />
+              </button>
+              <button
+                className="btn btn-sm btn-ghost"
+                onClick={() => {
+                  setViewMode('cast-grid');
+                  onClose();
+                }}
+                title="Open Cast Presence Grid"
+              >
+                <LayoutGrid size={14} />
+              </button>
               <button
                 className="btn btn-sm btn-primary"
                 onClick={handleCreateNewLocation}
@@ -388,6 +410,18 @@ export const LocationCodexPanel: React.FC<LocationCodexPanelProps> = ({
               <span>Locations</span>
             </button>
             <div className="char-detail-nav-actions">
+              <button
+                className="btn btn-sm btn-ghost"
+                title="Open in Full Location Codex Studio Screen"
+                onClick={() => {
+                  setViewMode('locations');
+                  onClose();
+                }}
+                style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}
+              >
+                <Compass size={13} />
+                <span>Studio</span>
+              </button>
               <button
                 className="btn btn-sm btn-outline"
                 title="Expand to Full Sheet Modal"
