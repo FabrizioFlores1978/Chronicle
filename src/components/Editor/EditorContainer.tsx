@@ -9,7 +9,7 @@ import { LocationDetailModal } from '../Locations/LocationDetailModal';
 import { Eye, Code, Users, Clock, Compass, LayoutGrid } from 'lucide-react';
 
 export const EditorContainer: React.FC = () => {
-  const { editorSubMode, setEditorSubMode, characters, locations, timelines, setViewMode } = useEpub();
+  const { editorSubMode, setEditorSubMode, characters, locations, timelines, setViewMode, minimalistMode, isZenMode } = useEpub();
   const [isCharacterPanelOpen, setIsCharacterPanelOpen] = useState<boolean>(false);
   const [modalCharacterId, setModalCharacterId] = useState<string | null>(null);
   const [isLocationPanelOpen, setIsLocationPanelOpen] = useState<boolean>(false);
@@ -17,18 +17,19 @@ export const EditorContainer: React.FC = () => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', flex: 1 }}>
-      {/* Top Toggle for Visual vs Code + Writer Tools */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '0.4rem 1rem',
-          background: 'var(--bg-surface-elevated)',
-          borderBottom: '1px solid var(--border-subtle)',
-          gap: '1rem',
-        }}
-      >
+      {/* Top Toggle for Visual vs Code + Writer Tools (Hidden in Minimalist and Zen Modes) */}
+      {!minimalistMode && !isZenMode && (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '0.4rem 1rem',
+            background: 'var(--bg-surface-elevated)',
+            borderBottom: '1px solid var(--border-subtle)',
+            gap: '1rem',
+          }}
+        >
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
           <div className="view-tabs" style={{ background: 'var(--bg-app)' }}>
             <button
@@ -193,19 +194,20 @@ export const EditorContainer: React.FC = () => {
           </button>
         </div>
       </div>
+      )}
 
       {/* Editor Main Content + Side Drawers */}
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
         <div style={{ flex: 1, overflow: 'hidden' }}>
           {editorSubMode === 'visual' ? <WysiwygEditor /> : <CodeEditor />}
         </div>
-        {isCharacterPanelOpen && (
+        {isCharacterPanelOpen && !minimalistMode && !isZenMode && (
           <CharacterSheetPanel
             onExpandModal={id => setModalCharacterId(id)}
             onClose={() => setIsCharacterPanelOpen(false)}
           />
         )}
-        {isLocationPanelOpen && (
+        {isLocationPanelOpen && !minimalistMode && !isZenMode && (
           <LocationCodexPanel
             onExpandModal={id => setModalLocationId(id)}
             onClose={() => setIsLocationPanelOpen(false)}

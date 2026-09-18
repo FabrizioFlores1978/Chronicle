@@ -71,6 +71,8 @@
           },
           "featureList": [
             "100% GenAI-Free. No LLMs. No text generation. Built exclusively for human writers.",
+            "Typewriter Zen Mode with Vertical Eye-Level Centering, Spotlight Dimming & Ghost HUD",
+            "Interactive Cast Presence Heatmap Matrix for Chapter-by-Chapter Character Tracking",
             "Distraction-Free Chapter Authoring with Dual-View Comments",
             "Visual Narrative Timelines with Collision Avoidance",
             "Offline Kokoro Text-to-Speech Voices (WebGPU/WASM)",
@@ -110,7 +112,7 @@
 
   <!-- Instant Theme Initializer (Supports URL ?theme= and Prevents Flash of Unstyled Theme) -->
   <script>
-    (function() {
+    (function () {
       try {
         var params = new URLSearchParams(window.location.search);
         var urlTheme = (params.get('theme') || '').toLowerCase().trim();
@@ -134,7 +136,7 @@
         if (urlTheme) {
           localStorage.setItem('chronicle_landing_theme', theme);
         }
-      } catch(e) {}
+      } catch (e) { }
     })();
   </script>
 
@@ -166,6 +168,7 @@
       <ul class="nav-menu">
         <li><a href="#tour" class="nav-link">Tour</a></li>
         <li><a href="#features" class="nav-link">Features</a></li>
+        <li><a href="guide.html" class="nav-link">User Guide</a></li>
         <li><a href="#comparison" class="nav-link">Comparison</a></li>
         <li><a href="#faq" class="nav-link">FAQ</a></li>
         <li><a href="#download" class="nav-link">Download</a></li>
@@ -210,9 +213,9 @@
         </h1>
 
         <p class="hero-subtitle">
-          Chronicle combines distraction-free chapter writing, visual story timelines, character and world codexes,
-          on-device audio proofreading, and bookstore-ready PDF and EPUB exports—all in one private, free desktop and
-          web app.
+          Chronicle combines typewriter Zen writing, visual story timelines, interactive cast presence matrices,
+          living character codexes, on-device audio proofreading, and bookstore-ready PDF and EPUB exports—all in one
+          private, free desktop and web app.
         </p>
 
         <!-- Mandatory Human Guarantee Ribbon -->
@@ -309,13 +312,13 @@
       <div class="pillars-strip">
         <div class="pillar-card">
           <div class="pillar-roman">FOCUS</div>
-          <h4 class="pillar-title">Distraction-Free Editor</h4>
-          <p class="pillar-desc">Clean chapter binder with customizable fonts, margins, and inline margin notes.</p>
+          <h4 class="pillar-title">Typewriter Zen Mode</h4>
+          <p class="pillar-desc">Vertical eye-level lock, paragraph spotlight dimming, and zero-UI Ghost HUD.</p>
         </div>
         <div class="pillar-card">
           <div class="pillar-roman">PLOTTING</div>
-          <h4 class="pillar-title">Visual Story Timeline</h4>
-          <p class="pillar-desc">Track plot beats, character viewpoints, and subplots with collision-free lanes.</p>
+          <h4 class="pillar-title">Timeline &amp; Cast Grid</h4>
+          <p class="pillar-desc">Visual story arcs with collision-free lanes and chapter cast presence heatmaps.</p>
         </div>
         <div class="pillar-card">
           <div class="pillar-roman">WORLDBUILDING</div>
@@ -389,6 +392,15 @@
               automatically.
             </p>
             <ul class="showcase-features-list">
+              <li class="showcase-feature-item">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span><strong>Typewriter Zen Mode &amp; Focus Dimming:</strong> Lock your cursor vertically centered at
+                  natural eye level while text flows upwards beneath it. Inactive paragraphs softly dim into 35% shadow,
+                  and the zero-UI Ghost HUD only appears when your mouse moves.</span>
+              </li>
               <li class="showcase-feature-item">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                   stroke-linecap="round" stroke-linejoin="round">
@@ -733,6 +745,15 @@
                   stroke-linecap="round" stroke-linejoin="round">
                   <polyline points="20 6 9 17 4 12"></polyline>
                 </svg>
+                <span><strong>Cast Presence Heatmap Matrix:</strong> Cross-reference every character and setting across
+                  every chapter. Spot pacing gaps, verify protagonist screen time, and click any cell to inspect in-text
+                  dialogue excerpts.</span>
+              </li>
+              <li class="showcase-feature-item">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
                 <span><strong>Sensory Palettes:</strong> Note sights, sounds, weather, and atmosphere for each
                   setting.</span>
               </li>
@@ -1003,6 +1024,206 @@
           </p>
         </div>
 
+        <!-- 3. Typewriter Zen Mode & Ghost HUD -->
+        <div class="craft-card">
+          <div class="craft-icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              <polyline points="9 11 12 14 15 11"></polyline>
+            </svg>
+          </div>
+          <h3 class="craft-title">Typewriter Zen Mode</h3>
+          <p class="craft-desc">
+            Immersive distraction-free writing. Typewriter scrolling keeps your typing line centered at eye level,
+            paragraph spotlight dimming casts inactive text into 35% shadow, and the zero-UI Ghost HUD only appears when
+            your mouse moves.
+          </p>
+          <div class="zen-preview-card">
+            <div class="zen-preview-dim">The rabbit hole went straight on like a tunnel for some way, and then dipped
+              suddenly down...</div>
+            <div class="zen-preview-active">Alice had not a moment to think about stopping herself before she found
+              herself falling.</div>
+            <div class="zen-preview-hud">
+              <span class="zen-preview-hud-dot"></span>
+              <span>Down the Rabbit-Hole</span>
+              <span class="zen-preview-badge">+420 words</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Cast Presence Heatmap & Character Grid (span 2) -->
+        <div class="craft-card craft-card-span-2">
+          <div class="craft-icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+          </div>
+          <h3 class="craft-title">Cast Presence Heatmap &amp; Character Grid</h3>
+          <p class="craft-desc">
+            Track character appearances across every chapter at a glance. Real-time density heatmaps highlight
+            screen time balance, reveal character intersections, and alert you when key protagonists vanish from the
+            narrative.
+          </p>
+
+          <div class="cast-grid-shell">
+            <!-- Mini Studio Toolbar -->
+            <div class="cast-grid-toolbar">
+              <div class="cast-toolbar-left">
+                <span class="cast-tab-pill active">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                  </svg>
+                  <span>Characters</span>
+                  <span style="opacity: 0.7;">5</span>
+                </span>
+                <span class="cast-tab-pill">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+                  </svg>
+                  <span>Locations</span>
+                  <span style="opacity: 0.7;">3</span>
+                </span>
+              </div>
+              <div class="cast-toolbar-right">
+                <div class="cast-view-toggle">
+                  <span class="cast-view-btn active">Glow</span>
+                  <span class="cast-view-btn">Counts</span>
+                  <span class="cast-view-btn">Dots</span>
+                </div>
+                <span class="cast-status-chip">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                  <span>Cached</span>
+                </span>
+              </div>
+            </div>
+
+            <!-- Two-Way Scrollable Table Viewport -->
+            <div class="cast-table-viewport">
+              <table class="cgrid-table">
+                <thead>
+                  <tr>
+                    <th class="cgrid-corner">ENTITIES <span class="cgrid-count">[4]</span></th>
+                    <th class="cgrid-th">
+                      <div class="cgrid-th-title">Ch 1: Rabbit Hole</div>
+                      <div class="cgrid-th-sub"><span>2120w</span><span class="cgrid-th-cast">2</span></div>
+                    </th>
+                    <th class="cgrid-th">
+                      <div class="cgrid-th-title">Ch 6: Pig &amp; Pepper</div>
+                      <div class="cgrid-th-sub"><span>2680w</span><span class="cgrid-th-cast">1</span></div>
+                    </th>
+                    <th class="cgrid-th">
+                      <div class="cgrid-th-title">Ch 7: Tea-Party</div>
+                      <div class="cgrid-th-sub"><span>2640w</span><span class="cgrid-th-cast">2</span></div>
+                    </th>
+                    <th class="cgrid-th">
+                      <div class="cgrid-th-title">Ch 8: Croquet-Ground</div>
+                      <div class="cgrid-th-sub"><span>2910w</span><span class="cgrid-th-cast">3</span></div>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- 1. Alice -->
+                  <tr class="cgrid-row">
+                    <td class="cgrid-entity-td">
+                      <div class="cgrid-entity-wrap">
+                        <div class="cgrid-avatar" style="background:#3b82f6;"><svg width="13" height="13"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                          </svg></div>
+                        <div class="cgrid-entity-info">
+                          <div class="cgrid-name-line"><span class="cgrid-name">Alice</span><span
+                              class="cgrid-role-tag">Protagonist</span></div>
+                          <div class="cgrid-stats">156 mentions · 4 chs</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="cgrid-td"><span class="cnode" style="--c:#3b82f6;">34</span></td>
+                    <td class="cgrid-td"><span class="cnode" style="--c:#3b82f6;">41</span></td>
+                    <td class="cgrid-td"><span class="cnode" style="--c:#3b82f6;">36</span></td>
+                    <td class="cgrid-td"><span class="cnode" style="--c:#3b82f6;">45</span></td>
+                  </tr>
+
+                  <!-- 2. The White Rabbit -->
+                  <tr class="cgrid-row">
+                    <td class="cgrid-entity-td">
+                      <div class="cgrid-entity-wrap">
+                        <div class="cgrid-avatar" style="background:#eab308;"><svg width="13" height="13"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                          </svg></div>
+                        <div class="cgrid-entity-info">
+                          <div class="cgrid-name-line"><span class="cgrid-name">The White Rabbit</span><span
+                              class="cgrid-role-tag">Supporting</span></div>
+                          <div class="cgrid-stats">25 mentions · 2 chs</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="cgrid-td"><span class="cnode" style="--c:#eab308;">18</span></td>
+                    <td class="cgrid-td"><span class="cgrid-absent">·</span></td>
+                    <td class="cgrid-td"><span class="cgrid-absent">·</span></td>
+                    <td class="cgrid-td"><span class="cnode" style="--c:#eab308;">7</span></td>
+                  </tr>
+
+                  <!-- 3. The Mad Hatter -->
+                  <tr class="cgrid-row">
+                    <td class="cgrid-entity-td">
+                      <div class="cgrid-entity-wrap">
+                        <div class="cgrid-avatar" style="background:#8b5cf6;"><svg width="13" height="13"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                          </svg></div>
+                        <div class="cgrid-entity-info">
+                          <div class="cgrid-name-line"><span class="cgrid-name">The Mad Hatter</span><span
+                              class="cgrid-role-tag">Supporting</span></div>
+                          <div class="cgrid-stats">29 mentions · 1 ch</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="cgrid-td"><span class="cgrid-absent">·</span></td>
+                    <td class="cgrid-td"><span class="cgrid-absent">·</span></td>
+                    <td class="cgrid-td"><span class="cnode" style="--c:#8b5cf6;">29</span></td>
+                    <td class="cgrid-td"><span class="cgrid-absent">·</span></td>
+                  </tr>
+
+                  <!-- 4. The Queen of Hearts -->
+                  <tr class="cgrid-row">
+                    <td class="cgrid-entity-td">
+                      <div class="cgrid-entity-wrap">
+                        <div class="cgrid-avatar" style="background:#ef4444;"><svg width="13" height="13"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                          </svg></div>
+                        <div class="cgrid-entity-info">
+                          <div class="cgrid-name-line"><span class="cgrid-name">The Queen of Hearts</span><span
+                              class="cgrid-role-tag">Antagonist</span></div>
+                          <div class="cgrid-stats">24 mentions · 1 ch</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="cgrid-td"><span class="cgrid-absent">·</span></td>
+                    <td class="cgrid-td"><span class="cgrid-absent">·</span></td>
+                    <td class="cgrid-td"><span class="cgrid-absent">·</span></td>
+                    <td class="cgrid-td"><span class="cnode" style="--c:#ef4444;">24</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
         <!-- 3. Built-In Book Cover Designer -->
         <div class="craft-card">
           <div class="craft-icon-box">
@@ -1213,7 +1434,8 @@
         <span class="section-tag">Comparison</span>
         <h2 class="section-title">Why You Should Choose Chronicle</h2>
         <p class="section-desc">
-          How Chronicle compares directly to Scrivener, Vellum, and World Anvil.
+          How Chronicle compares directly to Scrivener, Vellum, and World Anvil across writing immersion, cast tracking,
+          plotting, and publishing.
         </p>
       </div>
 
@@ -1273,6 +1495,27 @@
 
               <tr>
                 <td>
+                  <span class="comp-feature-name">Typewriter Zen Mode</span>
+                  <span class="comp-feature-sub">Auto-switch on typing, typewriter lock, paragraph focus dimming &amp;
+                    Ghost HUD</span>
+                </td>
+                <td class="col-chronicle">
+                  <span class="comp-badge-check">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      stroke-width="2.8">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Auto-switch, eye-level lock, 35% focus dimming &amp; Ghost HUD
+                  </span>
+                </td>
+                <td><span class="comp-badge-warn">Manual toggle only (no auto-switch, no Ghost HUD, breaks flow on
+                    chapter change)</span></td>
+                <td><span class="comp-badge-dim">Not supported</span></td>
+                <td><span class="comp-badge-dim">Not supported</span></td>
+              </tr>
+
+              <tr>
+                <td>
                   <span class="comp-feature-name">Dual-View Author Comments</span>
                   <span class="comp-feature-sub">6-color palette, clean EPUB export</span>
                 </td>
@@ -1307,6 +1550,26 @@
                 <td><span class="comp-badge-dim">Requires 3rd-party tool</span></td>
                 <td><span class="comp-badge-dim">Not supported</span></td>
                 <td><span class="comp-badge-warn">Clunky timeline module</span></td>
+              </tr>
+
+              <tr>
+                <td>
+                  <span class="comp-feature-name">Cast Presence Heatmap &amp; Character Grid</span>
+                  <span class="comp-feature-sub">Chapter-by-chapter character heatmaps, screen time balance &amp;
+                    dialogue excerpts</span>
+                </td>
+                <td class="col-chronicle">
+                  <span class="comp-badge-check">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      stroke-width="2.8">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Interactive density matrix, glowing nodes &amp; scene excerpts
+                  </span>
+                </td>
+                <td><span class="comp-badge-dim">Not supported (plain text character sheets only)</span></td>
+                <td><span class="comp-badge-dim">Not supported</span></td>
+                <td><span class="comp-badge-dim">Not supported (static wiki only)</span></td>
               </tr>
 
               <tr>
@@ -1459,6 +1722,59 @@
               replacing your writing. The only neural technology in Chronicle is the optional Kokoro voice synthesis
               engine,
               which runs 100% locally on your computer to read your own words aloud for proofreading cadence.
+            </p>
+          </div>
+        </div>
+
+        <!-- Question: Zen Mode -->
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">
+            <span>What is Zen Mode and how does Typewriter Scrolling work?</span>
+            <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2.5">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+          <div class="faq-answer">
+            <p>
+              Zen Mode strips away all window chrome, sidebars, borders, and menus for complete distraction-free focus.
+              It can switch on automatically the moment you start typing, featuring three essential authoring mechanics:
+            </p>
+            <p>
+              <strong>1. Typewriter Scrolling:</strong> Your typing line stays vertically locked in the exact center of
+              your screen as text smoothly scrolls upwards underneath it, keeping your posture relaxed at eye level.<br>
+              <strong>2. Paragraph Focus Dimming:</strong> The active paragraph where your cursor rests stays
+              illuminated at
+              100% opacity while all surrounding text softly dims to 35%, silencing internal editing voices.<br>
+              <strong>3. The Ghost HUD:</strong> Pure zero-UI while typing. The moment you move your mouse, a floating
+              translucent glass capsule HUD softly appears with your live session word count (+X words today), chapter
+              indicator,
+              and a floating chapter menu to switch scenes without leaving Zen mode.
+            </p>
+          </div>
+        </div>
+
+        <!-- Question: Cast Presence Grid -->
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">
+            <span>What is the Cast Presence Grid and how does it help novelists?</span>
+            <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2.5">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+          <div class="faq-answer">
+            <p>
+              The Cast Presence Grid is an intelligent chapter-by-chapter matrix that analyzes your manuscript to track
+              where
+              every character and location appears throughout your book. It renders interactive heatmaps showing mention
+              frequencies, character density, and screen time balance.
+            </p>
+            <p>
+              It instantly alerts you if a key character mysteriously disappears for multiple chapters, and lets you
+              click
+              any cell to inspect in-text dialogue excerpts, jump straight into the scene, or export the entire cast
+              tracking matrix to a spreadsheet for editorial analysis.
             </p>
           </div>
         </div>
@@ -1632,6 +1948,7 @@
           <ul class="footer-links">
             <li><a href="#tour">Studio Tour</a></li>
             <li><a href="#features">Core Features</a></li>
+            <li><a href="guide.html">User Guide</a></li>
             <li><a href="#comparison">Comparison</a></li>
             <li><a href="#faq">Author FAQ</a></li>
           </ul>
@@ -1715,7 +2032,8 @@
         <span class="theme-header-title">CHOOSE THEME</span>
       </div>
       <div class="theme-options-list" role="radiogroup" aria-label="Landing Page Themes">
-        <button class="theme-option-btn active" data-theme-value="default" role="radio" aria-checked="true" type="button">
+        <button class="theme-option-btn active" data-theme-value="default" role="radio" aria-checked="true"
+          type="button">
           <span class="theme-option-dot"></span>
           <span class="theme-option-label">Default</span>
           <span class="theme-option-check">✓</span>

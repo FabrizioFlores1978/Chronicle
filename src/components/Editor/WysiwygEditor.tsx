@@ -45,6 +45,14 @@ import { CommentFloatingPill } from '../Comments/CommentFloatingPill';
 import { CommentModal } from '../Comments/CommentModal';
 import { CommentsSidebar } from '../Comments/CommentsSidebar';
 
+function cleanTransientEditorMarkup(html: string): string {
+  if (!html) return html;
+  return html
+    .replace(/\s*\bzen-active-focus\b/g, '')
+    .replace(/ class="(\s*)"/g, '')
+    .replace(/ class=""/g, '');
+}
+
 export const WysiwygEditor: React.FC = () => {
   const {
     activeChapter,
@@ -65,6 +73,10 @@ export const WysiwygEditor: React.FC = () => {
     addComment,
     updateComment,
     deleteComment,
+    minimalistMode,
+    isZenMode,
+    setZenMode,
+    zenSettings,
   } = useEpub();
 
   const initialSettings = getStoredSettings();
@@ -103,8 +115,9 @@ export const WysiwygEditor: React.FC = () => {
   // Sync content into editor and scroll to top when active chapter changes
   useEffect(() => {
     if (editorRef.current && activeChapter) {
-      if (editorRef.current.innerHTML !== activeChapter.content) {
-        editorRef.current.innerHTML = activeChapter.content;
+      const cleanContent = cleanTransientEditorMarkup(activeChapter.content);
+      if (editorRef.current.innerHTML !== cleanContent) {
+        editorRef.current.innerHTML = cleanContent;
       }
     }
     if (workspaceRef.current) {
@@ -113,14 +126,99 @@ export const WysiwygEditor: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only sync when chapter ID changes, not on keystroke updates
   }, [activeChapter?.id]);
 
-  const handleInput = useCallback(() => {
-    if (editorRef.current && activeChapter) {
-      const html = editorRef.current.innerHTML;
-      if (html !== activeChapter.content) {
-        updateChapterContent(activeChapter.id, html);
+  // 1. Zen Mode - Typewriter Scrolling (locks cursor vertically centered)
+  const performTypewriterScroll = useCallback(() => {
+    if (!isZenMode || !zenSettings.typewriterScrolling || !workspaceRef.current) {
+      return;
+    }
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) return;
+    const range = sel.getRangeAt(0);
+    let rect = range.getBoundingClientRect();
+    if (rect.height === 0 || rect.top === 0) {
+      const parent =
+        range.startContainer instanceof HTMLElement
+          ? range.startContainer
+          : range.startContainer.parentElement;
+      if (parent) {
+        rect = parent.getBoundingClientRect();
       }
     }
-  }, [activeChapter, updateChapterContent]);
+    if (!rect || rect.height === 0) return;
+
+    const container = workspaceRef.current;
+    const containerRect = container.getBoundingClientRect();
+    const targetY = containerRect.top + containerRect.height / 2;
+    const cursorY = rect.top + rect.height / 2;
+    const delta = cursorY - targetY;
+
+    if (Math.abs(delta) > 4) {
+      container.scrollTop += delta;
+    }
+  }, [isZenMode, zenSettings.typewriterScrolling]);
+
+  // 2. Zen Mode - Paragraph / Line Focus Dimming (spotlight effect)
+  const updateParagraphFocusDimming = useCallback(() => {
+    if (!editorRef.current) return;
+    if (!isZenMode || !zenSettings.focusDimming) {
+      const allActive = editorRef.current.querySelectorAll('.zen-active-focus');
+      allActive.forEach(el => el.classList.remove('zen-active-focus'));
+      return;
+    }
+    const sel = window.getSelection();
+    if (!sel || !sel.anchorNode) return;
+    let node: Node | null = sel.anchorNode;
+    if (node === editorRef.current) {
+      const child =
+        editorRef.current.childNodes[sel.anchorOffset] ||
+        editorRef.current.childNodes[Math.max(0, sel.anchorOffset - 1)];
+      node = child || null;
+    }
+    if (node && node.nodeType === Node.TEXT_NODE) {
+      node = node.parentElement;
+    }
+    while (node && node !== editorRef.current && node.parentElement !== editorRef.current) {
+      node = node.parentElement;
+    }
+
+    const activeNode =
+      node && node.parentElement === editorRef.current && node instanceof HTMLElement
+        ? node
+        : null;
+
+    // Remove .zen-active-focus from ALL elements that are not the current active paragraph
+    const allActive = editorRef.current.querySelectorAll('.zen-active-focus');
+    allActive.forEach(el => {
+      if (el !== activeNode) {
+        el.classList.remove('zen-active-focus');
+      }
+    });
+
+    if (activeNode && !activeNode.classList.contains('zen-active-focus')) {
+      activeNode.classList.add('zen-active-focus');
+    }
+  }, [isZenMode, zenSettings.focusDimming]);
+
+  useEffect(() => {
+    updateParagraphFocusDimming();
+    if (isZenMode && zenSettings.typewriterScrolling) {
+      requestAnimationFrame(performTypewriterScroll);
+    }
+  }, [isZenMode, zenSettings.focusDimming, zenSettings.typewriterScrolling, updateParagraphFocusDimming, performTypewriterScroll]);
+
+  const handleInput = useCallback(() => {
+    if (editorRef.current && activeChapter) {
+      const rawHtml = editorRef.current.innerHTML;
+      const cleanedHtml = cleanTransientEditorMarkup(rawHtml);
+      if (cleanedHtml !== activeChapter.content) {
+        updateChapterContent(activeChapter.id, cleanedHtml);
+      }
+    }
+    requestAnimationFrame(() => {
+      updateParagraphFocusDimming();
+      performTypewriterScroll();
+    });
+  }, [activeChapter, updateChapterContent, updateParagraphFocusDimming, performTypewriterScroll]);
 
   const execCommand = useCallback((command: string, value: string | undefined = undefined) => {
     document.execCommand(command, false, value);
@@ -180,12 +278,18 @@ export const WysiwygEditor: React.FC = () => {
     setCurrentAlign(alignment);
   }, [execCommand]);
 
+  const isCommentsHidden = !showCommentHighlights || (isZenMode && zenSettings.hideComments);
+
   const handleSelectionChange = useCallback(() => {
     const activeSel = getSelectionFloatingPosition(editorRef.current);
     if (activeSel) {
       setSelectedText(activeSel.text);
       selectedRangeRef.current = activeSel.range;
-      setCommentPillPos(activeSel.position);
+      if (isZenMode && zenSettings.hideComments) {
+        setCommentPillPos(null);
+      } else {
+        setCommentPillPos(activeSel.position);
+      }
     } else {
       setSelectedText('');
       if (!isCommentModalOpen) {
@@ -193,13 +297,17 @@ export const WysiwygEditor: React.FC = () => {
       }
     }
     updateActiveAlignment();
-  }, [updateActiveAlignment, isCommentModalOpen]);
+    updateParagraphFocusDimming();
+    if (isZenMode && zenSettings.typewriterScrolling) {
+      requestAnimationFrame(performTypewriterScroll);
+    }
+  }, [updateActiveAlignment, isCommentModalOpen, updateParagraphFocusDimming, isZenMode, zenSettings.typewriterScrolling, zenSettings.hideComments, performTypewriterScroll]);
 
   // Handle clicking inside editor: detects if clicked on existing comment highlight
   const handleEditorClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     setShowWidthMenu(false);
     // When highlights are hidden, don't hijack editor text clicks
-    if (!showCommentHighlights) return;
+    if (!showCommentHighlights || (isZenMode && zenSettings.hideComments)) return;
 
     const target = e.target as HTMLElement;
     const mark = target.closest<HTMLElement>('.author-comment-highlight, mark[data-comment-id]');
@@ -215,7 +323,7 @@ export const WysiwygEditor: React.FC = () => {
         }
       }
     }
-  }, [comments, setActiveCommentId, showCommentHighlights]);
+  }, [comments, setActiveCommentId, showCommentHighlights, isZenMode, zenSettings.hideComments]);
 
   // Start adding a comment from selection
   const handleStartAddComment = useCallback(() => {
@@ -254,7 +362,7 @@ export const WysiwygEditor: React.FC = () => {
     updateComment(commentId, updates);
     if (updates.color && editorRef.current && activeChapter) {
       updateCommentHighlightColor(editorRef.current, commentId, updates.color);
-      updateChapterContent(activeChapter.id, editorRef.current.innerHTML);
+      updateChapterContent(activeChapter.id, cleanTransientEditorMarkup(editorRef.current.innerHTML));
     }
   }, [updateComment, activeChapter, updateChapterContent]);
 
@@ -262,7 +370,7 @@ export const WysiwygEditor: React.FC = () => {
   const handleDeleteComment = useCallback((commentId: string) => {
     if (editorRef.current && activeChapter) {
       unwrapCommentHighlight(editorRef.current, commentId);
-      updateChapterContent(activeChapter.id, editorRef.current.innerHTML);
+      updateChapterContent(activeChapter.id, cleanTransientEditorMarkup(editorRef.current.innerHTML));
     }
     deleteComment(commentId);
     if (activeModalComment?.id === commentId) {
@@ -294,6 +402,29 @@ export const WysiwygEditor: React.FC = () => {
 
   // Keyboard shortcuts: Ctrl/Cmd + L (left), E (center), R (right), J (justify)
   const handleEditorKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    // Auto-switch to Zen Mode on typing if enabled
+    if (zenSettings.autoSwitchOnTyping && !isZenMode) {
+      if (
+        !e.ctrlKey &&
+        !e.metaKey &&
+        !e.altKey &&
+        e.key !== 'Escape' &&
+        e.key !== 'Tab' &&
+        !e.key.startsWith('F') &&
+        (e.key.length === 1 || e.key === 'Enter' || e.key === 'Backspace' || e.key === 'Delete')
+      ) {
+        setZenMode(true);
+      }
+    }
+
+    // When Enter is pressed in Zen mode, immediately trigger focus dimming update and typewriter scroll
+    if (e.key === 'Enter') {
+      requestAnimationFrame(() => {
+        updateParagraphFocusDimming();
+        performTypewriterScroll();
+      });
+    }
+
     if (e.ctrlKey || e.metaKey) {
       const key = e.key.toLowerCase();
       if (key === 'l') {
@@ -359,7 +490,7 @@ export const WysiwygEditor: React.FC = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative' }}>
       {/* Editor Sub-toolbar */}
-      <div className="sub-toolbar">
+      <div className={`sub-toolbar ${minimalistMode ? 'minimalist-sub-toolbar' : ''}`}>
         <div className="toolbar-group toolbar-group-scrollable">
           <button
             className="tool-btn"
@@ -479,20 +610,24 @@ export const WysiwygEditor: React.FC = () => {
 
           <div className="toolbar-separator" />
 
-          <button
-            className="tool-btn"
-            onClick={() => setShowImageDialog(true)}
-            title="Insert Image"
-          >
-            <ImageIcon size={16} />
-          </button>
-          <button
-            className="tool-btn"
-            onClick={handleInsertLink}
-            title="Insert Link"
-          >
-            <Link size={16} />
-          </button>
+          {!minimalistMode && (
+            <>
+              <button
+                className="tool-btn"
+                onClick={() => setShowImageDialog(true)}
+                title="Insert Image"
+              >
+                <ImageIcon size={16} />
+              </button>
+              <button
+                className="tool-btn"
+                onClick={handleInsertLink}
+                title="Insert Link"
+              >
+                <Link size={16} />
+              </button>
+            </>
+          )}
           <button
             className="tool-btn"
             onClick={() => execCommand('removeFormat')}
@@ -502,8 +637,9 @@ export const WysiwygEditor: React.FC = () => {
           </button>
         </div>
 
-        {/* Right side tools: Layout, Width, Theme & Split */}
-        <div className="toolbar-group">
+        {/* Right side tools: Layout, Width, Theme & Split (Hidden in Minimalist Mode) */}
+        {!minimalistMode && (
+          <div className="toolbar-group">
           {/* Layout Mode Switcher */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '2px', background: 'var(--bg-input)', padding: '2px', borderRadius: 'var(--radius-sm)' }}>
             <button
@@ -734,6 +870,7 @@ export const WysiwygEditor: React.FC = () => {
             <span>Split Chapter</span>
           </button>
         </div>
+        )}
       </div>
 
       {/* Quick Selection Floating Banner */}
@@ -781,7 +918,7 @@ export const WysiwygEditor: React.FC = () => {
         {/* Editor Surface */}
         <div
           ref={workspaceRef}
-          className={`editor-workspace editor-theme-${readerTheme} editor-layout-${editorLayout} ${!showCommentHighlights ? 'hide-comment-highlights' : ''}`}
+          className={`editor-workspace editor-theme-${readerTheme} editor-layout-${editorLayout} ${isCommentsHidden ? 'hide-comment-highlights' : ''} ${isZenMode && zenSettings.typewriterScrolling ? 'zen-typewriter-mode' : ''} ${isZenMode && zenSettings.focusDimming ? 'zen-focus-dimming' : ''}`}
           onClick={handleEditorClick}
         >
           {customCss && (
@@ -811,7 +948,7 @@ export const WysiwygEditor: React.FC = () => {
 
         {/* Comments Sidebar Drawer */}
         <CommentsSidebar
-          isOpen={isCommentsSidebarOpen}
+          isOpen={isCommentsSidebarOpen && !isCommentsHidden}
           onClose={() => setIsCommentsSidebarOpen(false)}
           chapterTitle={activeChapter.title}
           comments={chapterComments}
@@ -828,10 +965,12 @@ export const WysiwygEditor: React.FC = () => {
       </div>
 
       {/* Floating Comment Trigger Pill */}
-      <CommentFloatingPill
-        position={commentPillPos}
-        onAddComment={handleStartAddComment}
-      />
+      {!isCommentsHidden && (
+        <CommentFloatingPill
+          position={commentPillPos}
+          onAddComment={handleStartAddComment}
+        />
+      )}
 
       {/* Author Comment Modal */}
       <CommentModal

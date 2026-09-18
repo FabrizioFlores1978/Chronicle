@@ -32,6 +32,8 @@ export const StatusBar: React.FC = () => {
     setIsCloudBrowserOpen,
     setIsSaveAsOpen,
     setIsSaveDestinationOpen,
+    minimalistMode,
+    isZenMode,
   } = useEpub();
 
   const formatReadingTime = (mins: number) => {
@@ -46,6 +48,23 @@ export const StatusBar: React.FC = () => {
     const nextIdx = (themes.indexOf(readerTheme) + 1) % themes.length;
     setReaderTheme(themes[nextIdx]);
   };
+
+  if (isZenMode) {
+    return null;
+  }
+
+  if (minimalistMode) {
+    if (!book) return null;
+    return (
+      <div
+        className="minimalist-floating-word-pill"
+        title="Minimalist Writing Mode (Press Alt+M to toggle)"
+      >
+        <span>{totalWordCount.toLocaleString()} words</span>
+        {activeChapter && <span style={{ opacity: 0.8 }}> • {activeChapter.wordCount.toLocaleString()} w</span>}
+      </div>
+    );
+  }
 
   return (
     <footer className="app-status-bar" role="status" aria-label="Application Status">

@@ -16,6 +16,10 @@ export interface ChronicleSettings {
   editorSubMode: EditorSubMode;
   editorLayout: 'page' | 'widescreen';
   editorWidth: number;
+  minimalistMode: boolean;
+  zenSettings: ZenModeSettings;
+  todayWordsDate?: string;
+  todayWordsCount?: number;
 
   // Shunn manuscript author preferences
   shunnLegalName?: string;
@@ -28,6 +32,22 @@ export interface ChronicleSettings {
   shunnIncludeChapterTitles?: boolean;
   shunnFontFamily?: 'Times New Roman' | 'Courier New';
 }
+
+export interface ZenModeSettings {
+  autoSwitchOnTyping: boolean;
+  typewriterScrolling: boolean;
+  focusDimming: boolean;
+  ghostHud: boolean;
+  hideComments: boolean;
+}
+
+export const DEFAULT_ZEN_SETTINGS: ZenModeSettings = {
+  autoSwitchOnTyping: true,
+  typewriterScrolling: true,
+  focusDimming: true,
+  ghostHud: true,
+  hideComments: true,
+};
 
 export const DEFAULT_CHRONICLE_SETTINGS: ChronicleSettings = {
   uiTheme: 'modernx-dark',
@@ -42,6 +62,9 @@ export const DEFAULT_CHRONICLE_SETTINGS: ChronicleSettings = {
   editorSubMode: 'visual',
   editorLayout: 'page',
   editorWidth: 820,
+  minimalistMode: false,
+  zenSettings: DEFAULT_ZEN_SETTINGS,
+  todayWordsCount: 0,
   shunnChapterPageBreak: true,
   shunnIncludeChapterTitles: true,
   shunnFontFamily: 'Times New Roman',
@@ -145,7 +168,15 @@ export async function loadAllSettings(): Promise<ChronicleSettings> {
     });
 
     if (stored) {
-      return { ...DEFAULT_CHRONICLE_SETTINGS, ...stored };
+      const merged: ChronicleSettings = {
+        ...DEFAULT_CHRONICLE_SETTINGS,
+        ...stored,
+        zenSettings: {
+          ...DEFAULT_ZEN_SETTINGS,
+          ...(stored.zenSettings || {}),
+        },
+      };
+      return merged;
     }
 
     // If no settings exist yet, migrate from legacy sources and persist

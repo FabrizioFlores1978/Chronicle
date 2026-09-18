@@ -25,6 +25,10 @@ import {
   Sparkles,
   Loader2,
   MoreHorizontal,
+  Feather,
+  Layout,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { AppViewMode } from '../types/epub';
 import { TypographyModal } from './Typography/TypographyModal';
@@ -55,6 +59,12 @@ export const Header: React.FC = () => {
     setIsWelcomeModalOpen,
     setIsCloudDesktopNoticeOpen,
     openSettings,
+    minimalistMode,
+    setMinimalistMode,
+    isZenMode,
+    activeChapter,
+    readerTheme,
+    setReaderTheme,
   } = useEpub();
   const { stopAudio } = useTts();
 
@@ -87,11 +97,137 @@ export const Header: React.FC = () => {
     { id: 'inspector', label: 'Inspect', icon: <Terminal size={14} /> },
   ];
 
+  if (isZenMode) {
+    return null;
+  }
+
   return (
     <>
-      <header className="app-header" role="banner">
-        {/* Left Section: App Logo, Sidebar Toggle & Document Title Pill */}
-        <div className="header-left-section">
+      {minimalistMode ? (
+        <header className="app-header minimalist-header" role="banner">
+          <div className="header-left-section" style={{ maxWidth: '65%' }}>
+            <button
+              className={`btn-icon btn-sm sidebar-toggle-btn ${sidebarCollapsed ? 'sidebar-hidden' : ''}`}
+              onClick={toggleSidebar}
+              title={sidebarCollapsed ? 'Show Chapters Sidebar (Ctrl+\\)' : 'Hide Chapters Sidebar (Ctrl+\\)'}
+            >
+              <Sidebar size={15} />
+            </button>
+
+            <div
+              className="brand-badge brand-badge-clickable"
+              title="Chronicle Minimalist Mode • Distraction-free authoring"
+              style={{ cursor: 'default' }}
+            >
+              <Feather size={16} style={{ color: 'var(--accent-primary)' }} />
+              <span className="brand-text" style={{ fontSize: '0.9rem', opacity: 0.9 }}>Minimalist</span>
+            </div>
+
+            {book && (
+              <>
+                <div className="header-divider" />
+                <div
+                  className="document-title-pill"
+                  onClick={() => setIsRenameOpen(true)}
+                  title="Click to edit manuscript title"
+                  style={{ maxWidth: '280px' }}
+                >
+                  <span
+                    className={`document-status-dot ${isDirty ? 'dot-dirty' : 'dot-clean'}`}
+                    title={isDirty ? 'Unsaved changes (Ctrl+S)' : 'All changes saved'}
+                  />
+                  <div className="document-title-content">
+                    <span className="document-title-text" style={{ fontSize: '0.82rem' }}>
+                      {book.metadata.title || 'Untitled Manuscript'}
+                    </span>
+                  </div>
+                </div>
+
+                {activeChapter && (
+                  <span
+                    style={{
+                      fontSize: '0.78rem',
+                      color: 'var(--text-muted)',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      maxWidth: '220px',
+                    }}
+                    title={`Current Chapter: ${activeChapter.title}`}
+                  >
+                    / {activeChapter.title}
+                  </span>
+                )}
+              </>
+            )}
+          </div>
+
+          <div className="header-right-section" style={{ gap: '0.5rem' }}>
+            {/* Save Button */}
+            <button
+              className={`btn btn-sm ${isDirty ? 'btn-primary' : 'btn-ghost'}`}
+              onClick={() => saveProject()}
+              disabled={isSaving}
+              title={isDirty ? 'Save Project (Ctrl+S)' : 'All changes saved'}
+              style={{ padding: '0.3rem 0.65rem', fontSize: '0.78rem', gap: '0.4rem' }}
+            >
+              {isSaving ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
+              <span>{isSaving ? 'Saving...' : isDirty ? 'Save' : 'Saved'}</span>
+            </button>
+
+            {/* Reading paper tone cycle */}
+            <button
+              className="btn btn-ghost btn-sm"
+              onClick={() => {
+                const themes: ('light' | 'sepia' | 'dark' | 'obsidian')[] = ['light', 'sepia', 'dark', 'obsidian'];
+                const nextIdx = (themes.indexOf(readerTheme) + 1) % themes.length;
+                setReaderTheme(themes[nextIdx]);
+              }}
+              title={`Tone: ${readerTheme}. Click to cycle.`}
+              style={{ padding: '0.3rem 0.6rem', fontSize: '0.78rem', textTransform: 'capitalize' }}
+            >
+              {readerTheme === 'light' ? (
+                <Sun size={13} style={{ color: '#f59e0b' }} />
+              ) : readerTheme === 'sepia' ? (
+                <span style={{ fontSize: '10px', fontWeight: 700, color: '#d97706' }}>SEP</span>
+              ) : (
+                <Moon size={13} style={{ color: '#818cf8' }} />
+              )}
+            </button>
+
+            {/* Settings button */}
+            <button
+              className="btn-icon btn-sm"
+              onClick={() => openSettings('appearance')}
+              title="Settings & Preferences (Ctrl+,)"
+            >
+              <Settings size={15} />
+            </button>
+
+            {/* Exit Minimalist Mode button */}
+            <button
+              className="btn btn-sm btn-outline exit-minimalist-btn"
+              onClick={() => setMinimalistMode(false)}
+              title="Exit Minimalist Mode and return to Studio (Alt+M)"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                fontSize: '0.78rem',
+                padding: '0.3rem 0.75rem',
+                borderRadius: '8px',
+                borderColor: 'var(--border-subtle)',
+              }}
+            >
+              <Layout size={13} style={{ color: 'var(--accent-primary)' }} />
+              <span>Exit Minimalist</span>
+            </button>
+          </div>
+        </header>
+      ) : (
+        <header className="app-header" role="banner">
+          {/* Left Section: App Logo, Sidebar Toggle & Document Title Pill */}
+          <div className="header-left-section">
           <button
             className={`btn-icon btn-sm sidebar-toggle-btn ${sidebarCollapsed ? 'sidebar-hidden' : ''}`}
             onClick={toggleSidebar}
@@ -846,6 +982,7 @@ export const Header: React.FC = () => {
           </div>
         </div>
       </header>
+    )}
 
       {/* Popups & Modals */}
       {isRenameOpen && (

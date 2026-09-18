@@ -45,6 +45,8 @@ import { saveWebDavConfig, deleteWebDavConfig } from '../services/cloud/webdavSt
 import {
   loadAllSettings,
   saveSetting,
+  ZenModeSettings,
+  DEFAULT_ZEN_SETTINGS,
 } from '../services/storage/indexedDbSettings';
 import { uploadFile, downloadFile, isTauri } from '../services/cloud/webdavClient';
 
@@ -144,10 +146,21 @@ interface EpubContextType {
   uiTheme: UiTheme;
   setUiTheme: (theme: UiTheme) => void;
 
+  minimalistMode: boolean;
+  setMinimalistMode: (minimalist: boolean | ((prev: boolean) => boolean)) => void;
+  toggleMinimalistMode: () => void;
+
+  isZenMode: boolean;
+  setZenMode: (zen: boolean | ((prev: boolean) => boolean)) => void;
+  toggleZenMode: () => void;
+  zenSettings: ZenModeSettings;
+  updateZenSettings: (partial: Partial<ZenModeSettings>) => void;
+  todayWordsCount: number;
+
   isSettingsOpen: boolean;
   setIsSettingsOpen: (open: boolean) => void;
-  settingsInitialTab: 'appearance' | 'cloud' | 'editor' | 'general';
-  openSettings: (tab?: 'appearance' | 'cloud' | 'editor' | 'general') => void;
+  settingsInitialTab: 'appearance' | 'themes' | 'cloud' | 'editor' | 'general';
+  openSettings: (tab?: 'appearance' | 'themes' | 'cloud' | 'editor' | 'general') => void;
   closeSettings: () => void;
 
   pendingUnsavedAction: PendingUnsavedAction | null;
@@ -242,6 +255,11 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [isCloudDesktopNoticeOpen, setIsCloudDesktopNoticeOpen] = useState<boolean>(false);
 
   const [uiTheme, setUiThemeState] = useState<UiTheme>('modernx-dark');
+  const [minimalistMode, setMinimalistModeState] = useState<boolean>(false);
+  const [isZenMode, setIsZenModeState] = useState<boolean>(false);
+  const [zenSettings, setZenSettingsState] = useState<ZenModeSettings>(DEFAULT_ZEN_SETTINGS);
+  const [todayWordsCount, setTodayWordsCount] = useState<number>(0);
+  const baselineBookWordsRef = useRef<number | null>(null);
 
   const [castPresenceData, setCastPresenceData] = useState<CastPresenceMatrix | null>(null);
   const [isPresenceCacheValid, setIsPresenceCacheValid] = useState<boolean>(false);
@@ -253,9 +271,9 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, []);
 
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
-  const [settingsInitialTab, setSettingsInitialTab] = useState<'appearance' | 'cloud' | 'editor' | 'general'>('appearance');
+  const [settingsInitialTab, setSettingsInitialTab] = useState<'appearance' | 'themes' | 'cloud' | 'editor' | 'general'>('appearance');
 
-  const openSettings = useCallback((tab: 'appearance' | 'cloud' | 'editor' | 'general' = 'appearance') => {
+  const openSettings = useCallback((tab: 'appearance' | 'themes' | 'cloud' | 'editor' | 'general' = 'appearance') => {
     const effectiveTab = (!isTauri() && tab === 'cloud') ? 'appearance' : tab;
     setSettingsInitialTab(effectiveTab);
     setIsSettingsOpen(true);
@@ -303,6 +321,27 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setUiThemeState(settings.uiTheme);
         if (typeof document !== 'undefined') {
           document.documentElement.setAttribute('data-theme', settings.uiTheme);
+        }
+
+        const loadedMinimalist = settings.minimalistMode;
+        if (typeof loadedMinimalist === 'boolean') {
+          setMinimalistModeState(loadedMinimalist);
+          if (typeof document !== 'undefined') {
+            document.documentElement.setAttribute('data-minimalist-mode', loadedMinimalist ? 'true' : 'false');
+          }
+        }
+
+        if (settings.zenSettings) {
+          setZenSettingsState(settings.zenSettings);
+        }
+
+        const todayStr = new Date().toISOString().split('T')[0];
+        if (settings.todayWordsDate === todayStr && typeof settings.todayWordsCount === 'number') {
+          setTodayWordsCount(settings.todayWordsCount);
+        } else {
+          saveSetting('todayWordsDate', todayStr);
+          saveSetting('todayWordsCount', 0);
+          setTodayWordsCount(0);
         }
 
         if (settings.webdavConfig) {
@@ -387,16 +426,37 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return Math.max(1, Math.round(totalWordCount / 220));
   }, [totalWordCount]);
 
+  // Track words written today incrementally
+  useEffect(() => {
+    if (baselineBookWordsRef.current === null) {
+      if (totalWordCount > 0) {
+        baselineBookWordsRef.current = totalWordCount;
+      }
+      return;
+    }
+    if (totalWordCount > baselineBookWordsRef.current) {
+      const diff = totalWordCount - baselineBookWordsRef.current;
+      baselineBookWordsRef.current = totalWordCount;
+      setTodayWordsCount(prev => {
+        const next = prev + diff;
+        const todayStr = new Date().toISOString().split('T')[0];
+        saveSetting('todayWordsDate', todayStr);
+        saveSetting('todayWordsCount', next);
+        return next;
+      });
+    } else if (totalWordCount < baselineBookWordsRef.current) {
+      baselineBookWordsRef.current = totalWordCount;
+    }
+  }, [totalWordCount]);
+
   const setViewMode = useCallback((mode: AppViewMode) => {
     setViewModeState(mode);
-    updateStoredSettings({ viewMode: mode });
     saveSetting('viewMode', mode);
   }, []);
 
-  const setEditorSubMode = useCallback((sub: EditorSubMode) => {
-    setEditorSubModeState(sub);
-    updateStoredSettings({ editorSubMode: sub });
-    saveSetting('editorSubMode', sub);
+  const setEditorSubMode = useCallback((subMode: EditorSubMode) => {
+    setEditorSubModeState(subMode);
+    saveSetting('editorSubMode', subMode);
   }, []);
 
   const setReaderTheme = useCallback((theme: ReaderTheme) => {
@@ -417,10 +477,10 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     saveSetting('readerFontSize', size);
   }, []);
 
-  const setReaderLineHeight = useCallback((lh: number) => {
-    setReaderLineHeightState(lh);
-    updateStoredSettings({ readerLineHeight: lh });
-    saveSetting('readerLineHeight', lh);
+  const setReaderLineHeight = useCallback((h: number) => {
+    setReaderLineHeightState(h);
+    updateStoredSettings({ readerLineHeight: h });
+    saveSetting('readerLineHeight', h);
   }, []);
 
   const setReaderMarginWidth = useCallback((w: number) => {
@@ -435,6 +495,87 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setNotification(prev => (prev?.message === message ? null : prev));
     }, 4000);
   }, []);
+
+  const setMinimalistMode = useCallback(
+    (val: boolean | ((prev: boolean) => boolean)) => {
+      setMinimalistModeState(prev => {
+        const next = typeof val === 'function' ? val(prev) : val;
+        if (typeof document !== 'undefined') {
+          document.documentElement.setAttribute('data-minimalist-mode', next ? 'true' : 'false');
+        }
+        saveSetting('minimalistMode', next);
+        showNotification('info', next ? 'Minimalist Mode enabled (Alt+M to exit)' : 'Studio Mode restored');
+        return next;
+      });
+    },
+    [showNotification]
+  );
+
+  const toggleMinimalistMode = useCallback(() => {
+    setMinimalistMode(prev => !prev);
+  }, [setMinimalistMode]);
+
+  const setZenMode = useCallback(
+    (val: boolean | ((prev: boolean) => boolean)) => {
+      setIsZenModeState(prev => {
+        const next = typeof val === 'function' ? val(prev) : val;
+        if (typeof document !== 'undefined') {
+          document.documentElement.setAttribute('data-zen-mode', next ? 'true' : 'false');
+          document.documentElement.setAttribute('data-zen-hide-comments', (next && zenSettings.hideComments) ? 'true' : 'false');
+        }
+        showNotification('info', next ? 'Zen Mode engaged (Press Esc to exit)' : 'Exited Zen Mode');
+        return next;
+      });
+    },
+    [showNotification, zenSettings.hideComments]
+  );
+
+  const toggleZenMode = useCallback(() => {
+    setZenMode(prev => !prev);
+  }, [setZenMode]);
+
+  const updateZenSettings = useCallback(
+    (partial: Partial<ZenModeSettings>) => {
+      setZenSettingsState(prev => {
+        const next = { ...prev, ...partial };
+        saveSetting('zenSettings', next);
+        if (typeof document !== 'undefined') {
+          document.documentElement.setAttribute('data-zen-hide-comments', (isZenMode && next.hideComments) ? 'true' : 'false');
+        }
+        return next;
+      });
+    },
+    [isZenMode]
+  );
+
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.documentElement.setAttribute('data-zen-mode', isZenMode ? 'true' : 'false');
+      document.documentElement.setAttribute('data-zen-hide-comments', (isZenMode && zenSettings.hideComments) ? 'true' : 'false');
+    }
+  }, [isZenMode, zenSettings.hideComments]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Alt+M toggles Minimalist Mode
+      if (e.altKey && (e.key === 'm' || e.key === 'M')) {
+        e.preventDefault();
+        toggleMinimalistMode();
+      }
+      // Alt+Z toggles Zen Mode
+      if (e.altKey && (e.key === 'z' || e.key === 'Z')) {
+        e.preventDefault();
+        toggleZenMode();
+      }
+      // Esc exits Zen Mode if active
+      if (e.key === 'Escape' && isZenMode) {
+        e.preventDefault();
+        setZenMode(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [toggleMinimalistMode, toggleZenMode, isZenMode, setZenMode]);
 
   const runCastPresenceAnalysis = useCallback(
     async (force: boolean = false): Promise<CastPresenceMatrix | null> => {
@@ -2120,6 +2261,15 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setIsWelcomeModalOpen,
         uiTheme,
         setUiTheme,
+        minimalistMode,
+        setMinimalistMode,
+        toggleMinimalistMode,
+        isZenMode,
+        setZenMode,
+        toggleZenMode,
+        zenSettings,
+        updateZenSettings,
+        todayWordsCount,
         isSettingsOpen,
         setIsSettingsOpen,
         settingsInitialTab,

@@ -28,9 +28,14 @@ import {
   Sun,
   Sparkles,
   Keyboard,
+  Feather,
+  Layout,
+  Focus,
+  MoveVertical,
+  MessageSquareOff,
 } from 'lucide-react';
 
-export type SettingsTab = 'appearance' | 'cloud' | 'editor' | 'general';
+export type SettingsTab = 'appearance' | 'themes' | 'cloud' | 'editor' | 'general';
 
 interface SettingsModalProps {
   initialTab?: SettingsTab;
@@ -44,6 +49,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const {
     uiTheme,
     setUiTheme,
+    minimalistMode,
+    setMinimalistMode,
+    isZenMode,
+    toggleZenMode,
+    zenSettings,
+    updateZenSettings,
     webdavConfig,
     isWebDavConnected,
     updateWebDavConfig,
@@ -198,7 +209,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   };
 
   const allNavTabs: { id: SettingsTab; label: string; icon: React.ReactNode; badge?: string }[] = [
-    { id: 'appearance', label: 'Appearance & Themes', icon: <Palette size={16} /> },
+    { id: 'appearance', label: 'Appearance', icon: <Layout size={16} /> },
+    { id: 'themes', label: 'Themes', icon: <Palette size={16} /> },
     {
       id: 'cloud',
       label: 'Cloud Storage',
@@ -216,9 +228,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       <div
         className="modal-card"
         style={{
-          maxWidth: '820px',
-          width: '94%',
-          height: '620px',
+          maxWidth: '1060px',
+          width: '94vw',
+          height: 'min(760px, 88vh)',
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
@@ -230,7 +242,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         aria-labelledby="settings-dialog-title"
       >
         {/* Modal Header */}
-        <div className="modal-header" style={{ padding: '1rem 1.4rem' }}>
+        <div className="modal-header" style={{ padding: '1.1rem 1.6rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
             <div
               style={{
@@ -265,12 +277,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           {/* Left Navigation Sidebar */}
           <div
             style={{
-              width: '210px',
+              width: '225px',
               backgroundColor: 'var(--bg-sidebar)',
               borderRight: '1px solid var(--border-subtle)',
               display: 'flex',
               flexDirection: 'column',
-              padding: '0.85rem 0.6rem',
+              padding: '0.9rem 0.65rem',
               gap: '0.25rem',
               flexShrink: 0,
             }}
@@ -332,26 +344,407 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             style={{
               flex: 1,
               overflowY: 'auto',
-              padding: '1.25rem 1.6rem',
+              padding: '1.5rem 2rem',
               display: 'flex',
               flexDirection: 'column',
-              gap: '1.2rem',
+              gap: '1.3rem',
               backgroundColor: 'var(--bg-app)',
             }}
           >
-            {/* ---------------- Tab 1: Appearance & Themes ---------------- */}
+            {/* ---------------- Tab 1: Appearance ---------------- */}
             {activeTab === 'appearance' && (
-              <div>
-                <div style={{ marginBottom: '1.1rem' }}>
-                  <h4 style={{ margin: '0 0 4px 0', fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-                    Application UI Theme
-                  </h4>
-                  <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                    Switch the visual style across all navigation bars, sidebars, cards, modals, and workspace chrome.
-                  </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.4rem' }}>
+                {/* 1. Workspace Interface Mode Switcher */}
+                <div>
+                  <div style={{ marginBottom: '0.85rem' }}>
+                    <h4 style={{ margin: '0 0 4px 0', fontSize: '1.05rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                      Workspace Interface Mode
+                    </h4>
+                    <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+                      Choose between the full authoring studio suite or a distraction-free minimalist writing environment.
+                    </p>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '0.9rem' }}>
+                    {/* Option 1: Studio Mode */}
+                    <div
+                      onClick={() => setMinimalistMode(false)}
+                      style={{
+                        borderRadius: '12px',
+                        border: !minimalistMode
+                          ? '2px solid var(--accent-primary)'
+                          : '1px solid var(--border-medium)',
+                        backgroundColor: !minimalistMode ? 'var(--bg-surface-elevated)' : 'var(--bg-surface)',
+                        boxShadow: !minimalistMode ? 'var(--shadow-glow)' : 'var(--shadow-sm)',
+                        cursor: 'pointer',
+                        padding: '1rem',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '0.65rem',
+                        transition: 'all 0.2s ease',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                          <div
+                            style={{
+                              width: 32,
+                              height: 32,
+                              borderRadius: '8px',
+                              backgroundColor: !minimalistMode ? 'var(--accent-primary-glow)' : 'var(--bg-surface-hover)',
+                              color: !minimalistMode ? 'var(--accent-primary)' : 'var(--text-secondary)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}
+                          >
+                            <Layout size={17} />
+                          </div>
+                          <div>
+                            <div style={{ fontWeight: 600, fontSize: '0.92rem', color: 'var(--text-primary)' }}>
+                              Studio Mode
+                            </div>
+                            <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
+                              Full Authoring Suite
+                            </div>
+                          </div>
+                        </div>
+
+                        {!minimalistMode && (
+                          <span
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '3px',
+                              fontSize: '0.72rem',
+                              fontWeight: 700,
+                              backgroundColor: 'rgba(124, 58, 237, 0.14)',
+                              color: 'var(--accent-primary)',
+                              padding: '2px 8px',
+                              borderRadius: '9999px',
+                            }}
+                          >
+                            <Check size={11} /> Active
+                          </span>
+                        )}
+                      </div>
+
+                      <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.45 }}>
+                        Complete multi-pane workspace with top view navigation, utility sidebars, casting tools, and status telemetry.
+                      </p>
+                    </div>
+
+                    {/* Option 2: Minimalist Mode */}
+                    <div
+                      onClick={() => setMinimalistMode(true)}
+                      style={{
+                        borderRadius: '12px',
+                        border: minimalistMode
+                          ? '2px solid var(--accent-primary)'
+                          : '1px solid var(--border-medium)',
+                        backgroundColor: minimalistMode ? 'var(--bg-surface-elevated)' : 'var(--bg-surface)',
+                        boxShadow: minimalistMode ? 'var(--shadow-glow)' : 'var(--shadow-sm)',
+                        cursor: 'pointer',
+                        padding: '1rem',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '0.65rem',
+                        transition: 'all 0.2s ease',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                          <div
+                            style={{
+                              width: 32,
+                              height: 32,
+                              borderRadius: '8px',
+                              backgroundColor: minimalistMode ? 'var(--accent-primary-glow)' : 'var(--bg-surface-hover)',
+                              color: minimalistMode ? 'var(--accent-primary)' : 'var(--text-secondary)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}
+                          >
+                            <Feather size={17} />
+                          </div>
+                          <div>
+                            <div style={{ fontWeight: 600, fontSize: '0.92rem', color: 'var(--text-primary)' }}>
+                              Minimalist Mode
+                            </div>
+                            <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
+                              Distraction-Free Canvas
+                            </div>
+                          </div>
+                        </div>
+
+                        {minimalistMode && (
+                          <span
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '3px',
+                              fontSize: '0.72rem',
+                              fontWeight: 700,
+                              backgroundColor: 'rgba(124, 58, 237, 0.14)',
+                              color: 'var(--accent-primary)',
+                              padding: '2px 8px',
+                              borderRadius: '9999px',
+                            }}
+                          >
+                            <Check size={11} /> Active
+                          </span>
+                        )}
+                      </div>
+
+                      <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.45 }}>
+                        Conceals secondary toolbars, status bars, and studio panels to keep you in pure creative flow. Toggle with <kbd className="kbd-shortcut" style={{ fontSize: '0.7rem' }}>Alt+M</kbd>.
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '0.85rem', marginBottom: '1.5rem' }}>
+                {/* 2. Zen Mode (Distraction-Free Immersion) */}
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                          Zen Mode (Distraction-Free Immersion)
+                        </h4>
+                        <span
+                          style={{
+                            fontSize: '0.72rem',
+                            fontWeight: 600,
+                            padding: '2px 8px',
+                            borderRadius: '9999px',
+                            backgroundColor: isZenMode ? 'rgba(124, 58, 237, 0.2)' : 'var(--bg-surface-elevated)',
+                            color: isZenMode ? 'var(--accent-primary)' : 'var(--text-muted)',
+                            border: `1px solid ${isZenMode ? 'var(--accent-primary)' : 'var(--border-subtle)'}`,
+                          }}
+                        >
+                          {isZenMode ? 'Active Now' : 'Inactive'}
+                        </span>
+                      </div>
+                      <p style={{ margin: '2px 0 0 0', fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+                        Deep-work writing environment with centered typewriter viewport, dimmed inactive paragraphs, and zero UI chrome.
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      className={`btn btn-sm ${isZenMode ? 'btn-secondary' : 'btn-primary'}`}
+                      onClick={toggleZenMode}
+                      style={{ fontSize: '0.78rem', gap: '5px' }}
+                    >
+                      <Focus size={14} />
+                      <span>{isZenMode ? 'Exit Zen Mode (Esc)' : 'Enter Zen Mode (Alt+Z)'}</span>
+                    </button>
+                  </div>
+
+                  {/* Auto-Switch On Typing Toggle */}
+                  <div
+                    style={{
+                      padding: '0.85rem 1.1rem',
+                      borderRadius: '10px',
+                      backgroundColor: 'var(--bg-surface)',
+                      border: '1px solid var(--border-subtle)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      marginBottom: '0.85rem',
+                      gap: '1rem',
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontWeight: 600, fontSize: '0.86rem', color: 'var(--text-primary)' }}>
+                        Switch to Zen Mode on typing
+                      </div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                        Automatically transitions the workspace into Zen mode the moment you begin typing in the manuscript.
+                      </div>
+                    </div>
+                    <label className="toggle-switch" style={{ margin: 0, flexShrink: 0 }}>
+                      <input
+                        type="checkbox"
+                        checked={zenSettings.autoSwitchOnTyping}
+                        onChange={e => updateZenSettings({ autoSwitchOnTyping: e.target.checked })}
+                      />
+                      <span className="toggle-slider" />
+                    </label>
+                  </div>
+
+                  {/* The 4 Core Zen Mechanics */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '0.85rem' }}>
+                    {/* Mechanic 1: Typewriter Scrolling */}
+                    <div
+                      onClick={() => updateZenSettings({ typewriterScrolling: !zenSettings.typewriterScrolling })}
+                      style={{
+                        padding: '0.85rem 1rem',
+                        borderRadius: '10px',
+                        backgroundColor: zenSettings.typewriterScrolling ? 'var(--bg-surface-elevated)' : 'var(--bg-surface)',
+                        border: zenSettings.typewriterScrolling ? '1px solid var(--accent-primary)' : '1px solid var(--border-subtle)',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600, fontSize: '0.86rem', color: 'var(--text-primary)' }}>
+                          <MoveVertical size={16} color="var(--accent-primary)" />
+                          Typewriter Scrolling
+                        </div>
+                        <input
+                          type="checkbox"
+                          checked={zenSettings.typewriterScrolling}
+                          onChange={e => e.stopPropagation()}
+                          style={{ accentColor: 'var(--accent-primary)' }}
+                        />
+                      </div>
+                      <p style={{ margin: 0, fontSize: '0.74rem', color: 'var(--text-secondary)', lineHeight: 1.45 }}>
+                        Keeps the currently active paragraph locked at vertical eye-level while you type, preventing neck fatigue.
+                      </p>
+                    </div>
+
+                    {/* Mechanic 2: Focus Dimming */}
+                    <div
+                      onClick={() => updateZenSettings({ focusDimming: !zenSettings.focusDimming })}
+                      style={{
+                        padding: '0.85rem 1rem',
+                        borderRadius: '10px',
+                        backgroundColor: zenSettings.focusDimming ? 'var(--bg-surface-elevated)' : 'var(--bg-surface)',
+                        border: zenSettings.focusDimming ? '1px solid var(--accent-primary)' : '1px solid var(--border-subtle)',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600, fontSize: '0.86rem', color: 'var(--text-primary)' }}>
+                          <Focus size={16} color="var(--accent-primary)" />
+                          Focus Dimming
+                        </div>
+                        <input
+                          type="checkbox"
+                          checked={zenSettings.focusDimming}
+                          onChange={e => e.stopPropagation()}
+                          style={{ accentColor: 'var(--accent-primary)' }}
+                        />
+                      </div>
+                      <p style={{ margin: 0, fontSize: '0.74rem', color: 'var(--text-secondary)', lineHeight: 1.45 }}>
+                        Fades surrounding paragraphs to 35% opacity, brightly spotlighting only your active sentence and thought.
+                      </p>
+                    </div>
+
+                    {/* Mechanic 3: Ghost HUD (Zero UI) */}
+                    <div
+                      onClick={() => updateZenSettings({ ghostHud: !zenSettings.ghostHud })}
+                      style={{
+                        padding: '0.85rem 1rem',
+                        borderRadius: '10px',
+                        backgroundColor: zenSettings.ghostHud ? 'var(--bg-surface-elevated)' : 'var(--bg-surface)',
+                        border: zenSettings.ghostHud ? '1px solid var(--accent-primary)' : '1px solid var(--border-subtle)',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600, fontSize: '0.86rem', color: 'var(--text-primary)' }}>
+                          <EyeOff size={16} color="var(--accent-primary)" />
+                          Ghost HUD (Zero UI)
+                        </div>
+                        <input
+                          type="checkbox"
+                          checked={zenSettings.ghostHud}
+                          onChange={e => e.stopPropagation()}
+                          style={{ accentColor: 'var(--accent-primary)' }}
+                        />
+                      </div>
+                      <p style={{ margin: 0, fontSize: '0.74rem', color: 'var(--text-secondary)', lineHeight: 1.45 }}>
+                        Hides all toolbars and borders. Moving the mouse reveals faint Ghost Bar with chapter, words, and Exit (Esc).
+                      </p>
+                    </div>
+
+                    {/* Mechanic 4: Hide Comments & Highlights */}
+                    <div
+                      onClick={() => updateZenSettings({ hideComments: !zenSettings.hideComments })}
+                      style={{
+                        padding: '0.85rem 1rem',
+                        borderRadius: '10px',
+                        backgroundColor: zenSettings.hideComments ? 'var(--bg-surface-elevated)' : 'var(--bg-surface)',
+                        border: zenSettings.hideComments ? '1px solid var(--accent-primary)' : '1px solid var(--border-subtle)',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600, fontSize: '0.86rem', color: 'var(--text-primary)' }}>
+                          <MessageSquareOff size={16} color="var(--accent-primary)" />
+                          Hide Comments
+                        </div>
+                        <input
+                          type="checkbox"
+                          checked={zenSettings.hideComments}
+                          onChange={e => e.stopPropagation()}
+                          style={{ accentColor: 'var(--accent-primary)' }}
+                        />
+                      </div>
+                      <p style={{ margin: 0, fontSize: '0.74rem', color: 'var(--text-secondary)', lineHeight: 1.45 }}>
+                        Conceals margin notes and in-text comment highlights while in Zen mode for clean, distraction-free writing.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Focus Shortcuts Reference Footer */}
+                <div
+                  style={{
+                    padding: '0.85rem 1.1rem',
+                    borderRadius: '10px',
+                    backgroundColor: 'var(--bg-surface)',
+                    border: '1px solid var(--border-subtle)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.75rem',
+                    fontSize: '0.8rem',
+                    color: 'var(--text-secondary)',
+                  }}
+                >
+                  <Keyboard size={18} color="var(--accent-primary)" style={{ flexShrink: 0 }} />
+                  <div>
+                    <strong>Focus Shortcuts:</strong> Press <kbd className="kbd-shortcut" style={{ fontSize: '0.72rem' }}>Alt+M</kbd> anywhere to quickly toggle Minimalist Mode, or <kbd className="kbd-shortcut" style={{ fontSize: '0.72rem' }}>Alt+Z</kbd> to enter full distraction-free Zen Mode. Press <kbd className="kbd-shortcut" style={{ fontSize: '0.72rem' }}>Esc</kbd> to exit.
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ---------------- Tab 2: Themes ---------------- */}
+            {activeTab === 'themes' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.4rem' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem' }}>
+                  <div>
+                    <h4 style={{ margin: '0 0 4px 0', fontSize: '1.05rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                      Application UI Themes
+                    </h4>
+                    <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+                      Switch the visual atmosphere across all studio headers, sidebars, cards, modals, and workspace chrome.
+                    </p>
+                  </div>
+                  <span
+                    style={{
+                      fontSize: '0.74rem',
+                      fontWeight: 600,
+                      padding: '3px 10px',
+                      borderRadius: '9999px',
+                      backgroundColor: 'rgba(124, 58, 237, 0.12)',
+                      color: 'var(--accent-primary)',
+                      border: '1px solid rgba(124, 58, 237, 0.25)',
+                      flexShrink: 0,
+                    }}
+                  >
+                    Active: {UI_THEMES.find(t => t.id === uiTheme)?.name || 'ModernX Dark'}
+                  </span>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem' }}>
                   {UI_THEMES.map(theme => {
                     const isSelected = uiTheme === theme.id;
 
@@ -367,10 +760,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                           backgroundColor: 'var(--bg-surface)',
                           boxShadow: isSelected ? 'var(--shadow-glow)' : 'var(--shadow-sm)',
                           cursor: 'pointer',
-                          padding: '0.9rem',
+                          padding: '1rem',
                           display: 'flex',
                           flexDirection: 'column',
-                          gap: '0.65rem',
+                          gap: '0.75rem',
                           transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
                           position: 'relative',
                         }}
@@ -378,7 +771,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         {/* Preview Mockup Card */}
                         <div
                           style={{
-                            height: '105px',
+                            height: '115px',
                             borderRadius: '8px',
                             backgroundColor: theme.bgPreview,
                             border: `1px solid ${theme.borderPreview}`,
@@ -391,39 +784,39 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                           {/* Mini Header */}
                           <div
                             style={{
-                              height: '24px',
+                              height: '26px',
                               backgroundColor: theme.surfacePreview,
                               borderBottom: `1px solid ${theme.borderPreview}`,
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'space-between',
-                              padding: '0 8px',
+                              padding: '0 10px',
                             }}
                           >
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                              <div style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: theme.accent }} />
-                              <div style={{ width: 34, height: 5, borderRadius: 2, backgroundColor: theme.textColor, opacity: 0.6 }} />
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                              <div style={{ width: 7, height: 7, borderRadius: '50%', backgroundColor: theme.accent }} />
+                              <div style={{ width: 40, height: 5, borderRadius: 2, backgroundColor: theme.textColor, opacity: 0.6 }} />
                             </div>
-                            <div style={{ display: 'flex', gap: '3px' }}>
-                              <div style={{ width: 14, height: 6, borderRadius: 2, backgroundColor: theme.accent }} />
-                              <div style={{ width: 14, height: 6, borderRadius: 2, backgroundColor: theme.textColor, opacity: 0.2 }} />
+                            <div style={{ display: 'flex', gap: '4px' }}>
+                              <div style={{ width: 16, height: 6, borderRadius: 2, backgroundColor: theme.accent }} />
+                              <div style={{ width: 16, height: 6, borderRadius: 2, backgroundColor: theme.textColor, opacity: 0.2 }} />
                             </div>
                           </div>
 
                           {/* Mini Workspace */}
-                          <div style={{ flex: 1, display: 'flex', padding: '6px', gap: '6px' }}>
+                          <div style={{ flex: 1, display: 'flex', padding: '8px', gap: '8px' }}>
                             {/* Mini Sidebar */}
-                            <div style={{ width: '38px', borderRadius: '4px', backgroundColor: theme.surfacePreview, border: `1px solid ${theme.borderPreview}`, padding: '4px', display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                              <div style={{ width: '100%', height: 4, borderRadius: 2, backgroundColor: theme.accent, opacity: 0.8 }} />
-                              <div style={{ width: '75%', height: 4, borderRadius: 2, backgroundColor: theme.textColor, opacity: 0.2 }} />
-                              <div style={{ width: '60%', height: 4, borderRadius: 2, backgroundColor: theme.textColor, opacity: 0.2 }} />
+                            <div style={{ width: '44px', borderRadius: '4px', backgroundColor: theme.surfacePreview, border: `1px solid ${theme.borderPreview}`, padding: '5px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                              <div style={{ width: '100%', height: 5, borderRadius: 2, backgroundColor: theme.accent, opacity: 0.8 }} />
+                              <div style={{ width: '75%', height: 4, borderRadius: 2, backgroundColor: theme.textColor, opacity: 0.25 }} />
+                              <div style={{ width: '60%', height: 4, borderRadius: 2, backgroundColor: theme.textColor, opacity: 0.25 }} />
                             </div>
                             {/* Mini Page */}
-                            <div style={{ flex: 1, borderRadius: '4px', backgroundColor: theme.surfacePreview, border: `1px solid ${theme.borderPreview}`, padding: '6px', display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                              <div style={{ width: '40%', height: 5, borderRadius: 2, backgroundColor: theme.textColor, opacity: 0.8 }} />
-                              <div style={{ width: '90%', height: 4, borderRadius: 2, backgroundColor: theme.textColor, opacity: 0.3 }} />
-                              <div style={{ width: '80%', height: 4, borderRadius: 2, backgroundColor: theme.textColor, opacity: 0.3 }} />
-                              <div style={{ width: '85%', height: 4, borderRadius: 2, backgroundColor: theme.textColor, opacity: 0.3 }} />
+                            <div style={{ flex: 1, borderRadius: '4px', backgroundColor: theme.surfacePreview, border: `1px solid ${theme.borderPreview}`, padding: '7px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                              <div style={{ width: '45%', height: 6, borderRadius: 2, backgroundColor: theme.textColor, opacity: 0.8 }} />
+                              <div style={{ width: '92%', height: 4, borderRadius: 2, backgroundColor: theme.textColor, opacity: 0.3 }} />
+                              <div style={{ width: '82%', height: 4, borderRadius: 2, backgroundColor: theme.textColor, opacity: 0.3 }} />
+                              <div style={{ width: '88%', height: 4, borderRadius: 2, backgroundColor: theme.textColor, opacity: 0.3 }} />
                             </div>
                           </div>
                         </div>
@@ -432,13 +825,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                             {theme.id === 'modernx-dark' ? (
-                              <Moon size={15} color="#8b5cf6" />
+                              <Moon size={16} color="#8b5cf6" />
                             ) : theme.id === 'modernx-light' ? (
-                              <Sun size={15} color="#f59e0b" />
+                              <Sun size={16} color="#f59e0b" />
                             ) : (
-                              <Sparkles size={15} color="#06b6d4" />
+                              <Sparkles size={16} color="#06b6d4" />
                             )}
-                            <span style={{ fontWeight: 600, fontSize: '0.88rem', color: 'var(--text-primary)' }}>
+                            <span style={{ fontWeight: 600, fontSize: '0.92rem', color: 'var(--text-primary)' }}>
                               {theme.name}
                             </span>
                           </div>
@@ -462,7 +855,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                           )}
                         </div>
 
-                        <p style={{ margin: 0, fontSize: '0.76rem', color: 'var(--text-muted)', lineHeight: 1.4 }}>
+                        <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--text-muted)', lineHeight: 1.45 }}>
                           {theme.description}
                         </p>
                       </div>
@@ -470,29 +863,94 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   })}
                 </div>
 
-                {/* Information Note */}
+                {/* Manuscript Canvas Paper Tone Integration */}
                 <div
                   style={{
-                    padding: '0.85rem 1rem',
+                    padding: '1.15rem 1.3rem',
+                    borderRadius: '12px',
+                    backgroundColor: 'var(--bg-surface)',
+                    border: '1px solid var(--border-subtle)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.85rem',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.8rem' }}>
+                    <div>
+                      <div style={{ fontWeight: 600, fontSize: '0.92rem', color: 'var(--text-primary)' }}>
+                        Default Manuscript Canvas Paper Tone
+                      </div>
+                      <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                        Set the default paper background for your manuscript editor and reading canvas.
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                      {(['light', 'sepia', 'dark', 'obsidian'] as const).map(t => {
+                        const isToneActive = readerTheme === t;
+                        return (
+                          <button
+                            key={t}
+                            type="button"
+                            className={`btn btn-sm ${isToneActive ? 'btn-primary' : 'btn-secondary'}`}
+                            onClick={() => setReaderTheme(t)}
+                            style={{
+                              textTransform: 'capitalize',
+                              fontSize: '0.8rem',
+                              padding: '0.35rem 0.85rem',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                            }}
+                          >
+                            <span
+                              style={{
+                                width: 9,
+                                height: 9,
+                                borderRadius: '50%',
+                                backgroundColor:
+                                  t === 'light'
+                                    ? '#f8fafc'
+                                    : t === 'sepia'
+                                    ? '#fbf0d9'
+                                    : t === 'dark'
+                                    ? '#1e293b'
+                                    : '#09090b',
+                                border: '1px solid rgba(128,128,128,0.4)',
+                              }}
+                            />
+                            {t}
+                            {isToneActive && <Check size={12} />}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Information Callout */}
+                <div
+                  style={{
+                    padding: '0.95rem 1.1rem',
                     borderRadius: '10px',
                     backgroundColor: 'var(--bg-surface)',
                     border: '1px solid var(--border-subtle)',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.75rem',
-                    fontSize: '0.8rem',
+                    gap: '0.85rem',
+                    fontSize: '0.82rem',
                     color: 'var(--text-secondary)',
+                    lineHeight: 1.5,
                   }}
                 >
-                  <Sparkles size={18} color="var(--accent-primary)" style={{ flexShrink: 0 }} />
+                  <Sparkles size={20} color="var(--accent-primary)" style={{ flexShrink: 0 }} />
                   <div>
-                    <strong>Independent Workspace Paper Tones:</strong> When reading or writing, you can also independently choose your favorite paper tone (Sepia, Light, Night, Forest, Cyberpunk) via the <em>Read</em> or <em>Write</em> views.
+                    <strong>Studio Chrome vs Manuscript Paper:</strong> Chronicle completely decouples your application chrome theme from your writing canvas paper tone. You can compose in a sleek, focused dark or cyberpunk studio while keeping your manuscript on warm sepia or high-contrast crisp white paper.
                   </div>
                 </div>
               </div>
             )}
 
-            {/* ---------------- Tab 2: Cloud Storage (WebDAV - Tauri App Only) ---------------- */}
+            {/* ---------------- Tab 3: Cloud Storage (WebDAV - Tauri App Only) ---------------- */}
             {activeTab === 'cloud' && isDesktop && (
               <div>
                 <div style={{ marginBottom: '1.1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -709,7 +1167,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               </div>
             )}
 
-            {/* ---------------- Tab 3: Editor & Reading Defaults ---------------- */}
+            {/* ---------------- Tab 4: Editor & Reading Defaults ---------------- */}
             {activeTab === 'editor' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.3rem' }}>
                 <div>
@@ -785,7 +1243,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               </div>
             )}
 
-            {/* ---------------- Tab 4: General & Storage ---------------- */}
+            {/* ---------------- Tab 5: General & Storage ---------------- */}
             {activeTab === 'general' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.3rem' }}>
                 <div>
@@ -888,6 +1346,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '3px 6px', borderRadius: 4, backgroundColor: 'var(--bg-input)' }}>
                       <span>Toggle Chapters Sidebar</span>
                       <kbd className="kbd-shortcut">Ctrl+\</kbd>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '3px 6px', borderRadius: 4, backgroundColor: 'var(--bg-input)' }}>
+                      <span>Toggle Minimalist / Studio Mode</span>
+                      <kbd className="kbd-shortcut">Alt+M</kbd>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '3px 6px', borderRadius: 4, backgroundColor: 'var(--bg-input)' }}>
+                      <span>Toggle Zen Mode</span>
+                      <kbd className="kbd-shortcut">Alt+Z</kbd>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '3px 6px', borderRadius: 4, backgroundColor: 'var(--bg-input)' }}>
+                      <span>Exit Zen Mode</span>
+                      <kbd className="kbd-shortcut">Esc</kbd>
                     </div>
                   </div>
                 </div>

@@ -16,6 +16,8 @@ import { CastPresenceGrid } from './components/CastPresence/CastPresenceGrid';
 import { CharacterStudio } from './components/Characters/CharacterStudio';
 import { LocationStudio } from './components/Locations/LocationStudio';
 import { StatusBar } from './components/StatusBar/StatusBar';
+import { GhostHud } from './components/Zen/GhostHud';
+import { ZenLeftChapterMenu } from './components/Zen/ZenLeftChapterMenu';
 import { WelcomeScreen } from './components/Welcome/WelcomeScreen';
 import { NotificationToast } from './components/NotificationToast';
 import { WebDavConfigModal } from './components/Cloud/WebDavConfigModal';
@@ -58,6 +60,7 @@ const AppContent: React.FC = () => {
     settingsInitialTab,
     openSettings,
     pendingUnsavedAction,
+    isZenMode,
   } = useEpub();
   const { stopAudio } = useTts();
   const { showNotice: showMobileNotice, dismiss: dismissMobileNotice } = useSmallScreenDetector();
@@ -201,7 +204,11 @@ const AppContent: React.FC = () => {
       </main>
 
       {/* Docked Desktop Bottom Status Bar */}
-      <StatusBar />
+      {!isZenMode && <StatusBar />}
+
+      {/* Zen Mode Floating Ghost HUD & Left Chapter Menu */}
+      <GhostHud />
+      <ZenLeftChapterMenu />
 
       {/* Global Drag & Drop Overlay */}
       {isDraggingOver && (

@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="default">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Interface Guide &amp; Handbook — Chronicle Studio</title>
+  <meta name="description"
+    content="Comprehensive user manual and interface guide for Chronicle Studio. Learn how to write in Studio, Minimalist, and Typewriter Zen modes, build narrative timelines, track cast heatmaps, manage worldbuilding, and publish books." />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400;1,600&family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css" />
+  <link id="theme-stylesheet" rel="stylesheet" href="themes/theme-default.css" />
+
+  <style>
+    /* User Guide Layout & Reading Enhancements */
+    .guide-page-layout {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      gap: 2.5rem;
+      max-width: 1360px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 6rem;
+      position: relative;
+    }
+
+    @media (max-width: 960px) {
+      .guide-page-layout {
+        grid-template-columns: 1fr;
+        padding-top: 1rem;
+      }
+    }
+
+    /* Sticky Sidebar Navigation */
+    .guide-sidebar {
+      position: sticky;
+      top: 5.5rem;
+      max-height: calc(100vh - 7rem);
+      overflow-y: auto;
+      padding-right: 0.85rem;
+      scrollbar-width: thin;
+      scrollbar-color: var(--gold-muted) transparent;
+    }
+
+    @media (max-width: 960px) {
+      .guide-sidebar {
+        position: static;
+        max-height: none;
+        margin-bottom: 2rem;
+        background: var(--bg-surface);
+        border: 1px solid var(--border-starlight);
+        border-radius: var(--radius-md);
+        padding: 1.25rem;
+      }
+    }
+
+    .guide-nav-title {
+      font-family: var(--font-serif-display);
+      font-size: 0.95rem;
+      color: var(--gold-primary);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .guide-nav-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .guide-nav-link {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      padding: 0.55rem 0.85rem;
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.86rem;
+      font-weight: 500;
+      transition: all 0.18s ease;
+      border-left: 2px solid transparent;
+    }
+
+    .guide-nav-link:hover {
+      color: var(--gold-bright);
+      background: rgba(230, 190, 117, 0.08);
+      border-left-color: var(--gold-primary);
+    }
+
+    .guide-nav-link.active {
+      color: var(--gold-bright);
+      background: rgba(230, 190, 117, 0.14);
+      border-left-color: var(--gold-primary);
+      font-weight: 600;
+    }
+
+    .guide-nav-num {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--gold-muted);
+      min-width: 1.5rem;
+    }
+
+    /* Guide Content Area */
+    .guide-content {
+      min-width: 0;
+    }
+
+    .guide-hero {
+      padding: 2.5rem 0 3rem;
+      border-bottom: 1px solid var(--border-dim);
+      margin-bottom: 3.5rem;
+    }
+
+    .guide-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--gold-primary);
+      background: rgba(230, 190, 117, 0.12);
+      border: 1px solid rgba(230, 190, 117, 0.25);
+      padding: 0.3rem 0.85rem;
+      border-radius: var(--radius-full);
+      margin-bottom: 1rem;
+    }
+
+    .guide-title {
+      font-family: var(--font-serif-display);
+      font-size: 2.4rem;
+      color: var(--text-parchment-bright);
+      line-height: 1.25;
+      margin-bottom: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      .guide-title {
+        font-size: 1.85rem;
+      }
+    }
+
+    .guide-intro {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      max-width: 48rem;
+    }
+
+    /* Chapter Articles */
+    .guide-chapter {
+      margin-bottom: 4.5rem;
+      scroll-margin-top: 6rem;
+    }
+
+    .guide-chapter-header {
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border-starlight);
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .chapter-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--gold-primary);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-weight: 600;
+    }
+
+    .chapter-heading {
+      font-family: var(--font-serif-display);
+      font-size: 1.75rem;
+      color: var(--text-parchment-bright);
+    }
+
+    .chapter-subhead {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    .guide-p {
+      margin-bottom: 1.2rem;
+      color: var(--text-parchment);
+      font-size: 0.96rem;
+      line-height: 1.75;
+    }
+
+    .guide-p strong {
+      color: var(--text-parchment-bright);
+    }
+
+    /* Screenshots Frame */
+    .guide-figure {
+      margin: 1.8rem 0 2.2rem;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 1px solid var(--border-starlight);
+      background: var(--bg-surface-solid);
+      box-shadow: var(--shadow-card);
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .guide-figure:hover {
+      border-color: var(--border-starlight-hover);
+    }
+
+    .guide-img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-bottom: 1px solid var(--border-dim);
+    }
+
+    .guide-caption {
+      padding: 0.75rem 1.25rem;
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      background: var(--bg-surface);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .guide-caption-icon {
+      color: var(--gold-primary);
+      flex-shrink: 0;
+    }
+
+    /* Feature Callout Boxes */
+    .guide-callout {
+      margin: 1.5rem 0;
+      padding: 1.15rem 1.4rem;
+      border-radius: var(--radius-md);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-starlight);
+      border-left: 4px solid var(--gold-primary);
+    }
+
+    .guide-callout.callout-info {
+      border-left-color: var(--twilight-sky);
+    }
+
+    .guide-callout.callout-tip {
+      border-left-color: var(--twilight-emerald);
+    }
+
+    .guide-callout.callout-warning {
+      border-left-color: var(--twilight-amber);
+    }
+
+    .guide-callout-title {
+      font-weight: 700;
+      font-size: 0.92rem;
+      color: var(--text-parchment-bright);
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .guide-callout p {
+      margin: 0;
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* Key Shortcuts Grid / Table */
+    .guide-table-wrap {
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      border: 1px solid var(--border-dim);
+      border-radius: var(--radius-md);
+    }
+
+    .guide-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      text-align: left;
+    }
+
+    .guide-table th {
+      background: var(--bg-surface-elevated);
+      color: var(--gold-primary);
+      padding: 0.85rem 1.1rem;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-bottom: 1px solid var(--border-starlight);
+    }
+
+    .guide-table td {
+      padding: 0.85rem 1.1rem;
+      border-bottom: 1px solid var(--border-dim);
+      color: var(--text-parchment);
+    }
+
+    .guide-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .guide-table tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .kbd-shortcut {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      color: var(--gold-bright);
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.3);
+    }
+
+    /* Grid of Subfeatures */
+    .guide-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+      margin: 1.5rem 0;
+    }
+
+    .guide-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-starlight);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+    }
+
+    .guide-card-title {
+      font-family: var(--font-serif-display);
+      font-size: 1.05rem;
+      color: var(--text-parchment-bright);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .guide-card-desc {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.55;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Celestial Background Canvas -->
+  <canvas id="celestial-canvas"></canvas>
+
+  <!-- Navigation Header -->
+  <header class="navbar">
+    <div class="container navbar-container">
+      <a href="index.html" class="brand-link" title="Return to Chronicle Home">
+        <div class="brand-icon">
+          <img src="assets/chronicle-logo.svg" alt="Chronicle Logo" width="28" height="28" />
+        </div>
+        <span class="brand-title">Chronicle</span>
+      </a>
+
+      <ul class="nav-menu">
+        <li><a href="index.html#tour" class="nav-link">Tour</a></li>
+        <li><a href="index.html#features" class="nav-link">Features</a></li>
+        <li><a href="index.html#comparison" class="nav-link">Comparison</a></li>
+        <li><a href="guide.html" class="nav-link active">User Guide</a></li>
+        <li><a href="index.html#faq" class="nav-link">FAQ</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <a href="https://github.com/pazvanti/Chronicle" target="_blank" rel="noopener noreferrer" class="btn btn-ghost"
+          title="View Source on GitHub">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path
+              d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
+            </path>
+          </svg>
+          <span>GitHub</span>
+        </a>
+        <a href="app/index.html" class="btn btn-primary" title="Launch the full web application">
+          <span>Launch Studio</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+            <polyline points="15 3 21 3 21 9"></polyline>
+            <line x1="10" y1="14" x2="21" y2="3"></line>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Guide Layout Container -->
+  <div class="guide-page-layout">
+
+    <!-- Left Sticky Chapters Navigation -->
+    <aside class="guide-sidebar" aria-label="User Guide Chapters">
+      <div class="guide-nav-title">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path>
+          <path d="M6 6h10"></path>
+          <path d="M6 10h10"></path>
+        </svg>
+        <span>Handbook Chapters</span>
+      </div>
+
+      <nav>
+        <ul class="guide-nav-list">
+          <li><a href="#ch1-getting-started" class="guide-nav-link active"><span class="guide-nav-num">01</span> Getting Started</a></li>
+          <li><a href="#ch2-studio-interface" class="guide-nav-link"><span class="guide-nav-num">02</span> Studio Interface</a></li>
+          <li><a href="#ch3-focus-modes" class="guide-nav-link"><span class="guide-nav-num">03</span> Studio, Minimalist &amp; Zen</a></li>
+          <li><a href="#ch4-settings-themes" class="guide-nav-link"><span class="guide-nav-num">04</span> Settings &amp; Themes</a></li>
+          <li><a href="#ch5-timeline-studio" class="guide-nav-link"><span class="guide-nav-num">05</span> Narrative Timelines</a></li>
+          <li><a href="#ch6-cast-grid" class="guide-nav-link"><span class="guide-nav-num">06</span> Cast Presence Grid</a></li>
+          <li><a href="#ch7-worldbuilding-codex" class="guide-nav-link"><span class="guide-nav-num">07</span> Worldbuilding Codex</a></li>
+          <li><a href="#ch8-reading-tts-covers" class="guide-nav-link"><span class="guide-nav-num">08</span> Reading, TTS &amp; Covers</a></li>
+          <li><a href="#ch9-export-hub" class="guide-nav-link"><span class="guide-nav-num">09</span> Multi-Format Publishing</a></li>
+          <li><a href="#ch10-shortcuts" class="guide-nav-link"><span class="guide-nav-num">10</span> Keyboard Shortcuts</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- Right Content Column -->
+    <main class="guide-content">
+
+      <!-- Hero Introduction -->
+      <section class="guide-hero">
+        <div class="guide-badge">Complete User Manual</div>
+        <h1 class="guide-title">Chronicle Studio Interface Handbook</h1>
+        <p class="guide-intro">
+          A comprehensive guide to mastering the Chronicle authoring environment. Learn how to navigate the studio,
+          seamlessly transition between Studio, Minimalist, and Typewriter Zen writing modes, map complex multi-strand
+          timelines, track cast screen time, and publish print-ready books.
+        </p>
+      </section>
+
+      <!-- Chapter 1: Getting Started -->
+      <article id="ch1-getting-started" class="guide-chapter">
+        <div class="guide-chapter-header">
+          <span class="chapter-eyebrow">Chapter 01</span>
+          <h2 class="chapter-heading">Getting Started with Chronicle</h2>
+          <span class="chapter-subhead">Local-first principles, loading projects, and managing files</span>
+        </div>
+
+        <p class="guide-p">
+          Chronicle is an all-in-one authoring and publishing suite built exclusively for novelists, storytellers, and long-form prose writers. Unlike subscription cloud platforms, Chronicle is <strong>100% local-first</strong> and guarantees that your stories are never uploaded to remote servers or harvested for AI training models.
+        </p>
+
+        <div class="guide-grid-2">
+          <div class="guide-card">
+            <h3 class="guide-card-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" color="var(--gold-primary)"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+              Starting with Sample Manuscript
+            </h3>
+            <p class="guide-card-desc">
+              When launching Chronicle for the first time, click <strong>"Open Sample Project"</strong> on the welcome screen. This loads a complete pre-configured edition of <em>Alice's Adventures in Wonderland</em>, populated with chapters, character dossiers, timeline events, and cast presence data for hands-on experimentation.
+            </p>
+          </div>
+
+          <div class="guide-card">
+            <h3 class="guide-card-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" color="var(--gold-primary)"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path></svg>
+              Creating or Importing a Book
+            </h3>
+            <p class="guide-card-desc">
+              Click <strong>"New Project"</strong> to start fresh with a clean chapter structure, or drag and drop any standard <code>.epub</code> or <code>.chronicle</code> project file anywhere into the window to import your existing work instantly.
+            </p>
+          </div>
+        </div>
+
+        <div class="guide-callout callout-tip">
+          <div class="guide-callout-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+            Transparent Open Formats Guarantee
+          </div>
+          <p>
+            When saving via <kbd class="kbd-shortcut">Ctrl+S</kbd>, Chronicle exports a standard <code>.chronicle</code> package. This is a clean, unencrypted ZIP file containing standard XHTML chapter files, pure CSS stylesheets, and readable JSON metadata. Your creative work is never locked into proprietary binary formats.
+          </p>
+        </div>
+      </article>
+
+      <!-- Chapter 2: Studio Interface & Navigation -->
+      <article id="ch2-studio-interface" class="guide-chapter">
+        <div class="guide-chapter-header">
+          <span class="chapter-eyebrow">Chapter 02</span>
+          <h2 class="chapter-heading">The Studio Interface &amp; Navigation</h2>
+          <span class="chapter-subhead">Workspace anatomy, views, binder hierarchy, and telemetry</span>
+        </div>
+
+        <p class="guide-p">
+          Chronicle's primary workspace is divided into four functional zones: the <strong>Top Header</strong>, the <strong>Chapter Binder Sidebar</strong>, the central <strong>Manuscript WYSIWYG Editor</strong>, and the <strong>Bottom Status Bar</strong>.
+        </p>
+
+        <figure class="guide-figure">
+          <img src="assets/guide/01-studio-mode.png" alt="Chronicle Studio Mode Default Interface" class="guide-img" />
+          <figcaption class="guide-caption">
+            <svg class="guide-caption-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+            <strong>Figure 2.1:</strong> The default Studio Mode view showing the Top View Switcher tabs, Chapter Binder on the left, WYSIWYG writing canvas in the center, and live session word telemetry at the bottom.
+          </figcaption>
+        </figure>
+
+        <h3 style="font-family: var(--font-serif-display); color: var(--gold-primary); margin: 1.5rem 0 0.8rem; font-size: 1.25rem;">
+          1. The Top Navigation Header
+        </h3>
+        <p class="guide-p">
+          The top bar provides instant access to project metadata, studio view switches, and universal utility tools:
+        </p>
+        <ul style="padding-left: 1.5rem; margin-bottom: 1.5rem; color: var(--text-parchment); line-height: 1.8;">
+          <li><strong>Book Title &amp; Author:</strong> Clicking the book title allows you to rename the manuscript and edit package metadata.</li>
+          <li><strong>View Switcher Tabs:</strong> Rapidly pivot between <kbd class="kbd-shortcut">Write</kbd> (manuscript drafting), <kbd class="kbd-shortcut">Read</kbd> (proofreading reader), <kbd class="kbd-shortcut">Timeline</kbd> (multi-strand visual plot matrix), <kbd class="kbd-shortcut">Cast Grid</kbd> (presence heatmaps), <kbd class="kbd-shortcut">Codex</kbd> (characters &amp; locations dossiers), and <kbd class="kbd-shortcut">Cover</kbd> (graphic book cover designer).</li>
+          <li><strong>Quick Actions:</strong> One-click trigger for Offline Neural TTS proofreading, Typography cleanup, Export Hub, and Settings.</li>
+        </ul>
+
+        <h3 style="font-family: var(--font-serif-display); color: var(--gold-primary); margin: 1.5rem 0 0.8rem; font-size: 1.25rem;">
+          2. The Chapter Binder Sidebar
+        </h3>
+        <p class="guide-p">
+          Located along the left margin, the Chapter Binder manages your manuscript's narrative spine:
+        </p>
+        <ul style="padding-left: 1.5rem; margin-bottom: 1.5rem; color: var(--text-parchment); line-height: 1.8;">
+          <li><strong>Adding &amp; Reordering Chapters:</strong> Click the <kbd class="kbd-shortcut">+</kbd> icon to append new chapters, or drag and drop chapter cards vertically to restructure your manuscript order.</li>
+          <li><strong>Chapter Word Badges:</strong> Each chapter card displays live word count stats so you can audit pacing across act breaks.</li>
+          <li><strong>Quick Toggle:</strong> Press <kbd class="kbd-shortcut">Ctrl+\</kbd> at any time to collapse the binder and expand the central manuscript canvas.</li>
+        </ul>
+
+        <h3 style="font-family: var(--font-serif-display); color: var(--gold-primary); margin: 1.5rem 0 0.8rem; font-size: 1.25rem;">
+          3. The Bottom Status Bar
+        </h3>
+        <p class="guide-p">
+          The status bar provides non-intrusive, live writing telemetry: total manuscript words, current chapter word count, selected text metrics, reading time estimations, and today's writing velocity (<kbd class="kbd-shortcut">+X words today</kbd>).
+        </p>
+      </article>
+
+      <!-- Chapter 3: Focus Modes: Studio, Minimalist & Zen -->
+      <article id="ch3-focus-modes" class="guide-chapter">
+        <div class="guide-chapter-header">
+          <span class="chapter-eyebrow">Chapter 03</span>
+          <h2 class="chapter-heading">Distraction-Free Modes: Studio, Minimalist &amp; Typewriter Zen</h2>
+          <span class="chapter-subhead">How to choose and toggle between authoring environments</span>
+        </div>
+
+        <p class="guide-p">
+          Chronicle recognizes that writing requires different mindsets. Outlining, structuring, and research benefit from multi-pane telemetry, whereas drafting prose demands complete silence. Chronicle provides three calibrated focus tiers:
+        </p>
+
+        <!-- Mode Comparison Cards -->
+        <div class="guide-grid-2">
+          <div class="guide-card">
+            <h3 class="guide-card-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" color="var(--gold-primary)"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+              1. Studio Mode (Full Suite)
+            </h3>
+            <p class="guide-card-desc">
+              The full authoring command center. Displays all top navigation tabs, the chapter binder, telemetry status bars, and floating utility drawers. Perfect for worldbuilding, scene splitting, and structural editing.
+            </p>
+          </div>
+
+          <div class="guide-card">
+            <h3 class="guide-card-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" color="var(--gold-primary)"><path d="m12 19 7-7 3 3-7 7-3-3z"></path><path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path></svg>
+              2. Minimalist Mode (Alt+M)
+            </h3>
+            <p class="guide-card-desc">
+              Conceals secondary toolbars, sidebars, and status bars while retaining essential top navigation. Gives your manuscript room to breathe while keeping view switching one click away.
+            </p>
+          </div>
+        </div>
+
+        <figure class="guide-figure">
+          <img src="assets/guide/02-minimalist-mode.png" alt="Chronicle Minimalist Mode Canvas" class="guide-img" />
+          <figcaption class="guide-caption">
+            <svg class="guide-caption-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+            <strong>Figure 3.1:</strong> Minimalist Mode (<kbd class="kbd-shortcut">Alt+M</kbd>) active. The sidebars and status telemetry are hidden, presenting a clean writing canvas with an unobtrusive "Exit Minimalist" badge.
+          </figcaption>
+        </figure>
+
+        <h3 style="font-family: var(--font-serif-display); color: var(--gold-primary); margin: 2rem 0 0.8rem; font-size: 1.35rem;">
+          3. Typewriter Zen Mode (Alt+Z)
+        </h3>
+        <p class="guide-p">
+          Zen Mode is Chronicle's ultimate deep-work environment. It completely unmounts all window chrome, sidebars, borders, and menus for a 100% distraction-free creative session.
+        </p>
+
+        <figure class="guide-figure">
+          <img src="assets/guide/03-zen-mode.png" alt="Chronicle Zen Mode Screen" class="guide-img" />
+          <figcaption class="guide-caption">
+            <svg class="guide-caption-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+            <strong>Figure 3.2:</strong> Zen Mode (<kbd class="kbd-shortcut">Alt+Z</kbd>). Zero window chrome, eye-level centered text, paragraph focus dimming, and an interactive Ghost HUD that only awakens upon mouse movement.
+          </figcaption>
+        </figure>
+
+        <h4 style="color: var(--text-parchment-bright); margin: 1.5rem 0 0.5rem; font-size: 1.1rem;">
+          The 4 Core Zen Mechanics:
+        </h4>
+        <ul style="padding-left: 1.5rem; margin-bottom: 1.5rem; color: var(--text-parchment); line-height: 1.85;">
+          <li>
+            <strong>1. Typewriter Scrolling:</strong> Keeps the active sentence vertically locked at natural eye-level in the center of your monitor as text scrolls upwards beneath it, preventing neck and shoulder fatigue during multi-hour marathons.
+          </li>
+          <li>
+            <strong>2. Paragraph Focus Dimming:</strong> Softly fades all surrounding paragraphs to 35% opacity while brightly spotlighting only the active paragraph where your cursor rests.
+          </li>
+          <li>
+            <strong>3. The Ghost HUD:</strong> Pure zero-UI while writing. Moving your mouse reveals a floating translucent frosted-glass capsule displaying live words written today, active chapter, and a chapter navigator menu to switch scenes without leaving Zen mode.
+          </li>
+          <li>
+            <strong>4. Hide Comments &amp; Highlights:</strong> Automatically conceals margin comment cards and text highlights in Zen mode so editorial review notes don't disrupt drafting flow.
+          </li>
+        </ul>
+
+        <div class="guide-callout callout-info">
+          <div class="guide-callout-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            Auto-Switch on Typing
+          </div>
+          <p>
+            In <kbd class="kbd-shortcut">Settings &gt; Appearance</kbd>, you can enable <strong>"Switch to Zen Mode on typing"</strong>. With this option active, Chronicle automatically enters Zen mode the moment your fingers start typing in the manuscript, and returns to Studio mode when you hit <kbd class="kbd-shortcut">Esc</kbd>.
+          </p>
+        </div>
+      </article>
+
+      <!-- Chapter 4: Settings & Themes -->
+      <article id="ch4-settings-themes" class="guide-chapter">
+        <div class="guide-chapter-header">
+          <span class="chapter-eyebrow">Chapter 04</span>
+          <h2 class="chapter-heading">Settings, Themes &amp; Workspace Customization</h2>
+          <span class="chapter-subhead">Adjusting interface aesthetics, paper tones, and WebDAV cloud storage</span>
+        </div>
+
+        <p class="guide-p">
+          Press <kbd class="kbd-shortcut">Ctrl+,</kbd> or click the gear icon in the header to open the expanded Settings dialog. The preferences interface is split into dedicated sections for Appearance, Themes, Cloud Storage, Editor defaults, and Diagnostics.
+        </p>
+
+        <figure class="guide-figure">
+          <img src="assets/guide/04-settings-appearance.png" alt="Chronicle Settings Appearance Tab" class="guide-img" />
+          <figcaption class="guide-caption">
+            <svg class="guide-caption-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+            <strong>Figure 4.1:</strong> The Appearance Settings section, showing workspace mode toggles, Zen auto-switch preferences, and the 4 interactive focus mechanics cards.
+          </figcaption>
+        </figure>
+
+        <h3 style="font-family: var(--font-serif-display); color: var(--gold-primary); margin: 2rem 0 0.8rem; font-size: 1.3rem;">
+          Application UI Themes vs. Manuscript Paper Tones
+        </h3>
+        <p class="guide-p">
+          Chronicle uniquely <strong>decouples</strong> your studio window chrome theme from your manuscript canvas paper tone. You can compose inside a sleek, focused obsidian or modern dark studio while keeping your manuscript on warm sepia or high-contrast crisp white paper.
+        </p>
+
+        <figure class="guide-figure">
+          <img src="assets/guide/05-settings-themes.png" alt="Chronicle Settings Themes Tab" class="guide-img" />
+          <figcaption class="guide-caption">
+            <svg class="guide-caption-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+            <strong>Figure 4.2:</strong> The Themes Settings section, featuring live UI theme preview cards and quick-switch swatches for default manuscript canvas paper tones.
+          </figcaption>
+        </figure>
+
+        <ul style="padding-left: 1.5rem; margin-bottom: 1.5rem; color: var(--text-parchment); line-height: 1.85;">
+          <li><strong>ModernX Dark:</strong> Deep obsidian graphite surfaces with violet neon accents, tailored for low-light night drafting.</li>
+          <li><strong>ModernX Light:</strong> Crisp porcelain and slate surfaces with warm amber accents for daytime authoring.</li>
+          <li><strong>Cyberpunk Dark:</strong> High-contrast midnight tones with electric cyan highlights and tech-inspired geometry.</li>
+          <li><strong>Paper Tones:</strong> Choose between Warm Light, Antique Sepia, Night Charcoal, and Deep Obsidian backdrops for the editor canvas.</li>
+        </ul>
+      </article>
+
+      <!-- Chapter 5: Visual Narrative Timeline Studio -->
+      <article id="ch5-timeline-studio" class="guide-chapter">
+        <div class="guide-chapter-header">
+          <span class="chapter-eyebrow">Chapter 05</span>
+          <h2 class="chapter-heading">Visual Narrative Timeline Studio</h2>
+          <span class="chapter-subhead">Multi-strand narrative plotting, story beats, and character collision prevention</span>
+        </div>
+
+        <p class="guide-p">
+          Click the <strong>"Timeline"</strong> tab in the top navigation to access Chronicle's visual narrative plotting matrix. Unlike linear text outlines, Chronicle arranges story events across parallel horizontal track lanes, allowing you to track A-plots, subplots, and character perspectives simultaneously.
+        </p>
+
+        <figure class="guide-figure">
+          <img src="assets/guide/06-timeline-studio.png" alt="Chronicle Timeline Studio Interface" class="guide-img" />
+          <figcaption class="guide-caption">
+            <svg class="guide-caption-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+            <strong>Figure 5.1:</strong> Timeline Studio overview displaying multi-track event lanes, narrative segments (Day 1, Day 2), character tags, and zoom controls.
+          </figcaption>
+        </figure>
+
+        <h3 style="font-family: var(--font-serif-display); color: var(--gold-primary); margin: 2rem 0 0.8rem; font-size: 1.3rem;">
+          How to Create and Manage Timelines:
+        </h3>
+
+        <div class="guide-grid-2">
+          <div class="guide-card">
+            <h4 class="guide-card-title">1. Create Narrative Segments</h4>
+            <p class="guide-card-desc">
+              Click <strong>"+ New Segment"</strong> to establish milestones (e.g., <em>"Act I: The Rabbit Hole"</em>, <em>"Day 2: The Queen's Realm"</em>). Each segment defines a temporal container with its own start offset and zero-hour calibration.
+            </p>
+          </div>
+
+          <div class="guide-card">
+            <h4 class="guide-card-title">2. Add &amp; Position Story Events</h4>
+            <p class="guide-card-desc">
+              Click <strong>"+ Add Event"</strong> inside any segment to place a plot event card. Specify start time, duration, track lane (0, 1, 2...), narrative summary, and assign participating characters from your Codex.
+            </p>
+          </div>
+        </div>
+
+        <figure class="guide-figure">
+          <img src="assets/guide/07-timeline-event-modal.png" alt="Timeline Event Creation & Edit Modal" class="guide-img" />
+          <figcaption class="guide-caption">
+            <svg class="guide-caption-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+            <strong>Figure 5.2:</strong> Editing a story event card, configuring title, duration, track lane, color themes, and linked characters.
+          </figcaption>
+        </figure>
+
+        <div class="guide-callout callout-tip">
+          <div class="guide-callout-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+            Continuity &amp; Collision Avoidance
+          </div>
+          <p>
+            By assigning parallel events to distinct vertical lanes, Chronicle makes impossible character overlaps instantly visible—such as a character appearing in two distant locations at the same hour—before you spend weeks writing yourself into a corner.
+          </p>
+        </div>
+      </article>
+
+      <!-- Chapter 6: Cast Presence Heatmap & Character Grid -->
+      <article id="ch6-cast-grid" class="guide-chapter">
+        <div class="guide-chapter-header">
+          <span class="chapter-eyebrow">Chapter 06</span>
+          <h2 class="chapter-heading">Cast Presence Heatmap &amp; Character Grid</h2>
+          <span class="chapter-subhead">Analyzing character density, screen time balance, and scene appearances</span>
+        </div>
+
+        <p class="guide-p">
+          Click <strong>"Cast Grid"</strong> in the top navigation to view Chronicle's presence density matrix. The grid scans your entire manuscript and compiles a chapter-by-chapter heatmap showing where characters appear and how frequently they are referenced.
+        </p>
+
+        <figure class="guide-figure">
+          <img src="assets/guide/08-cast-presence-grid.png" alt="Chronicle Cast Presence Grid" class="guide-img" />
+          <figcaption class="guide-caption">
+            <svg class="guide-caption-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+            <strong>Figure 6.1:</strong> Cast Presence Grid with chapter columns along the X-axis and characters along the Y-axis. Circular color nodes illustrate mention density across scenes.
+          </figcaption>
+        </figure>
+
+        <h3 style="font-family: var(--font-serif-display); color: var(--gold-primary); margin: 1.5rem 0 0.8rem; font-size: 1.25rem;">
+          How to Use the Cast Grid:
+        </h3>
+        <ul style="padding-left: 1.5rem; margin-bottom: 1.5rem; color: var(--text-parchment); line-height: 1.85;">
+          <li><strong>Audit Screen Time:</strong> Glowing nodes visually highlight which characters dominate each scene. Instantly spot if your antagonist disappears for 5 consecutive chapters or if a subplot character is introduced too late.</li>
+          <li><strong>Presence Display Toggles:</strong> Switch between <em>Glow</em> (pulsing heat bubbles), <em>Counts</em> (exact in-text mention numbers), and <em>Dots</em> (compact presence indicators).</li>
+          <li><strong>Click-to-Inspect Dialogue:</strong> Clicking any active node displays dialogue excerpts and passage references, with a one-click button to jump directly to that chapter in the editor.</li>
+          <li><strong>Export Cast Telemetry:</strong> Click <em>Export CSV/TSV</em> in the toolbar to export the matrix to Excel, Google Sheets, or Numbers for editorial analysis.</li>
+        </ul>
+      </article>
+
+      <!-- Chapter 7: Worldbuilding Codex -->
+      <article id="ch7-worldbuilding-codex" class="guide-chapter">
+        <div class="guide-chapter-header">
+          <span class="chapter-eyebrow">Chapter 07</span>
+          <h2 class="chapter-heading">Worldbuilding Codex: Characters &amp; Locations</h2>
+          <span class="chapter-subhead">Dossiers, psychological traits, sensory notes, and landmark checklists</span>
+        </div>
+
+        <p class="guide-p">
+          Click <strong>"Codex"</strong> in the navigation header to manage your novel's worldbuilding bible. The Codex provides structured templates for tracking character psychology and sensory world details without cluttering your prose.
+        </p>
+
+        <figure class="guide-figure">
+          <img src="assets/guide/09-worldbuilding-codex.png" alt="Chronicle Worldbuilding Codex Drawer" class="guide-img" />
+          <figcaption class="guide-caption">
+            <svg class="guide-caption-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+            <strong>Figure 7.1:</strong> The Character Codex dossier panel for Alice, displaying archetypes, physical traits, goals, and interactive checklist items.
+          </figcaption>
+        </figure>
+
+        <div class="guide-grid-2">
+          <div class="guide-card">
+            <h4 class="guide-card-title">Character Profiles</h4>
+            <p class="guide-card-desc">
+              Record character archetypes, occupations, aliases, physical appearance, psychological flaws, and core motivations. Includes an interactive Trait &amp; Goal checklist that syncs with story events.
+            </p>
+          </div>
+
+          <div class="guide-card">
+            <h4 class="guide-card-title">Sensory Location Dossiers</h4>
+            <p class="guide-card-desc">
+              Document environmental sights, sounds, smells, atmospheric weather, historical lore, environmental hazards, and landmark exploration checklists for every setting in your novel.
+            </p>
+          </div>
+        </div>
+      </article>
+
+      <!-- Chapter 8: Reading, TTS & Covers -->
+      <article id="ch8-reading-tts-covers" class="guide-chapter">
+        <div class="guide-chapter-header">
+          <span class="chapter-eyebrow">Chapter 08</span>
+          <h2 class="chapter-heading">Reading Mode, Offline Neural TTS &amp; Cover Design</h2>
+          <span class="chapter-subhead">Reader view, Kokoro audio proofreading, and typography book covers</span>
+        </div>
+
+        <h3 style="font-family: var(--font-serif-display); color: var(--gold-primary); margin: 1.5rem 0 0.8rem; font-size: 1.25rem;">
+          1. Reader View (Read Tab)
+        </h3>
+        <p class="guide-p">
+          Click <strong>"Read"</strong> to switch to a publication-accurate reading mode. Adjust page widths from 560px to 1080px, select serif or sans book typefaces, and audit page flow with chapter progress indicators.
+        </p>
+
+        <figure class="guide-figure">
+          <img src="assets/guide/10-read-mode.png" alt="Chronicle Reader Mode" class="guide-img" />
+          <figcaption class="guide-caption">
+            <svg class="guide-caption-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+            <strong>Figure 8.1:</strong> Reader mode view displaying warm sepia paper tone, elegant typography, and reading progress indicators.
+          </figcaption>
+        </figure>
+
+        <h3 style="font-family: var(--font-serif-display); color: var(--gold-primary); margin: 2rem 0 0.8rem; font-size: 1.25rem;">
+          2. Offline Kokoro Neural Text-to-Speech
+        </h3>
+        <p class="guide-p">
+          Listening to your manuscript read aloud is the single most effective way to catch awkward sentence rhythms, repeated words, and dialogue stumbling blocks. Chronicle includes built-in neural voice audio powered by <strong>Kokoro</strong> running 100% on-device via WebGPU and WebAssembly. No text is ever sent to external cloud APIs.
+        </p>
+
+        <h3 style="font-family: var(--font-serif-display); color: var(--gold-primary); margin: 2rem 0 0.8rem; font-size: 1.25rem;">
+          3. Built-In Graphic Book Cover Designer
+        </h3>
+        <p class="guide-p">
+          Click <strong>"Cover"</strong> in the top navigation to design publication-quality ebook covers directly inside Chronicle without launching external graphics software.
+        </p>
+
+        <figure class="guide-figure">
+          <img src="assets/guide/11-cover-designer.png" alt="Chronicle Cover Designer" class="guide-img" />
+          <figcaption class="guide-caption">
+            <svg class="guide-caption-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+            <strong>Figure 8.2:</strong> Built-in Book Cover Designer showing title typography controls, genre emblems, color palettes, and high-resolution export.
+          </figcaption>
+        </figure>
+      </article>
+
+      <!-- Chapter 9: Export Hub -->
+      <article id="ch9-export-hub" class="guide-chapter">
+        <div class="guide-chapter-header">
+          <span class="chapter-eyebrow">Chapter 09</span>
+          <h2 class="chapter-heading">Publication &amp; Multi-Format Export Hub</h2>
+          <span class="chapter-subhead">Print-ready PDFs, valid EPUB 3, Shunn DOCX, and project archives</span>
+        </div>
+
+        <p class="guide-p">
+          Click the <strong>"Export Hub"</strong> button in the header toolbar to access Chronicle's publication center. You can generate bookstore-ready files tailored for both digital distribution and physical printing press output.
+        </p>
+
+        <figure class="guide-figure">
+          <img src="assets/guide/12-export-hub.png" alt="Chronicle Export Hub Modal" class="guide-img" />
+          <figcaption class="guide-caption">
+            <svg class="guide-caption-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+            <strong>Figure 9.1:</strong> The Export Hub dialog, offering one-click publication targets for PDF Book Typesetting, Standard EPUB 3, Industry Shunn DOCX, and Project Backups.
+          </figcaption>
+        </figure>
+
+        <div class="guide-grid-2">
+          <div class="guide-card">
+            <h4 class="guide-card-title">Print PDF Typesetter</h4>
+            <p class="guide-card-desc">
+              Exports print-on-demand PDFs configured for standard trade sizes (6x9, 5.5x8.5, A5). Features automated mirror margins, running headers, Roman numeral front matter, and scaled drop caps.
+            </p>
+          </div>
+
+          <div class="guide-card">
+            <h4 class="guide-card-title">Standard EPUB 3</h4>
+            <p class="guide-card-desc">
+              Produces verified, reflowable EPUB 3 ebooks that pass EpubCheck validation and render flawlessly on Amazon Kindle, Apple Books, Kobo, and Google Play.
+            </p>
+          </div>
+
+          <div class="guide-card">
+            <h4 class="guide-card-title">William Shunn DOCX</h4>
+            <p class="guide-card-desc">
+              Generates a submission-ready Word file formatted strictly to the industry-standard William Shunn manuscript guidelines required by literary agents and traditional publishers.
+            </p>
+          </div>
+
+          <div class="guide-card">
+            <h4 class="guide-card-title">Chronicle Project (.chronicle)</h4>
+            <p class="guide-card-desc">
+              Backs up your complete creative world—manuscript chapters, character dossiers, sensory locations, timeline events, and cover artwork—in an open ZIP archive.
+            </p>
+          </div>
+        </div>
+
+        <div class="guide-callout callout-info">
+          <div class="guide-callout-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            Zero-Leakage Export Guarantee
+          </div>
+          <p>
+            All author review comments, editorial notes, and temporary marks are automatically stripped during publication exports, guaranteeing that your final published PDF, EPUB, or DOCX files are pristine and professional.
+          </p>
+        </div>
+      </article>
+
+      <!-- Chapter 10: Keyboard Shortcuts -->
+      <article id="ch10-shortcuts" class="guide-chapter">
+        <div class="guide-chapter-header">
+          <span class="chapter-eyebrow">Chapter 10</span>
+          <h2 class="chapter-heading">Keyboard Shortcuts &amp; Power User Cheatsheet</h2>
+          <span class="chapter-subhead">Every essential global keybinding to accelerate your authoring flow</span>
+        </div>
+
+        <p class="guide-p">
+          Chronicle provides global desktop shortcuts to keep your hands on the keyboard and out of nested menus:
+        </p>
+
+        <div class="guide-table-wrap">
+          <table class="guide-table">
+            <thead>
+              <tr>
+                <th>Shortcut</th>
+                <th>Action</th>
+                <th>Scope</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><kbd class="kbd-shortcut">Alt+M</kbd></td>
+                <td>Toggle Minimalist Mode (conceals toolbars and status bar)</td>
+                <td>Global</td>
+              </tr>
+              <tr>
+                <td><kbd class="kbd-shortcut">Alt+Z</kbd></td>
+                <td>Toggle Typewriter Zen Mode (zero UI deep-work immersion)</td>
+                <td>Global</td>
+              </tr>
+              <tr>
+                <td><kbd class="kbd-shortcut">Esc</kbd></td>
+                <td>Quick Exit from Zen Mode / Close any open modal dialog</td>
+                <td>Global</td>
+              </tr>
+              <tr>
+                <td><kbd class="kbd-shortcut">Ctrl+S</kbd></td>
+                <td>Save Manuscript &amp; Project Backup (Local / Cloud)</td>
+                <td>Global</td>
+              </tr>
+              <tr>
+                <td><kbd class="kbd-shortcut">Ctrl+O</kbd></td>
+                <td>Open File / Import EPUB or Chronicle Project</td>
+                <td>Global</td>
+              </tr>
+              <tr>
+                <td><kbd class="kbd-shortcut">Ctrl+,</kbd></td>
+                <td>Open Settings &amp; Preferences Dialog</td>
+                <td>Global</td>
+              </tr>
+              <tr>
+                <td><kbd class="kbd-shortcut">Ctrl+\</kbd></td>
+                <td>Toggle Chapter Binder Sidebar Visibility</td>
+                <td>Write View</td>
+              </tr>
+              <tr>
+                <td><kbd class="kbd-shortcut">Ctrl+B</kbd></td>
+                <td>Bold text formatting</td>
+                <td>Editor</td>
+              </tr>
+              <tr>
+                <td><kbd class="kbd-shortcut">Ctrl+I</kbd></td>
+                <td>Italic text formatting</td>
+                <td>Editor</td>
+              </tr>
+              <tr>
+                <td><kbd class="kbd-shortcut">Ctrl+Z</kbd> / <kbd class="kbd-shortcut">Ctrl+Y</kbd></td>
+                <td>Undo / Redo text edits</td>
+                <td>Editor</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
+
+    </main>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-container">
+      <div class="footer-col brand-col">
+        <div class="brand-link">
+          <img src="assets/chronicle-logo.svg" alt="Chronicle Logo" width="28" height="28" />
+          <span class="brand-title">Chronicle</span>
+        </div>
+        <p class="footer-tagline">
+          The premier open-source authoring, worldbuilding, and publishing studio for novelists.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="footer-heading">Documentation</h4>
+        <ul class="footer-links">
+          <li><a href="guide.html#ch1-getting-started">Getting Started</a></li>
+          <li><a href="guide.html#ch3-focus-modes">Focus Modes Guide</a></li>
+          <li><a href="guide.html#ch5-timeline-studio">Timelines Handbook</a></li>
+          <li><a href="guide.html#ch6-cast-grid">Cast Presence Grid</a></li>
+          <li><a href="guide.html#ch10-shortcuts">Keyboard Shortcuts</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="footer-heading">Application</h4>
+        <ul class="footer-links">
+          <li><a href="index.html">Presentation Home</a></li>
+          <li><a href="app/index.html">Launch Online App</a></li>
+          <li><a href="https://github.com/pazvanti/Chronicle" target="_blank" rel="noopener">GitHub Repository</a></li>
+          <li><a href="https://pazvanti.gumroad.com/l/Chronicle" target="_blank" rel="noopener">Desktop Download</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="container footer-bottom">
+      <p>&copy; 2026 Chronicle Studio. Open-source under the AGPLv3 License. Built exclusively for human writers.</p>
+    </div>
+  </footer>
+
+  <!-- Scrollspy script for sticky chapters sidebar -->
+  <script>
+    (function () {
+      const links = document.querySelectorAll('.guide-nav-link');
+      const sections = document.querySelectorAll('.guide-chapter');
+
+      function updateActiveNav() {
+        let currentSectionId = '';
+        const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+
+        sections.forEach(section => {
+          const sectionTop = section.offsetTop - 120;
+          const sectionHeight = section.offsetHeight;
+          if (scrollY >= sectionTop && scrollY < sectionTop + sectionHeight) {
+            currentSectionId = section.getAttribute('id');
+          }
+        });
+
+        if (currentSectionId) {
+          links.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === '#' + currentSectionId) {
+              link.classList.add('active');
+            }
+          });
+        }
+      }
+
+      window.addEventListener('scroll', updateActiveNav, { passive: true });
+      updateActiveNav();
+    })();
+  </script>
+</body>
+
+</html>
