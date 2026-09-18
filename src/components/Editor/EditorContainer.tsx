@@ -9,7 +9,18 @@ import { LocationDetailModal } from '../Locations/LocationDetailModal';
 import { Eye, Code, Users, Clock, Compass, LayoutGrid } from 'lucide-react';
 
 export const EditorContainer: React.FC = () => {
-  const { editorSubMode, setEditorSubMode, characters, locations, timelines, setViewMode, minimalistMode, isZenMode } = useEpub();
+  const {
+    editorSubMode,
+    setEditorSubMode,
+    characters,
+    locations,
+    timelines,
+    setViewMode,
+    minimalistMode,
+    isZenMode,
+    bookSessionId,
+    activeChapter,
+  } = useEpub();
   const [isCharacterPanelOpen, setIsCharacterPanelOpen] = useState<boolean>(false);
   const [modalCharacterId, setModalCharacterId] = useState<string | null>(null);
   const [isLocationPanelOpen, setIsLocationPanelOpen] = useState<boolean>(false);
@@ -199,7 +210,11 @@ export const EditorContainer: React.FC = () => {
       {/* Editor Main Content + Side Drawers */}
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
         <div style={{ flex: 1, overflow: 'hidden' }}>
-          {editorSubMode === 'visual' ? <WysiwygEditor /> : <CodeEditor />}
+          {editorSubMode === 'visual' ? (
+            <WysiwygEditor key={`${bookSessionId}_${activeChapter?.id || 'none'}`} />
+          ) : (
+            <CodeEditor key={`${bookSessionId}_${activeChapter?.id || 'none'}`} />
+          )}
         </div>
         {isCharacterPanelOpen && !minimalistMode && !isZenMode && (
           <CharacterSheetPanel

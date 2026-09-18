@@ -1,4 +1,5 @@
 import { EpubBook } from '../../types/epub';
+import { injectAssetUrls } from './htmlUtils';
 
 /**
  * Downloads a text/blob file in browser
@@ -264,20 +265,43 @@ export function exportToJson(book: EpubBook) {
 /**
  * Opens formatted Printable / PDF view in a new window and triggers window.print()
  */
-export function openPrintPdfView(book: EpubBook) {
+export function openPrintPdfView(
+  book: EpubBook,
+  options?: import('./pdfBookTypesetter').PdfBookOptions
+) {
   const meta = book.metadata;
   const printWindow = window.open('', '_blank');
   if (!printWindow) return;
 
+  const includeCover = options?.includeCover !== false;
+  const includeChapterTitles = options?.includeChapterTitles !== false;
+  const includeOrnament = options?.includeOrnament !== false;
+  const includePubDate = options?.includePubDate !== false;
+  const tocPosition = options?.tocPosition || 'none';
+
   let chaptersHtml = '';
   book.chapters.forEach((chapter, i) => {
+    const renderedBody = injectAssetUrls(chapter.content, chapter.fullPath, book.assets);
     chaptersHtml += `<div class="print-chapter">
-      <h2 class="print-chapter-title">${chapter.title || `Chapter ${i + 1}`}</h2>
+      ${includeChapterTitles ? `<h2 class="print-chapter-title">${chapter.title || `Chapter ${i + 1}`}</h2>` : ''}
+      ${includeOrnament ? '<div class="print-ornament">~ • ~</div>' : ''}
       <div class="print-chapter-body">
-        ${chapter.content}
+        ${renderedBody}
       </div>
     </div>\n`;
   });
+
+  const tocHtml = (tocPosition !== 'none' && book.chapters.length > 0)
+    ? `<div class="print-chapter print-toc">
+        <h2 class="print-chapter-title">Table of Contents</h2>
+        ${includeOrnament ? '<div class="print-ornament">~ • ~</div>' : ''}
+        <ul class="print-toc-list">
+          ${book.chapters.map((ch, i) => `<li><span class="toc-title">${ch.title || `Chapter ${i + 1}`}</span></li>`).join('')}
+        </ul>
+      </div>\n`
+    : '';
+
+  const pubText = [meta.publisher, meta.pubdate].filter(Boolean).join(' • ');
 
   const printDoc = `<!DOCTYPE html>
 <html>
@@ -306,6 +330,13 @@ export function openPrintPdfView(book: EpubBook) {
       height: 90vh;
       text-align: center;
     }
+    .print-cover-image {
+      max-height: 52vh;
+      max-width: 80%;
+      object-fit: contain;
+      margin-bottom: 24pt;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+    }
     .print-book-title {
       font-size: 28pt;
       font-weight: bold;
@@ -315,6 +346,13 @@ export function openPrintPdfView(book: EpubBook) {
       font-size: 14pt;
       font-style: italic;
     }
+    .print-book-pubdate {
+      font-size: 9pt;
+      color: #64748b;
+      margin-top: 24pt;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
     .print-chapter {
       page-break-before: always;
     }
@@ -322,16 +360,32 @@ export function openPrintPdfView(book: EpubBook) {
       font-size: 18pt;
       text-align: center;
       margin-top: 40pt;
-      margin-bottom: 24pt;
+      margin-bottom: 14pt;
       text-transform: uppercase;
       letter-spacing: 0.05em;
+    }
+    .print-ornament {
+      text-align: center;
+      color: #94a3b8;
+      font-size: 11pt;
+      margin-bottom: 20pt;
+    }
+    .print-toc-list {
+      list-style: none;
+      padding: 0;
+      margin: 20pt auto;
+      max-width: 85%;
+    }
+    .print-toc-list li {
+      padding: 6pt 0;
+      border-bottom: 1px dotted #cbd5e1;
     }
     p {
       margin: 0;
       text-indent: 1.5em;
       text-align: justify;
     }
-    .print-chapter-title + p, h1 + p, h2 + p, h3 + p {
+    .print-chapter-title + p, h1 + p, h2 + p, h3 + p, .print-ornament + p {
       text-indent: 0;
     }
     blockquote {
@@ -343,6 +397,38 @@ export function openPrintPdfView(book: EpubBook) {
       height: auto;
       display: block;
       margin: 15pt auto;
+      page-break-inside: avoid;
+    }
+    figure {
+      margin: 16pt 0;
+      text-align: center;
+      page-break-inside: avoid;
+    }
+    figcaption {
+      font-size: 9.5pt;
+      font-style: italic;
+      color: #64748b;
+      margin-top: 6pt;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16pt 0;
+      font-size: 10pt;
+      page-break-inside: avoid;
+    }
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 6pt 10pt;
+      text-align: left;
+    }
+    th {
+      background-color: #f1f5f9;
+      font-weight: bold;
+      color: #0f172a;
+    }
+    tr:nth-child(even) {
+      background-color: #f8fafc;
     }
     @media screen {
       body { background: #f0f0f0; padding: 20px; }
@@ -352,10 +438,14 @@ export function openPrintPdfView(book: EpubBook) {
 </head>
 <body>
   <div class="print-cover">
+    ${includeCover && book.coverImageUrl ? `<img class="print-cover-image" src="${book.coverImageUrl}" alt="Cover" />` : ''}
     <div class="print-book-title">${meta.title || 'Untitled'}</div>
     <div class="print-book-author">by ${meta.creator || 'Unknown'}</div>
+    ${includePubDate && pubText ? `<div class="print-book-pubdate">${pubText}</div>` : ''}
   </div>
+  ${tocPosition === 'start' ? tocHtml : ''}
   ${chaptersHtml}
+  ${tocPosition === 'end' ? tocHtml : ''}
   <script>
     window.onload = function() {
       setTimeout(function() {

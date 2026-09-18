@@ -65,6 +65,7 @@ interface NotificationState {
 
 interface EpubContextType {
   book: EpubBook | null;
+  bookSessionId: string;
   isLoading: boolean;
   isSaving: boolean;
   activeChapterId: string | null;
@@ -228,6 +229,10 @@ const EpubContext = createContext<EpubContextType | undefined>(undefined);
 export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const initialSettings = getStoredSettings();
   const [book, setBook] = useState<EpubBook | null>(null);
+  const [bookSessionId, setBookSessionId] = useState<string>(() => `book_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`);
+  const refreshBookSession = useCallback(() => {
+    setBookSessionId(`book_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`);
+  }, []);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [activeChapterId, setActiveChapterId] = useState<string | null>(null);
@@ -629,6 +634,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setIsLoading(true);
         const sample = await createSampleEpubBook();
         setBook(sample);
+        refreshBookSession();
         extractCssFromBook(sample);
         if (sample.chapters.length > 0) {
           setActiveChapterId(sample.chapters[0].id);
@@ -640,7 +646,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
     }
     init();
-  }, []);
+  }, [refreshBookSession]);
 
   const loadSampleBook = useCallback(async (force: boolean = false) => {
     if (isDirtyRef.current && !force) {
@@ -661,6 +667,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const sample = await createSampleEpubBook();
       bookRef.current = sample;
       setBook(sample);
+      refreshBookSession();
       extractCssFromBook(sample);
       if (sample.chapters.length > 0) {
         setActiveChapterId(sample.chapters[0].id);
@@ -677,7 +684,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     } finally {
       setIsLoading(false);
     }
-  }, [setIsDirty, showNotification]);
+  }, [setIsDirty, showNotification, refreshBookSession]);
 
   const createNewBook = useCallback(
     async (title: string = 'Untitled Manuscript', author: string = 'Author Name', force: boolean = false) => {
@@ -699,6 +706,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const newBook = await createNewBlankEpubBook(title, author);
         bookRef.current = newBook;
         setBook(newBook);
+        refreshBookSession();
         extractCssFromBook(newBook);
         if (newBook.chapters.length > 0) {
           setActiveChapterId(newBook.chapters[0].id);
@@ -717,7 +725,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setIsLoading(false);
       }
     },
-    [setIsDirty, showNotification]
+    [setIsDirty, showNotification, refreshBookSession]
   );
 
   const loadAnyFile = useCallback(
@@ -743,6 +751,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           const projectBook = await parseChronicleProject(buffer, file.name);
           bookRef.current = projectBook;
           setBook(projectBook);
+          refreshBookSession();
           extractCssFromBook(projectBook);
           if (projectBook.chapters.length > 0) {
             setActiveChapterId(projectBook.chapters[0].id);
@@ -757,6 +766,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           const parsed = await parseEpub(buffer, file.name);
           bookRef.current = parsed;
           setBook(parsed);
+          refreshBookSession();
           extractCssFromBook(parsed);
           if (parsed.chapters.length > 0) {
             setActiveChapterId(parsed.chapters[0].id);
@@ -775,7 +785,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setIsLoading(false);
       }
     },
-    [setIsDirty, showNotification]
+    [setIsDirty, showNotification, refreshBookSession]
   );
 
   const loadEpubFile = loadAnyFile;
@@ -1202,6 +1212,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           const projectBook = await parseChronicleProject(buffer, filename);
           bookRef.current = projectBook;
           setBook(projectBook);
+          refreshBookSession();
           extractCssFromBook(projectBook);
           if (projectBook.chapters.length > 0) {
             setActiveChapterId(projectBook.chapters[0].id);
@@ -1216,6 +1227,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           const parsed = await parseEpub(buffer, filename);
           bookRef.current = parsed;
           setBook(parsed);
+          refreshBookSession();
           extractCssFromBook(parsed);
           if (parsed.chapters.length > 0) {
             setActiveChapterId(parsed.chapters[0].id);
@@ -1234,7 +1246,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setIsLoading(false);
       }
     },
-    [webdavConfig, showNotification]
+    [webdavConfig, showNotification, refreshBookSession]
   );
 
   const saveProject = useCallback(
@@ -2209,6 +2221,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     <EpubContext.Provider
       value={{
         book,
+        bookSessionId,
         isLoading,
         isSaving,
         activeChapterId,

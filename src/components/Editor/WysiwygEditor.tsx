@@ -77,6 +77,7 @@ export const WysiwygEditor: React.FC = () => {
     isZenMode,
     setZenMode,
     zenSettings,
+    bookSessionId,
   } = useEpub();
 
   const initialSettings = getStoredSettings();
@@ -112,7 +113,7 @@ export const WysiwygEditor: React.FC = () => {
     updateStoredSettings({ editorWidth: width });
   };
 
-  // Sync content into editor and scroll to top when active chapter changes
+  // Sync content into editor and scroll to top when active chapter or book session changes
   useEffect(() => {
     if (editorRef.current && activeChapter) {
       const cleanContent = cleanTransientEditorMarkup(activeChapter.content);
@@ -123,8 +124,8 @@ export const WysiwygEditor: React.FC = () => {
     if (workspaceRef.current) {
       workspaceRef.current.scrollTop = 0;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- only sync when chapter ID changes, not on keystroke updates
-  }, [activeChapter?.id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only sync when chapter ID or book session changes, not on keystroke updates
+  }, [activeChapter?.id, bookSessionId]);
 
   // 1. Zen Mode - Typewriter Scrolling (locks cursor vertically centered)
   const performTypewriterScroll = useCallback(() => {

@@ -21,6 +21,15 @@ export interface AppSettings {
   shunnChapterPageBreak?: boolean;
   shunnIncludeChapterTitles?: boolean;
   shunnFontFamily?: 'Times New Roman' | 'Courier New';
+
+  // Vector PDF export preferences
+  pdfIncludeCover?: boolean;
+  pdfIncludeChapterTitles?: boolean;
+  pdfIncludeOrnament?: boolean;
+  pdfIncludePubDate?: boolean;
+  pdfTocPosition?: 'none' | 'start' | 'end';
+  pdfTrimSize?: '6x9' | '5.5x8.5' | 'a4' | 'letter';
+  pdfFontFamily?: 'times' | 'helvetica';
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
@@ -36,6 +45,13 @@ const DEFAULT_SETTINGS: AppSettings = {
   shunnChapterPageBreak: true,
   shunnIncludeChapterTitles: true,
   shunnFontFamily: 'Times New Roman',
+  pdfIncludeCover: true,
+  pdfIncludeChapterTitles: true,
+  pdfIncludeOrnament: true,
+  pdfIncludePubDate: true,
+  pdfTocPosition: 'none',
+  pdfTrimSize: '6x9',
+  pdfFontFamily: 'times',
 };
 
 const STORAGE_KEY = 'epub_editor_app_settings_v1';

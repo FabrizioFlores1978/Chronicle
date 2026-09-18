@@ -880,7 +880,7 @@
           <div class="guide-card">
             <h4 class="guide-card-title">Print PDF Typesetter</h4>
             <p class="guide-card-desc">
-              Exports print-on-demand PDFs configured for standard trade sizes (6x9, 5.5x8.5, A5). Features automated mirror margins, running headers, Roman numeral front matter, and scaled drop caps.
+              Exports print-on-demand PDFs configured for standard trade sizes (6x9, 5.5x8.5, A4, Letter). Features automated mirror margins, running headers, full chapter illustration support with captions and aspect-ratio scaling, and vector data tables with automatic column widths and multi-page break continuation.
             </p>
           </div>
 
@@ -905,6 +905,29 @@
             </p>
           </div>
         </div>
+
+        <h3 style="font-family: var(--font-serif-display); color: var(--gold-primary); margin: 2.2rem 0 0.8rem; font-size: 1.25rem;">
+          Configurable Print PDF Settings &amp; Layout Setup
+        </h3>
+        <p class="guide-p">
+          Clicking <strong>"Print-Ready Vector PDF (.pdf)"</strong> in the Export Hub opens the <strong>PDF Book Typesetting &amp; Print Setup</strong> modal, where you can fine-tune every aesthetic and structural detail of your physical book before exporting or printing:
+        </p>
+
+        <ul style="padding-left: 1.5rem; margin-bottom: 1.5rem; color: var(--text-parchment); line-height: 1.85;">
+          <li><strong>Include Cover Page (<code>includeCover</code>):</strong> Embeds your graphic book cover (from the Cover designer or imported) as the first full-bleed page of the book.</li>
+          <li><strong>Automatically Add Chapter Titles (<code>includeChapterTitles</code>):</strong> Automatically typesets standardized chapter headings (e.g., <em>Chapter 1: Down the Rabbit Hole</em>) at the start of each chapter. Disable if your manuscript drafts already contain custom stylized headings in the body.</li>
+          <li><strong>Include Decorative Ornament (<code>includeOrnament</code>):</strong> Toggles the classic ornamental flourish (<code>~ • ~</code>) centered below chapter titles and at scene break dividers.</li>
+          <li><strong>Include Publish Date (<code>includePubDate</code>):</strong> Controls the inclusion of the publication year and publisher imprint line on the title and copyright front matter page.</li>
+          <li><strong>Table of Contents Position:</strong>
+            <ul style="padding-left: 1.25rem; margin-top: 0.35rem;">
+              <li><strong>None:</strong> Suppresses the TOC entirely for novellas, poetry, or minimalist layouts.</li>
+              <li><strong>Start (Front Matter):</strong> Generates an elegant TOC preceding Chapter 1 with classic dot leaders (<code>. . . . .</code>) and exact right-aligned Arabic page numbers, calibrated so Chapter 1 starts on Page 1.</li>
+              <li><strong>End (Back Matter):</strong> Typesets the Table of Contents at the end of the manuscript as back matter.</li>
+            </ul>
+          </li>
+          <li><strong>Trim Sizes &amp; Typefaces:</strong> Choose between standard 6" × 9" Trade, 5.5" × 8.5" Digest, A4, or US Letter, with Times Roman serif or Helvetica sans-serif typography.</li>
+          <li><strong>Print Preview vs. Direct Vector PDF:</strong> Click <em>"Print Preview"</em> to inspect page geometry and margins in your browser's print dialog, or <em>"Export Vector PDF"</em> to generate an immediate print-on-demand vector PDF file. All selections persist across sessions.</li>
+        </ul>
 
         <div class="guide-callout callout-info">
           <div class="guide-callout-title">

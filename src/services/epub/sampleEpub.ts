@@ -23,7 +23,7 @@ export async function createSampleEpubBook(): Promise<EpubBook> {
   );
 
   // 3. Cover SVG as PNG/SVG
-  const coverSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 900" width="600" height="900">
+  const coverSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 900" width="1600" height="2400">
   <defs>
     <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#1e1b4b" />

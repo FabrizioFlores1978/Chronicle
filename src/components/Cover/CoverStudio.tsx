@@ -280,7 +280,7 @@ export const CoverStudio: React.FC = () => {
     const x2 = Math.round(50 - Math.sin(rad) * 50);
     const y2 = Math.round(50 + Math.cos(rad) * 50);
 
-    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 900" width="100%" height="100%" style="display: block; width: 100%; height: 100%; border-radius: 8px;">
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 900" width="1600" height="2400" style="display: block; width: 100%; height: 100%; border-radius: 8px;">
   <defs>
     <!-- Background Linear Gradient -->
     <linearGradient id="main-bg-grad" x1="${x1}%" y1="${y1}%" x2="${x2}%" y2="${y2}%">

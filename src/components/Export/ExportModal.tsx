@@ -18,10 +18,10 @@ import {
   exportToSingleHtml,
   exportToJson,
   openPrintPdfView,
-  exportToPdfDirect,
 } from '../../services/epub/multiExport';
 
 import { ShunnSetupModal } from './ShunnSetupModal';
+import { PdfSetupModal } from './PdfSetupModal';
 import { useEscapeKey } from '../../hooks/useEscapeKey';
 
 interface ExportModalProps {
@@ -29,8 +29,8 @@ interface ExportModalProps {
 }
 
 export const ExportModal: React.FC<ExportModalProps> = ({ onClose }) => {
-  const { book, exportAndDownload, isLoading, showNotification } = useEpub();
-  const [isGeneratingPdf, setIsGeneratingPdf] = useState<boolean>(false);
+  const { book, exportAndDownload, isLoading } = useEpub();
+  const [isPdfModalOpen, setIsPdfModalOpen] = useState<boolean>(false);
   const [isShunnModalOpen, setIsShunnModalOpen] = useState<boolean>(false);
 
   useEscapeKey(onClose);
@@ -42,19 +42,8 @@ export const ExportModal: React.FC<ExportModalProps> = ({ onClose }) => {
     onClose();
   };
 
-  const handleExportPdfDirect = async () => {
-    try {
-      setIsGeneratingPdf(true);
-      showNotification('info', 'Typesetting publication-grade vector text PDF...');
-      await exportToPdfDirect(book);
-      showNotification('success', `Exported "${book.metadata.title}.pdf" (Vector Text) successfully!`);
-      onClose();
-    } catch (err: any) {
-      console.error(err);
-      showNotification('error', `Failed to generate PDF: ${err?.message || 'Error'}`);
-    } finally {
-      setIsGeneratingPdf(false);
-    }
+  const handleOpenPdfModal = () => {
+    setIsPdfModalOpen(true);
   };
 
   const handleOpenShunnModal = () => {
@@ -110,12 +99,12 @@ export const ExportModal: React.FC<ExportModalProps> = ({ onClose }) => {
     {
       id: 'pdf-direct',
       title: 'Print-Ready Vector PDF (.pdf)',
-      desc: 'Generates a publication-grade vector text PDF (100% searchable, selectable text, 300+ DPI print-ready for Amazon KDP 6×9 trade paperback, running headers, and page numbering).',
+      desc: 'Generates a publication-grade vector text PDF with customizable cover, chapter titles, ~ • ~ ornaments, publish date, table of contents, and trim sizes.',
       icon: <FileType size={24} color="#34d399" />,
       badge: 'Vector Text • KDP Ready',
-      action: handleExportPdfDirect,
+      action: handleOpenPdfModal,
       btnClass: 'btn-primary',
-      isLoading: isGeneratingPdf,
+      isLoading: false,
     },
     {
       id: 'markdown',
@@ -271,6 +260,9 @@ export const ExportModal: React.FC<ExportModalProps> = ({ onClose }) => {
         </div>
       </div>
 
+      {isPdfModalOpen && (
+        <PdfSetupModal onClose={() => setIsPdfModalOpen(false)} />
+      )}
       {isShunnModalOpen && (
         <ShunnSetupModal onClose={() => setIsShunnModalOpen(false)} />
       )}

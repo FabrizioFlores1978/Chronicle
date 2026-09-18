@@ -225,10 +225,29 @@ Click **"Export Hub"** in the header toolbar to generate bookstore-ready files:
 ![Export Hub](docs/assets/guide/12-export-hub.png)
 *Figure 9.1: The Export Hub dialog with one-click publication targets for PDF, EPUB 3, Shunn DOCX, and Project Backups.*
 
-* **Print PDF Typesetter**: Formatted for physical print-on-demand (6x9, 5.5x8.5, A5). Features automated mirror margins, running headers, Roman numeral front matter, and scaled drop caps.
+* **Print PDF Typesetter**: Formatted for physical print-on-demand (6x9, 5.5x8.5, A4, Letter). Features automated mirror margins, running headers, Roman numeral front matter, scaled drop caps, full chapter illustration support (with aspect-ratio preservation and captions), and clean vector data tables (with automatic column width distribution, header repeats across page breaks, and cell borders).
 * **Standard EPUB 3**: Verified, reflowable EPUB 3 ebooks passing EpubCheck validation for Amazon Kindle, Apple Books, and Kobo.
 * **William Shunn DOCX**: Submission-ready Word document adhering strictly to the industry-standard William Shunn manuscript guidelines required by literary agents and traditional publishers.
 * **Chronicle Project (`.chronicle`)**: Comprehensive portable ZIP package containing all drafts, codex dossiers, timelines, covers, and author comments.
+
+### Configurable Print PDF Settings & Layout Setup
+Clicking **"Print-Ready Vector PDF (.pdf)"** launches the **PDF Book Typesetting & Print Setup** modal. Every setting is automatically saved to your workspace preferences:
+
+1. **Include Cover Page** (`includeCover`):
+   Toggle whether your manuscript's graphic book cover (designed in the Cover tab or imported) is rendered as the first page of the printed book.
+2. **Automatically Add Chapter Titles** (`includeChapterTitles`):
+   When enabled, Chronicle automatically typesets standardized chapter headings (e.g., *Chapter 1: Down the Rabbit Hole*) at the head of each chapter page. If your chapter drafts already contain custom stylized titles in the manuscript body, disable this option to prevent duplicate headings.
+3. **Include `~ • ~` Decorative Ornament** (`includeOrnament`):
+   Controls whether the classic ornamental flourish (`~ • ~`) is displayed beneath chapter titles and at scene break dividers.
+4. **Include Publish Date** (`includePubDate`):
+   Toggle the display of the publication year and publisher imprint line on the title and copyright front matter page.
+5. **Table of Contents Position** (`None` / `Start` / `End`):
+   Configure where the manuscript Table of Contents is typeset:
+   * **None**: Suppresses TOC generation entirely for short fiction, novellas, or minimal layouts.
+   * **Start (Front Matter)**: Inserts the TOC before Chapter 1 with elegant dot leaders (`. . . . .`) and exact Arabic chapter page numbers, calibrated so Chapter 1 begins at Page 1.
+   * **End (Back Matter)**: Places the TOC at the end of the manuscript as back matter.
+* **Trim Sizes & Book Typefaces**: Choose between 6" × 9" Trade Paperback, 5.5" × 8.5" Digest, A4, or US Letter, with a choice of Times Roman serif or Helvetica sans-serif.
+* **Export Actions**: Choose **"Print Preview"** to review page geometry in a native browser print window, or **"Export Vector PDF"** to compile a print-on-demand vector PDF document.
 
 > **Zero-Leakage Export Guarantee**:  
 > All author review comments, editorial notes, and temporary highlights are automatically stripped during publication exports, guaranteeing that your published PDF, EPUB, or DOCX files are pristine.

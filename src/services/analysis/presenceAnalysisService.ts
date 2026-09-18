@@ -30,7 +30,7 @@ export function extractPlainTextFromHtml(html: string): string {
     .replace(/<script[\s\S]*?<\/script>/gi, ' ')
     .replace(/<head[\s\S]*?<\/head>/gi, ' ')
     .replace(/<\/(p|div|h[1-6]|li|blockquote|tr)>/gi, '\n')
-    .replace(/<br\s*[\/]?>/gi, '\n')
+    .replace(/<br\s*\/?>/gi, '\n')
     .replace(/<[^>]+>/g, ' ');
 
   // Decode common HTML entities

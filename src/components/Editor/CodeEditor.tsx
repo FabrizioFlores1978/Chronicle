@@ -4,7 +4,7 @@ import { Code, RefreshCw, Scissors } from 'lucide-react';
 import { SplitChapterModal } from './SplitChapterModal';
 
 export const CodeEditor: React.FC = () => {
-  const { activeChapter, updateChapterContent } = useEpub();
+  const { activeChapter, updateChapterContent, bookSessionId } = useEpub();
   const [code, setCode] = useState<string>('');
   const [isSplitModalOpen, setIsSplitModalOpen] = useState<boolean>(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -16,8 +16,8 @@ export const CodeEditor: React.FC = () => {
     if (textareaRef.current) {
       textareaRef.current.scrollTop = 0;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- only sync when chapter ID changes, not on keystroke updates
-  }, [activeChapter?.id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only sync when chapter ID or book session changes, not on keystroke updates
+  }, [activeChapter?.id, bookSessionId]);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const val = e.target.value;

@@ -335,7 +335,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
             <div style={{ marginTop: 'auto', padding: '0.5rem', borderTop: '1px solid var(--border-subtle)', fontSize: '0.72rem', color: 'var(--text-muted)' }}>
               <div>Chronicle Studio</div>
-              <div style={{ opacity: 0.8 }}>v0.1.0 • IndexedDB</div>
+              <div style={{ opacity: 0.8 }}>v1.1.0</div>
             </div>
           </div>
 
@@ -911,10 +911,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                   t === 'light'
                                     ? '#f8fafc'
                                     : t === 'sepia'
-                                    ? '#fbf0d9'
-                                    : t === 'dark'
-                                    ? '#1e293b'
-                                    : '#09090b',
+                                      ? '#fbf0d9'
+                                      : t === 'dark'
+                                        ? '#1e293b'
+                                        : '#09090b',
                                 border: '1px solid rgba(128,128,128,0.4)',
                               }}
                             />
