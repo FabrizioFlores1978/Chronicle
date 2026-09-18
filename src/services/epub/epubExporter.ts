@@ -76,13 +76,16 @@ export async function exportEpub(book: EpubBook): Promise<Blob> {
 
   // 7. Write all Chapter XHTML files
   const chapterMap = new Map(book.chapters.map(c => [c.id, c]));
+  const cssAssets = book.assets.filter(a => a.mediaType.includes('css') || a.fullPath.toLowerCase().endsWith('.css'));
+
   for (const spineItem of book.spine) {
     const chapter = chapterMap.get(spineItem.idref);
     if (chapter) {
       // Restore asset URLs & strip internal author comment highlights
       const strippedContent = stripCommentsFromHtml(chapter.content);
       const cleanedBody = restoreAssetUrls(strippedContent, chapter.fullPath, book.assets);
-      const fullXhtml = wrapInXhtml(cleanedBody, chapter.title);
+      const cssHrefs = cssAssets.map(a => getRelativePath(chapter.fullPath, a.fullPath));
+      const fullXhtml = wrapInXhtml(cleanedBody, chapter.title, cssHrefs);
       zip.file(chapter.fullPath, fullXhtml);
     }
   }
@@ -211,25 +214,17 @@ ${items
       </ol>`;
   }
 
-  return `<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <title>${escapeXml(title)} - Table of Contents</title>
-    <style>
+  const navBody = `    <style>
       nav ol { list-style-type: none; padding-left: 1.5rem; }
       nav li { margin: 0.5rem 0; }
       nav a { text-decoration: none; color: inherit; }
     </style>
-  </head>
-  <body>
     <nav epub:type="toc" id="toc">
       <h1>Table of Contents</h1>
       ${renderTocList(toc)}
-    </nav>
-  </body>
-</html>`;
+    </nav>`;
+
+  return wrapInXhtml(navBody, `${title} - Table of Contents`);
 }
 
 /**
