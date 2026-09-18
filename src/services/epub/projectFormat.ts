@@ -72,7 +72,7 @@ export async function saveChronicleProject(book: EpubBook): Promise<Blob> {
     format: 'chronicle',
     formatVersion: '1.0.0',
     app: 'Chronicle',
-    appVersion: '1.0.0',
+    appVersion: '1.1.0',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     title: book.metadata?.title || 'Untitled Manuscript',
