@@ -20,8 +20,6 @@ import {
   Link,
   RemoveFormatting,
   Scissors,
-  Sun,
-  Moon,
   FileText,
   Maximize2,
   SlidersHorizontal,
@@ -59,7 +57,6 @@ export const WysiwygEditor: React.FC = () => {
     updateChapterContent,
     book,
     readerTheme,
-    setReaderTheme,
     customCss,
     comments,
     chapterComments,
@@ -772,44 +769,6 @@ export const WysiwygEditor: React.FC = () => {
 
           <div className="toolbar-separator" />
 
-          {/* Editor Canvas Theme Selector */}
-          <div className="canvas-theme-selector" style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', padding: '2px 4px', borderRadius: 'var(--radius-sm)' }}>
-            <button
-              className={`btn-icon btn-sm ${readerTheme === 'light' ? 'active' : ''}`}
-              onClick={() => setReaderTheme('light')}
-              title="Paper White Canvas"
-              style={{ padding: '3px 6px', background: readerTheme === 'light' ? '#fafafa' : undefined, color: readerTheme === 'light' ? '#18181b' : undefined }}
-            >
-              <Sun size={14} />
-            </button>
-            <button
-              className={`btn-icon btn-sm ${readerTheme === 'sepia' ? 'active' : ''}`}
-              onClick={() => setReaderTheme('sepia')}
-              title="Warm Sepia Canvas"
-              style={{ padding: '3px 6px', background: readerTheme === 'sepia' ? '#f7f3e8' : undefined, color: readerTheme === 'sepia' ? '#2e261f' : undefined }}
-            >
-              <span style={{ fontSize: '0.75rem', fontWeight: 'bold' }}>S</span>
-            </button>
-            <button
-              className={`btn-icon btn-sm ${readerTheme === 'dark' ? 'active' : ''}`}
-              onClick={() => setReaderTheme('dark')}
-              title="Graphite Dark Canvas"
-              style={{ padding: '3px 6px', background: readerTheme === 'dark' ? '#121215' : undefined, color: readerTheme === 'dark' ? '#fafafa' : undefined }}
-            >
-              <Moon size={14} />
-            </button>
-            <button
-              className={`btn-icon btn-sm ${readerTheme === 'obsidian' ? 'active' : ''}`}
-              onClick={() => setReaderTheme('obsidian')}
-              title="Obsidian OLED"
-              style={{ padding: '3px 6px', background: readerTheme === 'obsidian' ? '#000000' : undefined, color: readerTheme === 'obsidian' ? '#ffffff' : undefined }}
-            >
-              <span style={{ fontSize: '0.75rem', fontWeight: 'bold' }}>O</span>
-            </button>
-          </div>
-
-          <div className="toolbar-separator" />
-
           {/* Comments Sidebar Toggle Button */}
           <button
             className={`btn btn-secondary btn-sm ${isCommentsSidebarOpen ? 'active' : ''}`}
@@ -856,19 +815,6 @@ export const WysiwygEditor: React.FC = () => {
             }}
           >
             {showCommentHighlights ? <Eye size={14} /> : <EyeOff size={14} />}
-          </button>
-
-          <button
-            className="btn btn-primary btn-sm"
-            onClick={handleQuickSplit}
-            title="Split chapter at cursor, selection, or heading"
-            style={{
-              background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
-              boxShadow: '0 2px 8px rgba(124, 58, 237, 0.3)',
-            }}
-          >
-            <Scissors size={14} />
-            <span>Split Chapter</span>
           </button>
         </div>
         )}

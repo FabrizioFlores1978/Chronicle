@@ -203,6 +203,8 @@ export interface EpubBook {
   writerData?: WriterProjectData;
 }
 
+export type PrimaryAppMode = 'write' | 'bible' | 'publish';
+
 export type AppViewMode =
   | 'reader'
   | 'editor'
@@ -216,6 +218,28 @@ export type AppViewMode =
   | 'cast-grid'
   | 'characters'
   | 'locations';
+
+export const PRIMARY_MODE_MAP: Record<AppViewMode, PrimaryAppMode> = {
+  editor: 'write',
+  reader: 'write',
+  inspector: 'write',
+  timeline: 'bible',
+  'cast-grid': 'bible',
+  characters: 'bible',
+  locations: 'bible',
+  cover: 'publish',
+  styles: 'publish',
+  toc: 'publish',
+  metadata: 'publish',
+  assets: 'publish',
+};
+
+export const PRIMARY_DEFAULT_VIEWS: Record<PrimaryAppMode, AppViewMode> = {
+  write: 'editor',
+  bible: 'timeline',
+  publish: 'cover',
+};
+
 export type EditorSubMode = 'visual' | 'code' | 'split';
 export type ReaderTheme = 'light' | 'sepia' | 'dark' | 'obsidian';
 export type ReaderFont = 'serif' | 'sans' | 'literata' | 'opendyslexic' | 'mono';

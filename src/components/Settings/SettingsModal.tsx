@@ -65,6 +65,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     setReaderFont,
     readerMarginWidth,
     setReaderMarginWidth,
+    setIsWelcomeModalOpen,
   } = useEpub();
 
   useEscapeKey(onClose);
@@ -333,9 +334,35 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               );
             })}
 
-            <div style={{ marginTop: 'auto', padding: '0.5rem', borderTop: '1px solid var(--border-subtle)', fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-              <div>Chronicle Studio</div>
-              <div style={{ opacity: 0.8 }}>v1.1.0</div>
+            <div style={{ marginTop: 'auto', paddingTop: '0.6rem', borderTop: '1px solid var(--border-subtle)', display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
+              <button
+                type="button"
+                className="btn btn-ghost btn-sm"
+                onClick={() => {
+                  onClose();
+                  setIsWelcomeModalOpen(true);
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.55rem',
+                  fontSize: '0.78rem',
+                  padding: '0.45rem 0.65rem',
+                  borderRadius: '8px',
+                  color: 'var(--text-secondary)',
+                  justifyContent: 'flex-start',
+                  width: '100%',
+                }}
+                title="Open Chronicle Welcome & Quick Start Guide"
+              >
+                <Sparkles size={15} style={{ color: '#c084fc' }} />
+                <span>Guide & Overview</span>
+              </button>
+
+              <div style={{ padding: '0 0.5rem', fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                <div>Chronicle Studio</div>
+                <div style={{ opacity: 0.8 }}>v1.1.0</div>
+              </div>
             </div>
           </div>
 
@@ -1253,6 +1280,43 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)' }}>
                     System startup preferences and browser database status.
                   </p>
+                </div>
+
+                {/* User & Welcome Guide Launch Card */}
+                <div
+                  style={{
+                    padding: '0.9rem 1rem',
+                    borderRadius: '10px',
+                    backgroundColor: 'var(--bg-surface)',
+                    border: '1px solid var(--border-subtle)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: '1rem',
+                  }}
+                >
+                  <div>
+                    <div style={{ fontWeight: 600, fontSize: '0.85rem', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <Sparkles size={15} style={{ color: '#c084fc' }} />
+                      <span>Welcome & Feature Guide</span>
+                    </div>
+                    <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                      Feature overview, writing tools guide, worldbuilding dossiers, and publishing walkthrough.
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="btn btn-secondary btn-sm"
+                    onClick={() => {
+                      onClose();
+                      setIsWelcomeModalOpen(true);
+                    }}
+                    style={{ display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap', flexShrink: 0 }}
+                  >
+                    <Sparkles size={13} style={{ color: '#c084fc' }} />
+                    <span>Open Guide</span>
+                  </button>
                 </div>
 
                 {/* Startup Welcome Guide Toggle */}

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useEpub, EpubProvider } from './context/EpubContext';
 import { TtsProvider, useTts } from './context/TtsContext';
 import { Header } from './components/Header';
+import { SubNavHeader } from './components/Navigation/SubNavHeader';
 import { ChapterList } from './components/Sidebar/ChapterList';
 import { EditorContainer } from './components/Editor/EditorContainer';
 import { ReaderView } from './components/Reader/ReaderView';
@@ -186,6 +187,7 @@ const AppContent: React.FC = () => {
             <WelcomeScreen />
           ) : (
             <>
+              <SubNavHeader />
               {viewMode === 'reader' && <ReaderView />}
               {viewMode === 'editor' && <EditorContainer />}
               {viewMode === 'characters' && <CharacterStudio />}

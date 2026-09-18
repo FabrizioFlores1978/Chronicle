@@ -45,19 +45,25 @@ This handbook details how to navigate the studio, customize your writing environ
 
 The workspace is organized into four main areas:
 
-### 1. Top Navigation Bar
-* **Book Title & Author**: Click the manuscript title to rename the project or edit book metadata (Language, Publisher, ISBN, Description).
-* **View Switcher Tabs**:
-  * **`Write`**: Manuscript drafting with the WYSIWYG editor and chapter binder.
-  * **`Read`**: Distraction-free reader view for proofreading flow and pagination.
-  * **`Timeline`**: Multi-strand narrative timeline plotting matrix.
-  * **`Cast Grid`**: Chapter-by-chapter character presence density matrix.
-  * **`Codex`**: Worldbuilding dossiers for characters and sensory locations.
-  * **`Cover`**: Built-in graphic book cover designer.
-  * **`Styles`**: Direct CSS stylesheet editor for advanced EPUB typography.
-  * **`Metadata`**: Publication package details and Dublin Core attributes.
-  * **`Inspect`**: Raw XHTML code viewer and spine hierarchy inspector.
-* **Quick Tools**: Quick triggers for Offline Kokoro Neural Audio Proofreading, Smart Typography formatting, Export Hub, and Settings.
+### 1. Top Navigation Bar & 3 Core Workspaces
+Chronicle consolidates the authoring journey into **3 Primary Workspaces**, each paired with a dedicated contextual sub-navigation bar:
+
+* **`✍️ Write` (Creative Authoring Workspace)**:
+  * **Editor**: Manuscript drafting with the WYSIWYG rich text canvas, HTML source editor, and chapter binder.
+  * **Reader**: Distraction-free reader view for proofreading flow, pagination, and offline Kokoro neural TTS playback.
+  * **Inspector**: Deep EPUB package validator, manifest explorer, and spine hierarchy inspector.
+* **`🗺️ Story Bible` (Worldbuilding & Narrative Intelligence)**:
+  * **Timeline**: Multi-strand chronological and manuscript-order narrative timeline plotting.
+  * **Cast Grid**: Chapter-by-chapter character presence density matrix and dialogue heatmaps.
+  * **Characters**: Character dossiers, psychological traits, archetypes, and relationship maps.
+  * **Locations**: Location Codex for world geography, sensory atmosphere notes, and scene settings.
+* **`📚 Publish` (Production & Packaging)**:
+  * **Cover Studio**: Built-in graphic vector book cover designer with typography presets.
+  * **Styles & CSS**: Direct CSS stylesheet editor for custom EPUB and reader typography.
+  * **Table of Contents**: Hierarchical TOC manager with chapter nesting and re-ordering.
+  * **Metadata**: Dublin Core publication attributes (Title, Author, ISBN, Publisher, Series, Description).
+  * **Assets**: Media gallery for embedded illustrations, font files, and cover artwork.
+  * **Export Hub**: Quick one-click trigger for Word (Shunn DOCX), Vector PDF, EPUB, Markdown, and plain text exports.
 
 ### 2. The Chapter Binder Sidebar
 * **Organize Scenes**: Reorder chapters by dragging and dropping them vertically in the binder list.

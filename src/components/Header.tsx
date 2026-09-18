@@ -4,12 +4,8 @@ import { useTts } from '../context/TtsContext';
 import {
   BookOpen,
   Edit3,
-  ListOrdered,
-  Tag,
-  Image as ImageIcon,
-  Palette,
+  Compass,
   FolderArchive,
-  Terminal,
   Upload,
   Download,
   Wand2,
@@ -17,7 +13,6 @@ import {
   Sidebar,
   PlusCircle,
   Edit2,
-  Clock,
   Cloud,
   ChevronDown,
   FolderTree,
@@ -30,7 +25,7 @@ import {
   Sun,
   Moon,
 } from 'lucide-react';
-import { AppViewMode } from '../types/epub';
+import { PrimaryAppMode } from '../types/epub';
 import { TypographyModal } from './Typography/TypographyModal';
 import { ExportModal } from './Export/ExportModal';
 import { TitleRenameModal } from './Header/TitleRenameModal';
@@ -40,8 +35,6 @@ import { isTauri } from '../services/cloud/webdavClient';
 export const Header: React.FC = () => {
   const {
     book,
-    viewMode,
-    setViewMode,
     loadAnyFile,
     createNewBook,
     isLoading,
@@ -65,11 +58,14 @@ export const Header: React.FC = () => {
     activeChapter,
     readerTheme,
     setReaderTheme,
+    primaryMode,
+    setPrimaryMode,
+    isExportModalOpen,
+    setIsExportModalOpen,
   } = useEpub();
   const { stopAudio } = useTts();
 
   const [isTypographyOpen, setIsTypographyOpen] = useState<boolean>(false);
-  const [isExportOpen, setIsExportOpen] = useState<boolean>(false);
   const [isRenameOpen, setIsRenameOpen] = useState<boolean>(false);
   const [isCloudMenuOpen, setIsCloudMenuOpen] = useState<boolean>(false);
   const [isSaveMenuOpen, setIsSaveMenuOpen] = useState<boolean>(false);
@@ -85,16 +81,10 @@ export const Header: React.FC = () => {
     if (e.target) e.target.value = '';
   };
 
-  const navItems: { id: AppViewMode; label: string; icon: React.ReactNode }[] = [
-    { id: 'editor', label: 'Write', icon: <Edit3 size={14} /> },
-    { id: 'timeline', label: 'Timeline', icon: <Clock size={14} /> },
-    { id: 'reader', label: 'Read', icon: <BookOpen size={14} /> },
-    { id: 'toc', label: 'TOC', icon: <ListOrdered size={14} /> },
-    { id: 'metadata', label: 'Metadata', icon: <Tag size={14} /> },
-    { id: 'cover', label: 'Cover', icon: <ImageIcon size={14} /> },
-    { id: 'styles', label: 'Styles', icon: <Palette size={14} /> },
-    { id: 'assets', label: 'Assets', icon: <FolderArchive size={14} /> },
-    { id: 'inspector', label: 'Inspect', icon: <Terminal size={14} /> },
+  const primaryModes: { id: PrimaryAppMode; label: string; icon: React.ReactNode; tooltip: string }[] = [
+    { id: 'write', label: 'Write', icon: <Edit3 size={14} />, tooltip: 'Creative Writing Workspace (Editor, Reader, Inspector)' },
+    { id: 'bible', label: 'Story Bible', icon: <Compass size={14} />, tooltip: 'Worldbuilding & Narrative Intelligence (Timeline, Cast Grid, Characters, Locations)' },
+    { id: 'publish', label: 'Publish', icon: <BookOpen size={14} />, tooltip: 'Production & Publishing (Cover Studio, Styles & CSS, TOC, Metadata, Assets, Export)' },
   ];
 
   if (isZenMode) {
@@ -277,19 +267,20 @@ export const Header: React.FC = () => {
           )}
         </div>
 
-        {/* Center Section: Linear-style Segmented Mode Switcher */}
+        {/* Center Section: 3 Core Workspaces (Write, Story Bible, Publish) */}
         <div className="header-center-section">
-          <nav className="segmented-nav-control" aria-label="Workspaces">
-            {navItems.map(item => {
-              const isActive = viewMode === item.id;
+          <nav className="segmented-nav-control primary-workspace-nav" aria-label="Core Workspaces">
+            {primaryModes.map(item => {
+              const isActive = primaryMode === item.id;
               return (
                 <button
                   key={item.id}
-                  className={`segmented-pill ${isActive ? 'active' : ''}`}
-                  onClick={() => setViewMode(item.id)}
+                  className={`segmented-pill primary-mode-pill ${isActive ? 'active' : ''}`}
+                  onClick={() => setPrimaryMode(item.id)}
+                  title={item.tooltip}
                 >
                   {item.icon}
-                  <span>{item.label}</span>
+                  <span className="primary-mode-label">{item.label}</span>
                 </button>
               );
             })}
@@ -305,15 +296,6 @@ export const Header: React.FC = () => {
             accept=".chronicle,.epub,.epubstudio,.eproj"
             style={{ display: 'none' }}
           />
-
-          <button
-            className="btn btn-ghost btn-sm header-btn-collapsible"
-            onClick={() => setIsWelcomeModalOpen(true)}
-            title="Welcome & Quick Start Guide"
-          >
-            <Sparkles size={14} style={{ color: '#c084fc' }} />
-            <span>Guide</span>
-          </button>
 
           <button
             className="btn btn-ghost btn-sm header-btn-collapsible"
@@ -669,17 +651,6 @@ export const Header: React.FC = () => {
             )}
           </div>
 
-          {/* Multi-Format Export Hub */}
-          <button
-            className="btn btn-secondary btn-sm header-export-btn"
-            onClick={() => setIsExportOpen(true)}
-            title="Export manuscript to Word (Shunn DOCX), PDF, Markdown, and more"
-            disabled={isLoading || !book}
-          >
-            <Download size={14} />
-            <span>Export Hub</span>
-          </button>
-
           {/* Studio Settings & Preferences */}
           <button
             className="btn btn-ghost btn-sm header-btn-collapsible"
@@ -923,7 +894,7 @@ export const Header: React.FC = () => {
                     className="dropdown-item header-more-export-item"
                     onClick={() => {
                       setIsMoreMenuOpen(false);
-                      setIsExportOpen(true);
+                      setIsExportModalOpen(true);
                     }}
                     disabled={isLoading || !book}
                     style={{
@@ -993,8 +964,8 @@ export const Header: React.FC = () => {
         <TypographyModal onClose={() => setIsTypographyOpen(false)} />
       )}
 
-      {isExportOpen && (
-        <ExportModal onClose={() => setIsExportOpen(false)} />
+      {isExportModalOpen && (
+        <ExportModal onClose={() => setIsExportModalOpen(false)} />
       )}
     </>
   );

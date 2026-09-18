@@ -5,6 +5,9 @@ import {
   EpubChapter,
   EpubMetadata,
   AppViewMode,
+  PrimaryAppMode,
+  PRIMARY_MODE_MAP,
+  PRIMARY_DEFAULT_VIEWS,
   EditorSubMode,
   ReaderTheme,
   ReaderFont,
@@ -91,6 +94,11 @@ interface EpubContextType {
   setCustomCss: (css: string) => void;
   applyCustomCssToBook: (css: string) => void;
 
+  primaryMode: PrimaryAppMode;
+  setPrimaryMode: (mode: PrimaryAppMode) => void;
+  lastWriteView: AppViewMode;
+  lastBibleView: AppViewMode;
+  lastPublishView: AppViewMode;
   setViewMode: (mode: AppViewMode) => void;
   setEditorSubMode: (mode: EditorSubMode) => void;
   setReaderTheme: (theme: ReaderTheme) => void;
@@ -143,6 +151,14 @@ interface EpubContextType {
 
   isWelcomeModalOpen: boolean;
   setIsWelcomeModalOpen: (open: boolean) => void;
+
+  isExportModalOpen: boolean;
+  setIsExportModalOpen: (open: boolean) => void;
+
+  isCharacterSidebarOpen: boolean;
+  setIsCharacterSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  isLocationSidebarOpen: boolean;
+  setIsLocationSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
 
   uiTheme: UiTheme;
   setUiTheme: (theme: UiTheme) => void;
@@ -237,6 +253,19 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [activeChapterId, setActiveChapterId] = useState<string | null>(null);
   const [viewMode, setViewModeState] = useState<AppViewMode>(initialSettings.viewMode);
+  const [lastWriteView, setLastWriteView] = useState<AppViewMode>(() =>
+    ['editor', 'reader', 'inspector'].includes(initialSettings.viewMode) ? initialSettings.viewMode : 'editor'
+  );
+  const [lastBibleView, setLastBibleView] = useState<AppViewMode>(() =>
+    ['timeline', 'cast-grid', 'characters', 'locations'].includes(initialSettings.viewMode) ? initialSettings.viewMode : 'timeline'
+  );
+  const [lastPublishView, setLastPublishView] = useState<AppViewMode>(() =>
+    ['cover', 'styles', 'toc', 'metadata', 'assets'].includes(initialSettings.viewMode) ? initialSettings.viewMode : 'cover'
+  );
+
+  const primaryMode: PrimaryAppMode = useMemo(() => {
+    return PRIMARY_MODE_MAP[viewMode] || 'write';
+  }, [viewMode]);
   const [editorSubMode, setEditorSubModeState] = useState<EditorSubMode>(initialSettings.editorSubMode);
   const [readerTheme, setReaderThemeState] = useState<ReaderTheme>(initialSettings.readerTheme);
   const [readerFont, setReaderFontState] = useState<ReaderFont>(initialSettings.readerFont);
@@ -297,6 +326,9 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, []);
 
   const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState<boolean>(true);
+  const [isExportModalOpen, setIsExportModalOpen] = useState<boolean>(false);
+  const [isCharacterSidebarOpen, setIsCharacterSidebarOpen] = useState<boolean>(false);
+  const [isLocationSidebarOpen, setIsLocationSidebarOpen] = useState<boolean>(false);
 
   const [pendingUnsavedAction, setPendingUnsavedAction] = useState<PendingUnsavedAction | null>(null);
   const isDirtyRef = useRef<boolean>(isDirty);
@@ -456,8 +488,24 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const setViewMode = useCallback((mode: AppViewMode) => {
     setViewModeState(mode);
+    const parentPrimary = PRIMARY_MODE_MAP[mode] || 'write';
+    if (parentPrimary === 'write') setLastWriteView(mode);
+    else if (parentPrimary === 'bible') setLastBibleView(mode);
+    else if (parentPrimary === 'publish') setLastPublishView(mode);
     saveSetting('viewMode', mode);
   }, []);
+
+  const setPrimaryMode = useCallback(
+    (mode: PrimaryAppMode) => {
+      let targetView: AppViewMode;
+      if (mode === 'write') targetView = lastWriteView;
+      else if (mode === 'bible') targetView = lastBibleView;
+      else if (mode === 'publish') targetView = lastPublishView;
+      else targetView = PRIMARY_DEFAULT_VIEWS[mode] || 'editor';
+      setViewMode(targetView);
+    },
+    [lastWriteView, lastBibleView, lastPublishView, setViewMode]
+  );
 
   const setEditorSubMode = useCallback((subMode: EditorSubMode) => {
     setEditorSubModeState(subMode);
@@ -2234,6 +2282,11 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         saveProject,
         saveAs,
         loadFromCloud,
+        primaryMode,
+        setPrimaryMode,
+        lastWriteView,
+        lastBibleView,
+        lastPublishView,
         viewMode,
         setViewMode,
         editorSubMode,
@@ -2272,6 +2325,12 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setIsCloudDesktopNoticeOpen,
         isWelcomeModalOpen,
         setIsWelcomeModalOpen,
+        isExportModalOpen,
+        setIsExportModalOpen,
+        isCharacterSidebarOpen,
+        setIsCharacterSidebarOpen,
+        isLocationSidebarOpen,
+        setIsLocationSidebarOpen,
         uiTheme,
         setUiTheme,
         minimalistMode,
