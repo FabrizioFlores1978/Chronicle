@@ -21,18 +21,18 @@ export const KnowledgeBaseStudio: React.FC = () => {
       >
         <div className="view-tabs" style={{ background: 'var(--bg-app)' }}>
           <button
-            className={`view-tab-btn ${activeTab === 'timeline' ? 'active' : ''}`}
-            onClick={() => setActiveTab('timeline')}
-          >
-            <Clock size={14} />
-            <span>Timeline</span>
-          </button>
-          <button
             className={`view-tab-btn ${activeTab === 'cast-grid' ? 'active' : ''}`}
             onClick={() => setActiveTab('cast-grid')}
           >
             <LayoutGrid size={14} />
             <span>Cast Grid</span>
+          </button>
+          <button
+            className={`view-tab-btn ${activeTab === 'timeline' ? 'active' : ''}`}
+            onClick={() => setActiveTab('timeline')}
+          >
+            <Clock size={14} />
+            <span>Timeline</span>
           </button>
         </div>
       </div>
