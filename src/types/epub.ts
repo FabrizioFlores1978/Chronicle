@@ -214,7 +214,7 @@ export type AppViewMode =
   | 'styles'
   | 'assets'
   | 'inspector'
-  | 'timeline'
+  | 'knowledge-base'
   | 'cast-grid'
   | 'characters'
   | 'locations';

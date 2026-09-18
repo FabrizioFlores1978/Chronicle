@@ -80,6 +80,7 @@ export const LocationStudio: React.FC = () => {
     runCastPresenceAnalysis,
     setActiveChapterId,
     setViewMode,
+    openKnowledgeBase,
   } = useEpub();
 
   // Selection & active tabs
@@ -274,7 +275,7 @@ export const LocationStudio: React.FC = () => {
           {/* Presence Grid shortcut */}
           <button
             className="btn btn-sm btn-outline entity-action-btn"
-            onClick={() => setViewMode('cast-grid')}
+            onClick={() => openKnowledgeBase('cast-grid')}
             title="View in Cast Presence Grid"
           >
             <LayoutGrid size={13} />
@@ -811,7 +812,7 @@ export const LocationStudio: React.FC = () => {
                     <div className="footprint-actions">
                       <button
                         className="btn btn-sm btn-outline"
-                        onClick={() => setViewMode('cast-grid')}
+                        onClick={() => openKnowledgeBase('cast-grid')}
                       >
                         <LayoutGrid size={14} />
                         <span>Open Presence Grid</span>

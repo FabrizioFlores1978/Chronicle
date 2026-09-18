@@ -180,6 +180,9 @@ interface EpubContextType {
   openSettings: (tab?: 'appearance' | 'themes' | 'cloud' | 'editor' | 'general') => void;
   closeSettings: () => void;
 
+  knowledgeBaseInitialTab: 'timeline' | 'cast-grid';
+  openKnowledgeBase: (tab?: 'timeline' | 'cast-grid') => void;
+
   pendingUnsavedAction: PendingUnsavedAction | null;
   setPendingUnsavedAction: (action: PendingUnsavedAction | null) => void;
 
@@ -317,6 +320,13 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setIsSettingsOpen(false);
   }, []);
 
+  const [knowledgeBaseInitialTab, setKnowledgeBaseInitialTab] = useState<'timeline' | 'cast-grid'>('cast-grid');
+
+  const openKnowledgeBase = useCallback((tab: 'timeline' | 'cast-grid' = 'cast-grid') => {
+    setKnowledgeBaseInitialTab(tab);
+    setViewMode('knowledge-base');
+  }, []);
+
   const setUiTheme = useCallback((theme: UiTheme) => {
     setUiThemeState(theme);
     if (typeof document !== 'undefined') {
@@ -400,7 +410,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           if (typeof window !== 'undefined' && window.location && window.location.search) {
             const params = new URLSearchParams(window.location.search);
             const viewParam = params.get('view');
-            const validViews: AppViewMode[] = ['reader', 'editor', 'toc', 'metadata', 'cover', 'styles', 'assets', 'inspector', 'timeline'];
+            const validViews: AppViewMode[] = ['reader', 'editor', 'toc', 'metadata', 'cover', 'styles', 'assets', 'inspector', 'knowledge-base'];
             if (viewParam && validViews.includes(viewParam as AppViewMode)) {
               setViewModeState(viewParam as AppViewMode);
             }
@@ -2347,6 +2357,8 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         settingsInitialTab,
         openSettings,
         closeSettings,
+        knowledgeBaseInitialTab,
+        openKnowledgeBase,
         pendingUnsavedAction,
         setPendingUnsavedAction,
         updateChapterContent,

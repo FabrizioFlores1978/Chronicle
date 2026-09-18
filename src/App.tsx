@@ -12,8 +12,8 @@ import { CoverStudio } from './components/Cover/CoverStudio';
 import { StyleStudio } from './components/StyleStudio/StyleStudio';
 import { AssetManager } from './components/Assets/AssetManager';
 import { EpubInspector } from './components/Inspector/EpubInspector';
-import { TimelineStudio } from './components/Timeline/TimelineStudio';
 import { CastPresenceGrid } from './components/CastPresence/CastPresenceGrid';
+import { KnowledgeBaseStudio } from './components/KnowledgeBase/KnowledgeBaseStudio';
 import { CharacterStudio } from './components/Characters/CharacterStudio';
 import { LocationStudio } from './components/Locations/LocationStudio';
 import { StatusBar } from './components/StatusBar/StatusBar';
@@ -193,7 +193,7 @@ const AppContent: React.FC = () => {
               {viewMode === 'characters' && <CharacterStudio />}
               {viewMode === 'locations' && <LocationStudio />}
               {viewMode === 'cast-grid' && <CastPresenceGrid />}
-              {viewMode === 'timeline' && <TimelineStudio />}
+              {viewMode === 'knowledge-base' && <KnowledgeBaseStudio />}
               {viewMode === 'toc' && <TocManager />}
               {viewMode === 'metadata' && <MetadataEditor />}
               {viewMode === 'cover' && <CoverStudio />}

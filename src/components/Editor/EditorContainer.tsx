@@ -8,6 +8,14 @@ import { LocationDetailModal } from '../Locations/LocationDetailModal';
 
 export const EditorContainer: React.FC = () => {
   const {
+    editorSubMode,
+    setEditorSubMode,
+    characters,
+    locations,
+    timelines,
+    minimalistMode,
+    isZenMode,
+    openKnowledgeBase,
     bookSessionId,
     activeChapter,
     isCharacterSidebarOpen,
