@@ -71,8 +71,8 @@ export const SubNavHeader: React.FC = () => {
     },
   ];
 
-  // 2. Story Bible Items
-  const bibleItems: {
+  // 2. Knowledge Base Items
+  const knowledgeBaseItems: {
     id: AppViewMode;
     label: string;
     icon: React.ReactNode;
@@ -157,7 +157,7 @@ export const SubNavHeader: React.FC = () => {
     setViewMode(id);
   };
 
-  const handleBibleItemInWriteModeClick = (id: AppViewMode) => {
+  const handleKnowledgeBaseItemInWriteModeClick = (id: AppViewMode) => {
     if (id === 'characters') {
       if (viewMode !== 'editor') {
         setViewMode('editor');
@@ -204,9 +204,9 @@ export const SubNavHeader: React.FC = () => {
             })}
           </div>
 
-          {/* Right: Story Bible Tools (Drawers in Writing mode, full tools on click) */}
+          {/* Right: Knowledge Base Tools (Drawers in Writing mode, full tools on click) */}
           <div className="sub-nav-tabs">
-            {bibleItems.map(item => {
+            {knowledgeBaseItems.map(item => {
               let isActive = false;
               if (item.id === 'characters') {
                 isActive = isCharacterSidebarOpen && viewMode === 'editor';
@@ -227,7 +227,7 @@ export const SubNavHeader: React.FC = () => {
                 <button
                   key={item.id}
                   className={`sub-nav-pill ${isActive ? 'active' : ''}`}
-                  onClick={() => handleBibleItemInWriteModeClick(item.id)}
+                  onClick={() => handleKnowledgeBaseItemInWriteModeClick(item.id)}
                   title={dynamicTitle}
                 >
                   {item.icon}
@@ -242,9 +242,9 @@ export const SubNavHeader: React.FC = () => {
             })}
           </div>
         </div>
-      ) : primaryMode === 'bible' ? (
+      ) : primaryMode === 'knowledge-base' ? (
         <div className="sub-nav-tabs">
-          {bibleItems.map(item => {
+          {knowledgeBaseItems.map(item => {
             const isActive = viewMode === item.id;
             return (
               <button

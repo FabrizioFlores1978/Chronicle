@@ -203,7 +203,7 @@ export interface EpubBook {
   writerData?: WriterProjectData;
 }
 
-export type PrimaryAppMode = 'write' | 'bible' | 'publish';
+export type PrimaryAppMode = 'write' | 'knowledge-base' | 'publish';
 
 export type AppViewMode =
   | 'reader'
@@ -223,10 +223,10 @@ export const PRIMARY_MODE_MAP: Record<AppViewMode, PrimaryAppMode> = {
   editor: 'write',
   reader: 'write',
   inspector: 'write',
-  timeline: 'bible',
-  'cast-grid': 'bible',
-  characters: 'bible',
-  locations: 'bible',
+  timeline: 'knowledge-base',
+  'cast-grid': 'knowledge-base',
+  characters: 'knowledge-base',
+  locations: 'knowledge-base',
   cover: 'publish',
   styles: 'publish',
   toc: 'publish',
@@ -236,7 +236,7 @@ export const PRIMARY_MODE_MAP: Record<AppViewMode, PrimaryAppMode> = {
 
 export const PRIMARY_DEFAULT_VIEWS: Record<PrimaryAppMode, AppViewMode> = {
   write: 'editor',
-  bible: 'cast-grid',
+  'knowledge-base': 'cast-grid',
   publish: 'cover',
 };
 

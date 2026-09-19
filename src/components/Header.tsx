@@ -83,7 +83,7 @@ export const Header: React.FC = () => {
 
   const primaryModes: { id: PrimaryAppMode; label: string; icon: React.ReactNode; tooltip: string }[] = [
     { id: 'write', label: 'Write', icon: <Edit3 size={14} />, tooltip: 'Creative Writing Workspace (Editor, Reader, Inspector)' },
-    { id: 'bible', label: 'Story Bible', icon: <Compass size={14} />, tooltip: 'Worldbuilding & Narrative Intelligence (Timeline, Cast Grid, Characters, Locations)' },
+    { id: 'knowledge-base', label: 'Knowledge Base', icon: <Compass size={14} />, tooltip: 'Worldbuilding & Narrative Intelligence (Timeline, Cast Grid, Characters, Locations)' },
     { id: 'publish', label: 'Publish', icon: <BookOpen size={14} />, tooltip: 'Production & Publishing (Cover Studio, Styles & CSS, TOC, Metadata, Assets, Export)' },
   ];
 
@@ -267,7 +267,7 @@ export const Header: React.FC = () => {
           )}
         </div>
 
-        {/* Center Section: 3 Core Workspaces (Write, Story Bible, Publish) */}
+        {/* Center Section: 3 Core Workspaces (Write, Knowledge Base, Publish) */}
         <div className="header-center-section">
           <nav className="segmented-nav-control primary-workspace-nav" aria-label="Core Workspaces">
             {primaryModes.map(item => {

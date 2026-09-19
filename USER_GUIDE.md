@@ -52,7 +52,7 @@ Chronicle consolidates the authoring journey into **3 Primary Workspaces**, each
   * **Editor**: Manuscript drafting with the WYSIWYG rich text canvas, HTML source editor, and chapter binder.
   * **Reader**: Distraction-free reader view for proofreading flow, pagination, and offline Kokoro neural TTS playback.
   * **Inspector**: Deep EPUB package validator, manifest explorer, and spine hierarchy inspector.
-* **`🗺️ Story Bible` (Worldbuilding & Narrative Intelligence)**:
+* **`🗺️ Knowledge Base` (Worldbuilding & Narrative Intelligence)**:
   * **Timeline**: Multi-strand chronological and manuscript-order narrative timeline plotting.
   * **Cast Grid**: Chapter-by-chapter character presence density matrix and dialogue heatmaps.
   * **Characters**: Character dossiers, psychological traits, archetypes, and relationship maps.
@@ -188,7 +188,7 @@ Click the **"Cast Grid"** tab to inspect character screen-time balance across ch
 
 ## Chapter 7: Worldbuilding Codex (Characters & Locations)
 
-Click the **"Codex"** tab to manage your novel's worldbuilding bible.
+Click the **"Characters"** or **"Locations"** tab within the Knowledge Base to manage your novel's worldbuilding details.
 
 ![Worldbuilding Codex](docs/assets/guide/09-worldbuilding-codex.png)
 *Figure 7.1: Character Codex profile drawer displaying archetype, role, physical appearance, psychological traits, and goals checklist.*
