@@ -257,7 +257,7 @@ export const CloudFileBrowserModal: React.FC<CloudFileBrowserModalProps> = ({ on
           type="file"
           ref={uploadInputRef}
           onChange={handleUploadLocalFile}
-          accept=".chronicle,.epub,.epubstudio,.eproj"
+          accept=".chronicle,.epub,.md,.markdown,.mdown,.mkd"
           style={{ display: 'none' }}
         />
 
@@ -327,7 +327,7 @@ export const CloudFileBrowserModal: React.FC<CloudFileBrowserModalProps> = ({ on
                   className="btn btn-ghost btn-sm"
                   onClick={() => uploadInputRef.current?.click()}
                   disabled={isUploading}
-                  title="Upload .chronicle or .epub from computer to cloud"
+                  title="Upload .chronicle, .epub, or .md from computer to cloud"
                 >
                   {isUploading ? <Loader2 size={13} className="animate-spin" /> : <Upload size={13} />}
                   <span>Upload</span>
@@ -534,8 +534,8 @@ export const CloudFileBrowserModal: React.FC<CloudFileBrowserModalProps> = ({ on
                     {searchQuery
                       ? 'Try adjusting your search terms.'
                       : currentSubPath
-                      ? `No files or subfolders found in "${currentSubPath}". Click "Upload" to add manuscripts or "New Folder" to create subdirectories.`
-                      : `Files saved to cloud will appear in "${webdavConfig?.remotePath || '/'}". Click Upload to add a manuscript.`}
+                        ? `No files or subfolders found in "${currentSubPath}". Click "Upload" to add manuscripts or "New Folder" to create subdirectories.`
+                        : `Files saved to cloud will appear in "${webdavConfig?.remotePath || '/'}". Click Upload to add a manuscript.`}
                   </div>
                   {currentSubPath && (
                     <button
@@ -588,6 +588,8 @@ export const CloudFileBrowserModal: React.FC<CloudFileBrowserModalProps> = ({ on
                                 <FileCode size={16} color="var(--accent-primary)" style={{ flexShrink: 0 }} />
                               ) : file.type === 'epub' ? (
                                 <BookOpen size={16} color="#10b981" style={{ flexShrink: 0 }} />
+                              ) : file.type === 'markdown' ? (
+                                <FileText size={16} color="#38bdf8" style={{ flexShrink: 0 }} />
                               ) : isDir ? (
                                 <Folder size={16} color="#f59e0b" style={{ flexShrink: 0 }} />
                               ) : (
@@ -599,8 +601,8 @@ export const CloudFileBrowserModal: React.FC<CloudFileBrowserModalProps> = ({ on
                                   color: isDir
                                     ? '#fbbf24'
                                     : isManuscript
-                                    ? 'var(--text-primary)'
-                                    : 'var(--text-muted)',
+                                      ? 'var(--text-primary)'
+                                      : 'var(--text-muted)',
                                 }}
                               >
                                 {file.name}
@@ -635,6 +637,19 @@ export const CloudFileBrowserModal: React.FC<CloudFileBrowserModalProps> = ({ on
                                 }}
                               >
                                 EPUB
+                              </span>
+                            ) : file.type === 'markdown' ? (
+                              <span
+                                style={{
+                                  fontSize: '0.7rem',
+                                  fontWeight: 600,
+                                  padding: '2px 6px',
+                                  borderRadius: '4px',
+                                  backgroundColor: 'rgba(56, 189, 248, 0.15)',
+                                  color: '#38bdf8',
+                                }}
+                              >
+                                Markdown
                               </span>
                             ) : isDir ? (
                               <span

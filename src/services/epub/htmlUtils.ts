@@ -6,9 +6,14 @@ import { EpubAsset } from '../../types/epub';
  */
 export function calculateWordCount(htmlOrText: string): number {
   if (!htmlOrText) return 0;
-  const temp = document.createElement('div');
-  temp.innerHTML = htmlOrText;
-  const text = temp.textContent || temp.innerText || '';
+  let text = '';
+  if (typeof document !== 'undefined') {
+    const temp = document.createElement('div');
+    temp.innerHTML = htmlOrText;
+    text = temp.textContent || temp.innerText || '';
+  } else {
+    text = htmlOrText.replace(/<[^>]*>/g, ' ');
+  }
   const words = text.trim().split(/\s+/).filter(w => w.length > 0);
   return words.length;
 }

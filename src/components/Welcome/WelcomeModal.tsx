@@ -93,7 +93,7 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
         type="file"
         ref={fileInputRef}
         onChange={handleFileChange}
-        accept=".chronicle,.epub,.epubstudio,.eproj"
+        accept=".chronicle,.epub,.md,.markdown,.mdown,.mkd"
         style={{ display: 'none' }}
       />
 
@@ -219,7 +219,7 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
                 <div className="intro-card-text">
                   <h3>Open Local Manuscript</h3>
                   <p>
-                    Browse any <kbd>.chronicle</kbd> project archive, <kbd>.epub</kbd> book, or manuscript file from your drive.
+                    Browse any <kbd>.chronicle</kbd> project archive, <kbd>.epub</kbd> book, or <kbd>.md</kbd> Markdown file from your drive.
                   </p>
                 </div>
                 <div className="intro-card-action">

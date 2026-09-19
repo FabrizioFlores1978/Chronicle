@@ -14,8 +14,8 @@ export interface WebDavFileItem {
   size: number;
   lastModified: string | null;
   isDirectory: boolean;
-  isManuscript: boolean; // .chronicle or .epub
-  type: 'chronicle' | 'epub' | 'other' | 'directory';
+  isManuscript: boolean; // .chronicle, .epub, or .md
+  type: 'chronicle' | 'epub' | 'markdown' | 'other' | 'directory';
   subPath?: string; // Relative parent directory from config.remotePath
   relativePath?: string; // Full relative path from config.remotePath
 }

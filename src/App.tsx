@@ -134,8 +134,10 @@ const AppContent: React.FC = () => {
       if (
         lower.endsWith('.chronicle') ||
         lower.endsWith('.epub') ||
-        lower.endsWith('.epubstudio') ||
-        lower.endsWith('.eproj')
+        lower.endsWith('.md') ||
+        lower.endsWith('.markdown') ||
+        lower.endsWith('.mdown') ||
+        lower.endsWith('.mkd')
       ) {
         stopAudio();
         loadAnyFile(file);
@@ -163,7 +165,7 @@ const AppContent: React.FC = () => {
         type="file"
         ref={globalFileInputRef}
         onChange={handleFileSelect}
-        accept=".chronicle,.epub,.epubstudio,.eproj"
+        accept=".chronicle,.epub,.md,.markdown,.mdown,.mkd"
         style={{ display: 'none' }}
       />
 

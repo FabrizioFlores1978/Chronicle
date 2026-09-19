@@ -26,7 +26,7 @@ export const STUDIO_PROJECT_EXTENSION = CHRONICLE_PROJECT_EXTENSION;
 export const STUDIO_PROJECT_MIME = CHRONICLE_PROJECT_MIME;
 
 export interface ChronicleProjectManifest {
-  format: 'chronicle' | 'epubstudio';
+  format: 'chronicle';
   formatVersion: '1.0.0';
   app: string;
   appVersion: string;
@@ -47,15 +47,13 @@ export interface ChronicleProjectManifest {
 export type StudioProjectManifest = ChronicleProjectManifest;
 
 /**
- * Checks whether a given file name or file matches the .chronicle (or legacy .epubstudio) project format.
+ * Checks whether a given file name or file matches the .chronicle project format.
  */
 export function isChronicleProjectFile(fileOrName: File | string): boolean {
   const name = typeof fileOrName === 'string' ? fileOrName : fileOrName.name;
   const lower = name.toLowerCase();
   return (
-    lower.endsWith('.chronicle') ||
-    lower.endsWith('.epubstudio') ||
-    lower.endsWith('.eproj')
+    lower.endsWith('.chronicle')
   );
 }
 
@@ -179,7 +177,7 @@ export async function saveChronicleProject(book: EpubBook): Promise<Blob> {
 export const saveStudioProject = saveChronicleProject;
 
 /**
- * Parses and reconstructs an EpubBook and its writer data from a .chronicle (or legacy .epubstudio) file.
+ * Parses and reconstructs an EpubBook and its writer data from a .chronicle file.
  */
 export async function parseChronicleProject(
   buffer: ArrayBuffer | Uint8Array,
@@ -201,16 +199,16 @@ export async function parseChronicleProject(
   const metadata: EpubMetadata = metadataFile
     ? JSON.parse(await metadataFile.async('string'))
     : {
-        title: project.title,
-        creator: project.author,
-        language: 'en',
-        identifier: 'urn:uuid:project',
-        publisher: '',
-        pubdate: new Date().toISOString(),
-        rights: '',
-        description: '',
-        subjects: [],
-      };
+      title: project.title,
+      creator: project.author,
+      language: 'en',
+      identifier: 'urn:uuid:project',
+      publisher: '',
+      pubdate: new Date().toISOString(),
+      rights: '',
+      description: '',
+      subjects: [],
+    };
 
   // 3. Read TOC, Manifest, and Spine
   const tocFile = zip.file('toc.json');
@@ -378,24 +376,24 @@ export async function parseChronicleProject(
             unitStep: tl.unitStep || 2,
             segments: Array.isArray(tl.segments)
               ? tl.segments.map((seg: any, segIdx: number): TimelineSegment => ({
-                  id: seg.id || `seg-${tlIdx}-${segIdx}`,
-                  name: seg.name || `Day ${segIdx + 1}`,
-                  startOffset: typeof seg.startOffset === 'number' ? seg.startOffset : undefined,
-                  zeroHour: typeof seg.zeroHour === 'number' ? seg.zeroHour : undefined,
-                  events: Array.isArray(seg.events)
-                    ? seg.events.map((ev: any, evIdx: number): TimelineEvent => ({
-                        id: ev.id || `ev-${segIdx}-${evIdx}`,
-                        title: ev.title || 'Event',
-                        description: ev.description || '',
-                        start: typeof ev.start === 'number' ? ev.start : 0,
-                        duration: typeof ev.duration === 'number' && ev.duration > 0 ? ev.duration : 1,
-                        color: ev.color || '#2563eb',
-                        lane: typeof ev.lane === 'number' ? ev.lane : 0,
-                        characters: Array.isArray(ev.characters) ? ev.characters : [],
-                        notes: ev.notes || '',
-                      }))
-                    : [],
-                }))
+                id: seg.id || `seg-${tlIdx}-${segIdx}`,
+                name: seg.name || `Day ${segIdx + 1}`,
+                startOffset: typeof seg.startOffset === 'number' ? seg.startOffset : undefined,
+                zeroHour: typeof seg.zeroHour === 'number' ? seg.zeroHour : undefined,
+                events: Array.isArray(seg.events)
+                  ? seg.events.map((ev: any, evIdx: number): TimelineEvent => ({
+                    id: ev.id || `ev-${segIdx}-${evIdx}`,
+                    title: ev.title || 'Event',
+                    description: ev.description || '',
+                    start: typeof ev.start === 'number' ? ev.start : 0,
+                    duration: typeof ev.duration === 'number' && ev.duration > 0 ? ev.duration : 1,
+                    color: ev.color || '#2563eb',
+                    lane: typeof ev.lane === 'number' ? ev.lane : 0,
+                    characters: Array.isArray(ev.characters) ? ev.characters : [],
+                    notes: ev.notes || '',
+                  }))
+                  : [],
+              }))
               : [],
           }));
         }
@@ -413,12 +411,12 @@ export async function parseChronicleProject(
           normalizedLocations = rawLocations.map((loc: any, locIdx: number): LocationCodexEntry => {
             const normalizedFeatures: LocationFeatureItem[] = Array.isArray(loc.features)
               ? loc.features.map((f: any, fIdx: number): LocationFeatureItem => ({
-                  id: f.id || `feat-${Date.now()}-${fIdx}`,
-                  name: f.name || f.text || 'Unnamed Feature',
-                  description: f.description || '',
-                  explored: typeof f.explored === 'boolean' ? f.explored : !!f.completed,
-                  category: f.category || 'landmark',
-                }))
+                id: f.id || `feat-${Date.now()}-${fIdx}`,
+                name: f.name || f.text || 'Unnamed Feature',
+                description: f.description || '',
+                explored: typeof f.explored === 'boolean' ? f.explored : !!f.completed,
+                category: f.category || 'landmark',
+              }))
               : [];
 
             return {
@@ -503,7 +501,7 @@ export async function parseChronicleProject(
     coverMediaType: project.coverMediaType,
     assets,
     rawFiles,
-    originalFileName: fileName.replace(/\.(chronicle|epubstudio)$/i, '.epub'),
+    originalFileName: fileName.replace(/\.(chronicle)$/i, '.epub'),
     writerData,
   };
 }

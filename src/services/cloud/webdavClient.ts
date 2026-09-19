@@ -336,7 +336,12 @@ export async function listFiles(config: WebDavConfig, subPath: string = ''): Pro
     const lowerName = displayName.toLowerCase();
     const isChronicle = lowerName.endsWith('.chronicle');
     const isEpub = lowerName.endsWith('.epub');
-    const isManuscript = isChronicle || isEpub;
+    const isMarkdown =
+      lowerName.endsWith('.md') ||
+      lowerName.endsWith('.markdown') ||
+      lowerName.endsWith('.mdown') ||
+      lowerName.endsWith('.mkd');
+    const isManuscript = isChronicle || isEpub || isMarkdown;
 
     let type: WebDavFileItem['type'] = 'other';
     if (isDirectory) {
@@ -345,6 +350,8 @@ export async function listFiles(config: WebDavConfig, subPath: string = ''): Pro
       type = 'chronicle';
     } else if (isEpub) {
       type = 'epub';
+    } else if (isMarkdown) {
+      type = 'markdown';
     }
 
     const itemRelativePath = cleanSubPath ? `${cleanSubPath}/${displayName}` : displayName;

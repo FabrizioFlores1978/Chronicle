@@ -30,8 +30,10 @@ export const WelcomeScreen: React.FC = () => {
       if (
         lower.endsWith('.chronicle') ||
         lower.endsWith('.epub') ||
-        lower.endsWith('.epubstudio') ||
-        lower.endsWith('.eproj')
+        lower.endsWith('.md') ||
+        lower.endsWith('.markdown') ||
+        lower.endsWith('.mdown') ||
+        lower.endsWith('.mkd')
       ) {
         loadAnyFile(file);
       }
@@ -48,7 +50,7 @@ export const WelcomeScreen: React.FC = () => {
         type="file"
         ref={fileInputRef}
         onChange={handleFileChange}
-        accept=".chronicle,.epub,.epubstudio,.eproj"
+        accept=".chronicle,.epub,.md,.markdown,.mdown,.mkd"
         style={{ display: 'none' }}
       />
 
@@ -95,7 +97,7 @@ export const WelcomeScreen: React.FC = () => {
           </div>
         </div>
 
-        {/* Action 2: Open Chronicle or EPUB */}
+        {/* Action 2: Open Chronicle, EPUB, or Markdown */}
         <div
           className="welcome-card welcome-card-secondary"
           onClick={() => fileInputRef.current?.click()}
@@ -106,8 +108,8 @@ export const WelcomeScreen: React.FC = () => {
             <Upload size={24} />
           </div>
           <div className="card-body">
-            <h3>Open Chronicle or EPUB</h3>
-            <p>Drag and drop any .chronicle project or .epub book file here, or click to browse.</p>
+            <h3>Open Manuscript</h3>
+            <p>Drag and drop any .chronicle project, .epub book, or .md Markdown file here, or click to browse.</p>
           </div>
           <div className="card-action-hint">
             <span>Browse (Ctrl+O)</span>

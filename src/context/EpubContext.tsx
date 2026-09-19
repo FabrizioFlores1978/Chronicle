@@ -42,6 +42,7 @@ import {
   parseChronicleProject,
   isChronicleProjectFile,
 } from '../services/epub/projectFormat';
+import { isMarkdownFile, parseMarkdownToBook } from '../services/epub/markdownImporter';
 import { WebDavConfig, StorageTarget } from '../types/cloud';
 import { UiTheme } from '../types/theme';
 import { saveWebDavConfig, deleteWebDavConfig } from '../services/cloud/webdavStorage';
@@ -666,13 +667,22 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // Helper to extract CSS from loaded book
   const extractCssFromBook = (loadedBook: EpubBook) => {
-    const cssAsset = loadedBook.assets.find(a => a.mediaType.includes('css'));
+    const cssAsset = loadedBook.assets?.find(a => a.mediaType?.includes('css'));
     if (cssAsset && cssAsset.data) {
       const decoded = new TextDecoder('utf-8').decode(cssAsset.data);
       setCustomCss(decoded);
-    } else {
-      setCustomCss(CSS_PRESETS[0].css);
+      return;
     }
+    if (loadedBook.rawFiles) {
+      for (const [path, bytes] of loadedBook.rawFiles.entries()) {
+        if (path.toLowerCase().endsWith('.css') && bytes) {
+          const decoded = new TextDecoder('utf-8').decode(bytes);
+          setCustomCss(decoded);
+          return;
+        }
+      }
+    }
+    setCustomCss(CSS_PRESETS[0].css);
   };
 
   // Load sample book on initial startup
@@ -810,6 +820,27 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           setIsPresenceCacheValid(false);
           setIsDirty(false);
           showNotification('success', `Opened Chronicle "${projectBook.metadata.title}" successfully!`);
+        } else if (isMarkdownFile(file)) {
+          const text = await file.text();
+          const mdBook = await parseMarkdownToBook(text, file.name);
+          bookRef.current = mdBook;
+          setBook(mdBook);
+          refreshBookSession();
+          extractCssFromBook(mdBook);
+          if (mdBook.chapters.length > 0) {
+            setActiveChapterId(mdBook.chapters[0].id);
+          }
+          setStorageTarget('local');
+          setCloudFileName(null);
+          setCastPresenceData(null);
+          setIsPresenceCacheValid(false);
+          setIsDirty(true);
+          setViewModeState('editor');
+          showNotification(
+            'success',
+            `Imported Markdown "${mdBook.metadata.title}" (${mdBook.chapters.length} chapter${mdBook.chapters.length === 1 ? '' : 's'
+            })! Ready to edit and save as .chronicle`
+          );
         } else {
           const parsed = await parseEpub(buffer, file.name);
           bookRef.current = parsed;
@@ -861,11 +892,11 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const updatedChapters = currentBook.chapters.map(c =>
         c.id === chapterId
           ? {
-              ...c,
-              content: newContent,
-              originalXhtml: updatedOriginalXhtml,
-              wordCount: calculateWordCount(newContent),
-            }
+            ...c,
+            content: newContent,
+            originalXhtml: updatedOriginalXhtml,
+            wordCount: calculateWordCount(newContent),
+          }
           : c
       );
 
@@ -980,12 +1011,12 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setBook(prev =>
         prev
           ? {
-              ...prev,
-              chapters: newChapters,
-              spine: newSpine,
-              manifest: newManifest,
-              toc: newToc,
-            }
+            ...prev,
+            chapters: newChapters,
+            spine: newSpine,
+            manifest: newManifest,
+            toc: newToc,
+          }
           : null
       );
 
@@ -1058,12 +1089,12 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setBook(prev =>
         prev
           ? {
-              ...prev,
-              chapters: updatedChapters,
-              spine: updatedSpine,
-              manifest: { ...prev.manifest, [newId]: newManifestItem },
-              toc: [...prev.toc, newTocItem],
-            }
+            ...prev,
+            chapters: updatedChapters,
+            spine: updatedSpine,
+            manifest: { ...prev.manifest, [newId]: newManifestItem },
+            toc: [...prev.toc, newTocItem],
+          }
           : null
       );
 
@@ -1201,14 +1232,14 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setBook(prev =>
           prev
             ? {
-                ...prev,
-                coverManifestId: coverId,
-                coverImageUrl: blobUrl,
-                coverMediaType: resolvedMediaType,
-                manifest: { ...prev.manifest, [coverId]: newManifestItem },
-                assets: updatedAssets,
-                rawFiles: updatedRawFiles,
-              }
+              ...prev,
+              coverManifestId: coverId,
+              coverImageUrl: blobUrl,
+              coverMediaType: resolvedMediaType,
+              manifest: { ...prev.manifest, [coverId]: newManifestItem },
+              assets: updatedAssets,
+              rawFiles: updatedRawFiles,
+            }
             : null
         );
 
@@ -1256,7 +1287,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const buffer = await blob.arrayBuffer();
         const lower = filename.toLowerCase();
 
-        if (lower.endsWith('.chronicle') || lower.endsWith('.epubstudio') || lower.endsWith('.eproj')) {
+        if (lower.endsWith('.chronicle')) {
           const projectBook = await parseChronicleProject(buffer, filename);
           bookRef.current = projectBook;
           setBook(projectBook);
@@ -1271,6 +1302,27 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           setIsPresenceCacheValid(false);
           setIsDirtyState(false);
           showNotification('success', `Opened Chronicle "${projectBook.metadata.title}" from WebDAV!`);
+        } else if (isMarkdownFile(filename)) {
+          const text = await blob.text();
+          const mdBook = await parseMarkdownToBook(text, filename);
+          bookRef.current = mdBook;
+          setBook(mdBook);
+          refreshBookSession();
+          extractCssFromBook(mdBook);
+          if (mdBook.chapters.length > 0) {
+            setActiveChapterId(mdBook.chapters[0].id);
+          }
+          setStorageTarget('cloud');
+          setCloudFileName(storedPath.replace(/\.(md|markdown|mdown|mkd)$/i, '.chronicle'));
+          setCastPresenceData(null);
+          setIsPresenceCacheValid(false);
+          setIsDirtyState(true);
+          setViewModeState('editor');
+          showNotification(
+            'success',
+            `Imported Markdown "${mdBook.metadata.title}" (${mdBook.chapters.length} chapter${mdBook.chapters.length === 1 ? '' : 's'
+            }) from WebDAV!`
+          );
         } else {
           const parsed = await parseEpub(buffer, filename);
           bookRef.current = parsed;
@@ -1328,11 +1380,11 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             const updatedChapters = currentBook.chapters.map(c =>
               c.id === currentActiveCh.id
                 ? {
-                    ...c,
-                    content: domContent,
-                    originalXhtml: updatedOriginalXhtml,
-                    wordCount: calculateWordCount(domContent),
-                  }
+                  ...c,
+                  content: domContent,
+                  originalXhtml: updatedOriginalXhtml,
+                  wordCount: calculateWordCount(domContent),
+                }
                 : c
             );
             currentBook = {
@@ -1473,8 +1525,8 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const cssPath = existingCssAsset
           ? existingCssAsset.fullPath
           : book.opfDir
-          ? `${book.opfDir}Styles/style.css`
-          : 'OEBPS/Styles/style.css';
+            ? `${book.opfDir}Styles/style.css`
+            : 'OEBPS/Styles/style.css';
         const cssHref = existingCssAsset ? existingCssAsset.href : 'Styles/style.css';
         const cssId = existingCssAsset ? existingCssAsset.id : 'style';
         const blobUrl = URL.createObjectURL(new Blob([bytes.buffer as ArrayBuffer], { type: 'text/css' }));
@@ -1506,11 +1558,11 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setBook(prev =>
           prev
             ? {
-                ...prev,
-                assets: updatedAssets,
-                rawFiles: updatedRawFiles,
-                manifest: updatedManifest,
-              }
+              ...prev,
+              assets: updatedAssets,
+              rawFiles: updatedRawFiles,
+              manifest: updatedManifest,
+            }
             : null
         );
 
@@ -2150,11 +2202,11 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             updatedChapters = currentBook.chapters.map(c =>
               c.id === chapterId
                 ? {
-                    ...c,
-                    content: newChapterContent,
-                    originalXhtml: updatedOriginalXhtml,
-                    wordCount: calculateWordCount(newChapterContent),
-                  }
+                  ...c,
+                  content: newChapterContent,
+                  originalXhtml: updatedOriginalXhtml,
+                  wordCount: calculateWordCount(newChapterContent),
+                }
                 : c
             );
           }

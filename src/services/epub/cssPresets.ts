@@ -75,7 +75,7 @@ body {
 h1, h2, h3, h4 {
   font-family: 'Outfit', 'Georgia', serif;
   color: inherit;
-  text-align: center;
+  text-align: left;
   margin-top: 2.2rem;
   margin-bottom: 1rem;
   font-weight: 700;
