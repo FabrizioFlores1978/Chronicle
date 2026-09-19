@@ -42,13 +42,37 @@ import {
 import { CommentFloatingPill } from '../Comments/CommentFloatingPill';
 import { CommentModal } from '../Comments/CommentModal';
 import { CommentsSidebar } from '../Comments/CommentsSidebar';
+import { ImageControlsToolbar, ImageToolbarPosition } from './ImageControlsToolbar';
 
 function cleanTransientEditorMarkup(html: string): string {
   if (!html) return html;
   return html
     .replace(/\s*\bzen-active-focus\b/g, '')
+    .replace(/\s*\bselected-editor-image\b/g, '')
+    .replace(/\s*data-selected="true"/g, '')
+    .replace(/\s*data-selected='true'/g, '')
     .replace(/ class="(\s*)"/g, '')
     .replace(/ class=""/g, '');
+}
+
+function getMovableUnit(img: HTMLImageElement, editorContainer: HTMLElement | null): HTMLElement | null {
+  if (!img || !editorContainer || !editorContainer.contains(img)) return null;
+
+  let current: HTMLElement = img;
+  while (current.parentElement && current.parentElement !== editorContainer) {
+    const parent = current.parentElement;
+    // Check if parent's text content is empty besides whitespace/images/br
+    const clone = parent.cloneNode(true) as HTMLElement;
+    clone.querySelectorAll('img, br').forEach(el => el.remove());
+    const remainingText = (clone.textContent || '').trim();
+
+    if (remainingText === '' || parent.tagName === 'FIGURE') {
+      current = parent;
+    } else {
+      break;
+    }
+  }
+  return current;
 }
 
 export const WysiwygEditor: React.FC = () => {
@@ -97,8 +121,32 @@ export const WysiwygEditor: React.FC = () => {
   const [selectedTextForComment, setSelectedTextForComment] = useState<string>('');
   const selectedRangeRef = useRef<Range | null>(null);
 
+  // Selected Image Controls State
+  const [selectedImage, setSelectedImage] = useState<HTMLImageElement | null>(null);
+  const [imageToolbarPos, setImageToolbarPos] = useState<ImageToolbarPosition | null>(null);
+  const [canMoveImageUp, setCanMoveImageUp] = useState<boolean>(false);
+  const [canMoveImageDown, setCanMoveImageDown] = useState<boolean>(false);
+  const [imageAlign, setImageAlign] = useState<'left' | 'center' | 'right' | 'full'>('center');
+
   useEscapeKey(() => setShowImageDialog(false), showImageDialog);
   useEscapeKey(() => setShowWidthMenu(false), showWidthMenu);
+
+  const deselectImage = useCallback(() => {
+    if (editorRef.current) {
+      editorRef.current.querySelectorAll('.selected-editor-image').forEach(el => {
+        el.classList.remove('selected-editor-image');
+        el.removeAttribute('data-selected');
+      });
+    }
+    setSelectedImage(null);
+    setImageToolbarPos(null);
+  }, []);
+
+  useEscapeKey(() => {
+    if (selectedImage) {
+      deselectImage();
+    }
+  }, !!selectedImage);
 
   const setEditorLayout = (layout: 'page' | 'widescreen') => {
     setEditorLayoutState(layout);
@@ -112,6 +160,7 @@ export const WysiwygEditor: React.FC = () => {
 
   // Sync content into editor and scroll to top when active chapter or book session changes
   useEffect(() => {
+    deselectImage();
     if (editorRef.current && activeChapter) {
       const cleanContent = cleanTransientEditorMarkup(activeChapter.content);
       if (editorRef.current.innerHTML !== cleanContent) {
@@ -122,7 +171,7 @@ export const WysiwygEditor: React.FC = () => {
       workspaceRef.current.scrollTop = 0;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only sync when chapter ID or book session changes, not on keystroke updates
-  }, [activeChapter?.id, bookSessionId]);
+  }, [activeChapter?.id, bookSessionId, deselectImage]);
 
   // 1. Zen Mode - Typewriter Scrolling (locks cursor vertically centered)
   const performTypewriterScroll = useCallback(() => {
@@ -278,6 +327,234 @@ export const WysiwygEditor: React.FC = () => {
 
   const isCommentsHidden = !showCommentHighlights || (isZenMode && zenSettings.hideComments);
 
+  const updateToolbarPosForImage = useCallback((img: HTMLImageElement) => {
+    if (!img || !img.isConnected || !editorRef.current || !editorRef.current.contains(img)) {
+      setSelectedImage(null);
+      setImageToolbarPos(null);
+      return;
+    }
+    const rect = img.getBoundingClientRect();
+    setImageToolbarPos({
+      top: rect.top,
+      left: rect.left + rect.width / 2,
+      width: rect.width,
+    });
+
+    const unit = getMovableUnit(img, editorRef.current);
+    if (unit && unit.parentElement) {
+      if (unit.parentElement === editorRef.current) {
+        setCanMoveImageUp(!!unit.previousElementSibling);
+        setCanMoveImageDown(!!unit.nextElementSibling);
+      } else {
+        setCanMoveImageUp(true);
+        setCanMoveImageDown(true);
+      }
+    } else {
+      setCanMoveImageUp(false);
+      setCanMoveImageDown(false);
+    }
+
+    const sFloat = img.style.float;
+    const sWidth = img.style.width;
+    if (sWidth === '100%') {
+      setImageAlign('full');
+    } else if (sFloat === 'left') {
+      setImageAlign('left');
+    } else if (sFloat === 'right') {
+      setImageAlign('right');
+    } else {
+      setImageAlign('center');
+    }
+  }, []);
+
+  const selectImage = useCallback((img: HTMLImageElement) => {
+    if (editorRef.current) {
+      editorRef.current.querySelectorAll('.selected-editor-image').forEach(el => {
+        el.classList.remove('selected-editor-image');
+        el.removeAttribute('data-selected');
+      });
+    }
+    img.classList.add('selected-editor-image');
+    img.setAttribute('data-selected', 'true');
+    setSelectedImage(img);
+    updateToolbarPosForImage(img);
+  }, [updateToolbarPosForImage]);
+
+  const handleMoveImageUp = useCallback(() => {
+    if (!selectedImage || !editorRef.current) return;
+    const unit = getMovableUnit(selectedImage, editorRef.current);
+    if (!unit || !unit.parentElement) return;
+
+    if (unit.parentElement !== editorRef.current) {
+      let topAncestor: HTMLElement = unit;
+      while (topAncestor.parentElement && topAncestor.parentElement !== editorRef.current) {
+        topAncestor = topAncestor.parentElement;
+      }
+      editorRef.current.insertBefore(unit, topAncestor);
+    } else {
+      const prev = unit.previousElementSibling as HTMLElement | null;
+      if (prev) {
+        editorRef.current.insertBefore(unit, prev);
+      }
+    }
+
+    handleInput();
+    requestAnimationFrame(() => {
+      selectedImage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      updateToolbarPosForImage(selectedImage);
+    });
+  }, [selectedImage, handleInput, updateToolbarPosForImage]);
+
+  const handleMoveImageDown = useCallback(() => {
+    if (!selectedImage || !editorRef.current) return;
+    const unit = getMovableUnit(selectedImage, editorRef.current);
+    if (!unit || !unit.parentElement) return;
+
+    if (unit.parentElement !== editorRef.current) {
+      let topAncestor: HTMLElement = unit;
+      while (topAncestor.parentElement && topAncestor.parentElement !== editorRef.current) {
+        topAncestor = topAncestor.parentElement;
+      }
+      const nextAfterAncestor = topAncestor.nextElementSibling;
+      editorRef.current.insertBefore(unit, nextAfterAncestor);
+    } else {
+      const next = unit.nextElementSibling as HTMLElement | null;
+      if (next) {
+        editorRef.current.insertBefore(unit, next.nextElementSibling);
+      }
+    }
+
+    handleInput();
+    requestAnimationFrame(() => {
+      selectedImage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      updateToolbarPosForImage(selectedImage);
+    });
+  }, [selectedImage, handleInput, updateToolbarPosForImage]);
+
+  const handleDeleteImage = useCallback(() => {
+    if (!selectedImage || !editorRef.current) return;
+    const unit = getMovableUnit(selectedImage, editorRef.current);
+    const targetNode = unit && unit !== editorRef.current ? unit : selectedImage;
+
+    // Clean transient selection attributes before deleting so it's not stored in undo snapshot
+    selectedImage.classList.remove('selected-editor-image');
+    selectedImage.removeAttribute('data-selected');
+
+    // Focus editor container before executing delete command
+    editorRef.current.focus();
+
+    try {
+      const range = document.createRange();
+      range.selectNode(targetNode);
+      const sel = window.getSelection();
+      if (sel) {
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
+      const success = document.execCommand('delete', false);
+      if (!success || targetNode.isConnected) {
+        targetNode.remove();
+      }
+    } catch {
+      targetNode.remove();
+    }
+
+    deselectImage();
+    handleInput();
+    // Keep editor focused so immediate Ctrl+Z keystrokes target the editor's undo stack
+    editorRef.current?.focus();
+  }, [selectedImage, deselectImage, handleInput]);
+
+  const handleAlignImage = useCallback((alignment: 'left' | 'center' | 'right' | 'full') => {
+    if (!selectedImage) return;
+    if (alignment === 'left') {
+      selectedImage.style.float = 'left';
+      selectedImage.style.margin = '0.5rem 1.5rem 1rem 0';
+      selectedImage.style.display = 'block';
+      selectedImage.style.maxWidth = '50%';
+      selectedImage.style.width = 'auto';
+    } else if (alignment === 'right') {
+      selectedImage.style.float = 'right';
+      selectedImage.style.margin = '0.5rem 0 1rem 1.5rem';
+      selectedImage.style.display = 'block';
+      selectedImage.style.maxWidth = '50%';
+      selectedImage.style.width = 'auto';
+    } else if (alignment === 'center') {
+      selectedImage.style.float = 'none';
+      selectedImage.style.margin = '1.5rem auto';
+      selectedImage.style.display = 'block';
+      if (selectedImage.style.width === '100%') {
+        selectedImage.style.width = 'auto';
+      }
+    } else if (alignment === 'full') {
+      selectedImage.style.float = 'none';
+      selectedImage.style.margin = '1.5rem auto';
+      selectedImage.style.display = 'block';
+      selectedImage.style.width = '100%';
+      selectedImage.style.maxWidth = '100%';
+    }
+    setImageAlign(alignment);
+    handleInput();
+    requestAnimationFrame(() => {
+      updateToolbarPosForImage(selectedImage);
+    });
+  }, [selectedImage, handleInput, updateToolbarPosForImage]);
+
+  const handleResizeImage = useCallback((percentage: number) => {
+    if (!selectedImage) return;
+    selectedImage.style.width = `${percentage}%`;
+    selectedImage.style.maxWidth = '100%';
+    selectedImage.style.height = 'auto';
+    if (percentage === 100) {
+      setImageAlign('full');
+    }
+    handleInput();
+    requestAnimationFrame(() => {
+      updateToolbarPosForImage(selectedImage);
+    });
+  }, [selectedImage, handleInput, updateToolbarPosForImage]);
+
+  // Keep image toolbar pinned on workspace scroll / resize
+  useEffect(() => {
+    const handleScroll = () => {
+      if (selectedImage) {
+        updateToolbarPosForImage(selectedImage);
+      }
+    };
+    const ws = workspaceRef.current;
+    if (ws) {
+      ws.addEventListener('scroll', handleScroll, { passive: true });
+    }
+    window.addEventListener('resize', handleScroll);
+    return () => {
+      if (ws) ws.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
+  }, [selectedImage, updateToolbarPosForImage]);
+
+  // Global Undo / Redo listener to ensure Ctrl+Z works seamlessly across workspace
+  useEffect(() => {
+    const handleGlobalUndoRedo = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+        const activeTag = document.activeElement?.tagName;
+        if (activeTag === 'INPUT' || activeTag === 'TEXTAREA') {
+          return;
+        }
+        if (editorRef.current && !editorRef.current.contains(document.activeElement)) {
+          editorRef.current.focus();
+          if (e.shiftKey) {
+            document.execCommand('redo');
+          } else {
+            document.execCommand('undo');
+          }
+          handleInput();
+        }
+      }
+    };
+    window.addEventListener('keydown', handleGlobalUndoRedo);
+    return () => window.removeEventListener('keydown', handleGlobalUndoRedo);
+  }, [handleInput]);
+
   const handleSelectionChange = useCallback(() => {
     const activeSel = getSelectionFloatingPosition(editorRef.current);
     if (activeSel) {
@@ -301,13 +578,21 @@ export const WysiwygEditor: React.FC = () => {
     }
   }, [updateActiveAlignment, isCommentModalOpen, updateParagraphFocusDimming, isZenMode, zenSettings.typewriterScrolling, zenSettings.hideComments, performTypewriterScroll]);
 
-  // Handle clicking inside editor: detects if clicked on existing comment highlight
+  // Handle clicking inside editor: detects if clicked on image or existing comment highlight
   const handleEditorClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     setShowWidthMenu(false);
+    const target = e.target as HTMLElement;
+
+    if (target instanceof HTMLImageElement || target.tagName === 'IMG') {
+      selectImage(target as HTMLImageElement);
+      return;
+    } else {
+      deselectImage();
+    }
+
     // When highlights are hidden, don't hijack editor text clicks
     if (!showCommentHighlights || (isZenMode && zenSettings.hideComments)) return;
 
-    const target = e.target as HTMLElement;
     const mark = target.closest<HTMLElement>('.author-comment-highlight, mark[data-comment-id]');
     if (mark) {
       const commentId = mark.getAttribute('data-comment-id');
@@ -321,7 +606,7 @@ export const WysiwygEditor: React.FC = () => {
         }
       }
     }
-  }, [comments, setActiveCommentId, showCommentHighlights, isZenMode, zenSettings.hideComments]);
+  }, [comments, setActiveCommentId, showCommentHighlights, isZenMode, zenSettings.hideComments, selectImage, deselectImage]);
 
   // Start adding a comment from selection
   const handleStartAddComment = useCallback(() => {
@@ -398,8 +683,31 @@ export const WysiwygEditor: React.FC = () => {
     };
   }, [handleSelectionChange]);
 
-  // Keyboard shortcuts: Ctrl/Cmd + L (left), E (center), R (right), J (justify)
+  // Keyboard shortcuts: Ctrl/Cmd + L (left), E (center), R (right), J (justify), and Image shortcuts
   const handleEditorKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (selectedImage) {
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        e.preventDefault();
+        handleDeleteImage();
+        return;
+      }
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        deselectImage();
+        return;
+      }
+      if (e.altKey && e.key === 'ArrowUp') {
+        e.preventDefault();
+        handleMoveImageUp();
+        return;
+      }
+      if (e.altKey && e.key === 'ArrowDown') {
+        e.preventDefault();
+        handleMoveImageDown();
+        return;
+      }
+    }
+
     // Auto-switch to Zen Mode on typing if enabled
     if (zenSettings.autoSwitchOnTyping && !isZenMode) {
       if (
@@ -461,6 +769,16 @@ export const WysiwygEditor: React.FC = () => {
       execCommand('insertImage', url);
       setShowImageDialog(false);
       setImageUrlInput('');
+      requestAnimationFrame(() => {
+        if (editorRef.current) {
+          const imgs = editorRef.current.querySelectorAll('img');
+          if (imgs.length > 0) {
+            const lastImg = imgs[imgs.length - 1];
+            selectImage(lastImg);
+            lastImg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }
+        }
+      });
     }
   };
 
@@ -470,6 +788,16 @@ export const WysiwygEditor: React.FC = () => {
       const blobUrl = URL.createObjectURL(file);
       execCommand('insertImage', blobUrl);
       setShowImageDialog(false);
+      requestAnimationFrame(() => {
+        if (editorRef.current) {
+          const imgs = editorRef.current.querySelectorAll('img');
+          if (imgs.length > 0) {
+            const lastImg = imgs[imgs.length - 1];
+            selectImage(lastImg);
+            lastImg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }
+        }
+      });
     }
   };
 
@@ -918,6 +1246,19 @@ export const WysiwygEditor: React.FC = () => {
           onAddComment={handleStartAddComment}
         />
       )}
+
+      {/* Floating Image Controls Toolbar */}
+      <ImageControlsToolbar
+        position={imageToolbarPos}
+        canMoveUp={canMoveImageUp}
+        canMoveDown={canMoveImageDown}
+        currentAlign={imageAlign}
+        onMoveUp={handleMoveImageUp}
+        onMoveDown={handleMoveImageDown}
+        onDelete={handleDeleteImage}
+        onAlign={handleAlignImage}
+        onResize={handleResizeImage}
+      />
 
       {/* Author Comment Modal */}
       <CommentModal

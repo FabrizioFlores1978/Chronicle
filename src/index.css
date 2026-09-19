@@ -1629,6 +1629,118 @@ html, body, #root {
   margin: 1.5rem auto;
   display: block;
   border: 1px solid var(--border-subtle);
+  cursor: pointer;
+  transition: outline 0.15s ease, box-shadow 0.15s ease;
+}
+
+.wysiwyg-content img:hover {
+  outline: 2px solid var(--border-focus);
+}
+
+.wysiwyg-content img.selected-editor-image,
+.wysiwyg-content img[data-selected="true"] {
+  outline: 3px solid var(--accent-primary) !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 5px var(--accent-primary-glow), var(--shadow-md) !important;
+}
+
+/* Floating Image Controls Toolbar */
+.image-controls-toolbar {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.35rem 0.55rem;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-full);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  animation: fadeIn 0.15s ease-out;
+  user-select: none;
+}
+
+.image-controls-toolbar .tool-btn {
+  width: auto !important;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 0.65rem !important;
+  border-radius: var(--radius-full) !important;
+  font-size: 0.78rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.image-controls-toolbar .tool-btn:hover:not(:disabled) {
+  background: var(--bg-hover) !important;
+  color: var(--text-primary);
+  border-radius: var(--radius-full) !important;
+}
+
+.image-controls-toolbar .tool-btn.active {
+  background: var(--accent-primary-glow) !important;
+  color: var(--accent-primary);
+}
+
+.image-controls-toolbar .tool-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.image-controls-toolbar .tool-btn-icon-only {
+  padding: 0 0.45rem !important;
+  width: 28px !important;
+}
+
+.image-controls-toolbar .tool-btn.tool-btn-danger {
+  color: var(--accent-danger, #ef4444) !important;
+  border-radius: var(--radius-full) !important;
+  padding: 0 0.65rem !important;
+}
+
+.image-controls-toolbar .tool-btn.tool-btn-danger:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.15) !important;
+  color: #ef4444 !important;
+  border-radius: var(--radius-full) !important;
+}
+
+.image-controls-toolbar .tool-btn.tool-btn-danger-confirm {
+  background: rgba(239, 68, 68, 0.12) !important;
+  color: #ef4444 !important;
+  border: 1px solid rgba(239, 68, 68, 0.35) !important;
+  border-radius: var(--radius-full) !important;
+  font-weight: 600;
+  padding: 0 0.75rem !important;
+  transition: all 0.15s ease;
+}
+
+.image-controls-toolbar .tool-btn.tool-btn-danger-confirm:hover:not(:disabled) {
+  background: #ef4444 !important;
+  color: #ffffff !important;
+  border-color: #ef4444 !important;
+  border-radius: var(--radius-full) !important;
+  box-shadow: 0 2px 12px rgba(239, 68, 68, 0.55) !important;
+}
+
+.image-controls-toolbar .tool-btn.tool-btn-danger-confirm:active:not(:disabled) {
+  background: #dc2626 !important;
+  color: #ffffff !important;
+  border-color: #dc2626 !important;
+}
+
+.image-controls-toolbar .tool-btn-text {
+  font-size: 0.76rem;
+  font-weight: 600;
+  line-height: 1;
 }
 
 .wysiwyg-content blockquote {
