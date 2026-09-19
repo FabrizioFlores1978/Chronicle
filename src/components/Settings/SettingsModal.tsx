@@ -361,7 +361,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
               <div style={{ padding: '0 0.5rem', fontSize: '0.72rem', color: 'var(--text-muted)' }}>
                 <div>Chronicle Studio</div>
-                <div style={{ opacity: 0.8 }}>v1.1.0</div>
+                <div style={{ opacity: 0.8 }}>v1.2.0</div>
               </div>
             </div>
           </div>

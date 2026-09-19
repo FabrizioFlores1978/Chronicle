@@ -397,6 +397,13 @@
                   stroke-linecap="round" stroke-linejoin="round">
                   <polyline points="20 6 9 17 4 12"></polyline>
                 </svg>
+                <span><strong>Instant Markdown &amp; EPUB Manuscript Import:</strong> Drag and drop any <code>.md</code>, <code>.markdown</code>, or <code>.epub</code> file. Markdown files are automatically split into structured chapters on top-level headings (<code>#</code>), with YAML frontmatter parsing, formatted tables, and images preserved.</span>
+              </li>
+              <li class="showcase-feature-item">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
                 <span><strong>Typewriter Zen Mode &amp; Focus Dimming:</strong> Lock your cursor vertically centered at
                   natural eye level while text flows upwards beneath it. Inactive paragraphs softly dim into 35% shadow,
                   and the zero-UI Ghost HUD only appears when your mouse moves.</span>
@@ -973,7 +980,7 @@
     </svg>
   </div>
 
-  <!-- Features Section (All 12 Features) -->
+  <!-- Features Section -->
   <section id="features" class="section section-dusk">
     <div class="container">
       <div class="section-header">
@@ -1360,20 +1367,26 @@
           </p>
         </div>
 
-        <!-- 10. Smart Typography Engine -->
-        <div class="craft-card">
+        <!-- 10. Instant Markdown & EPUB Import (span 2) -->
+        <div class="craft-card craft-card-span-2">
           <div class="craft-icon-box">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path
-                d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z">
-              </path>
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="12" y1="18" x2="12" y2="12"></line>
+              <line x1="9" y1="15" x2="15" y2="15"></line>
             </svg>
           </div>
-          <h3 class="craft-title">Smart Typography Engine</h3>
+          <h3 class="craft-title">Instant Markdown &amp; EPUB Import</h3>
           <p class="craft-desc">
-            One-click automated cleanup. Formats straight quotes into curly book quotes, cleans up em-dashes, ellipses,
-            dialogue punctuation spacing, and eliminates accidental double spaces across chapters.
+            Bring your manuscripts into Chronicle with zero friction. Drag-and-drop any standard <code>.md</code>, <code>.markdown</code>, or <code>.epub</code> file. Markdown files are automatically split into chapters based on top-level headings (<code>#</code>), complete with YAML frontmatter parsing, formatted tables, code blocks, and embedded images. Edit freely and save as an open <code>.chronicle</code> project.
           </p>
+          <div class="timeline-beats-preview">
+            <span class="beat-tag">Auto Chapter Split (# H1)</span>
+            <span class="beat-tag">Standard EPUB 2/3</span>
+            <span class="beat-tag">YAML Frontmatter</span>
+            <span class="beat-tag">Tables &amp; Code Blocks</span>
+          </div>
         </div>
 
         <!-- 11. Transparent Open Formats -->
@@ -1395,7 +1408,23 @@
           </p>
         </div>
 
-        <!-- 12. Raw Code & EPUB Inspector -->
+        <!-- 12. Smart Typography Engine -->
+        <div class="craft-card">
+          <div class="craft-icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path
+                d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z">
+              </path>
+            </svg>
+          </div>
+          <h3 class="craft-title">Smart Typography Engine</h3>
+          <p class="craft-desc">
+            One-click automated cleanup. Formats straight quotes into curly book quotes, cleans up em-dashes, ellipses,
+            dialogue punctuation spacing, and eliminates accidental double spaces across chapters.
+          </p>
+        </div>
+
+        <!-- 13. Raw Code & EPUB Inspector -->
         <div class="craft-card">
           <div class="craft-icon-box">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1407,6 +1436,21 @@
           <p class="craft-desc">
             For writers who want full control over their book formatting. Inspect and fine-tune raw XHTML, edit book CSS
             stylesheets directly, and inspect the package manifest (OPF) and spine hierarchy.
+          </p>
+        </div>
+
+        <!-- 14. In-Editor Image Controls -->
+        <div class="craft-card">
+          <div class="craft-icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <circle cx="8.5" cy="8.5" r="1.5"></circle>
+              <polyline points="21 15 16 10 5 21"></polyline>
+            </svg>
+          </div>
+          <h3 class="craft-title">In-Editor Image Controls</h3>
+          <p class="craft-desc">
+            Select, resize, reposition, and manage embedded chapter artwork directly on the writing canvas. Move images up or down between paragraphs, cycle display widths, and delete with confirmation and undo.
           </p>
         </div>
       </div>
@@ -1470,6 +1514,25 @@
                 <td><span class="comp-badge-dim">$60+ per OS</span></td>
                 <td><span class="comp-badge-dim">$250 (Mac only)</span></td>
                 <td><span class="comp-badge-dim">$105/yr subscription</span></td>
+              </tr>
+
+              <tr>
+                <td>
+                  <span class="comp-feature-name">Markdown &amp; EPUB Import</span>
+                  <span class="comp-feature-sub">Automatic H1 chapter split, YAML metadata &amp; tables</span>
+                </td>
+                <td class="col-chronicle">
+                  <span class="comp-badge-check">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      stroke-width="2.8">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Auto-split Markdown (#) &amp; reflowable EPUB
+                  </span>
+                </td>
+                <td><span class="comp-badge-warn">Complex multi-file import</span></td>
+                <td><span class="comp-badge-dim">DOCX/RTF only (no Markdown)</span></td>
+                <td><span class="comp-badge-dim">Not supported</span></td>
               </tr>
 
               <tr>
