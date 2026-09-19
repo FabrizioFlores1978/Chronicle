@@ -168,7 +168,7 @@ export const CharacterSheetPanel: React.FC<CharacterSheetPanelProps> = ({
                   setViewMode('cast-grid');
                   onClose();
                 }}
-                title="Open Cast Presence Grid"
+                title="Open Presence Grid"
               >
                 <LayoutGrid size={14} />
               </button>

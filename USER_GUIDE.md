@@ -12,7 +12,7 @@ This handbook details how to navigate the studio, customize your writing environ
 3. [Chapter 3: Distraction-Free Modes: Studio, Minimalist & Typewriter Zen](#chapter-3-distraction-free-modes-studio-minimalist--typewriter-zen)
 4. [Chapter 4: Settings, Themes & Workspace Customization](#chapter-4-settings-themes--workspace-customization)
 5. [Chapter 5: Visual Narrative Timeline Studio](#chapter-5-visual-narrative-timeline-studio)
-6. [Chapter 6: Cast Presence Heatmap & Character Grid](#chapter-6-cast-presence-heatmap--character-grid)
+6. [Chapter 6: Presence Grid](#chapter-6-presence-grid)
 7. [Chapter 7: Worldbuilding Codex (Characters & Locations)](#chapter-7-worldbuilding-codex-characters--locations)
 8. [Chapter 8: Reading Mode, Offline Neural TTS & Book Cover Designer](#chapter-8-reading-mode-offline-neural-tts--book-cover-designer)
 9. [Chapter 9: Publication & Multi-Format Export Hub](#chapter-9-publication--multi-format-export-hub)
@@ -52,9 +52,9 @@ Chronicle consolidates the authoring journey into **3 Primary Workspaces**, each
   * **Editor**: Manuscript drafting with the WYSIWYG rich text canvas, HTML source editor, and chapter binder.
   * **Reader**: Distraction-free reader view for proofreading flow, pagination, and offline Kokoro neural TTS playback.
   * **Inspector**: Deep EPUB package validator, manifest explorer, and spine hierarchy inspector.
-* **`🗺️ Story Bible` (Worldbuilding & Narrative Intelligence)**:
+* **`🗺️ Knowledge Base` (Worldbuilding & Narrative Intelligence)**:
   * **Timeline**: Multi-strand chronological and manuscript-order narrative timeline plotting.
-  * **Cast Grid**: Chapter-by-chapter character presence density matrix and dialogue heatmaps.
+  * **Presence Grid**: Chapter-by-chapter character presence density matrix and dialogue heatmaps.
   * **Characters**: Character dossiers, psychological traits, archetypes, and relationship maps.
   * **Locations**: Location Codex for world geography, sensory atmosphere notes, and scene settings.
 * **`📚 Publish` (Production & Packaging)**:
@@ -170,12 +170,12 @@ Click the **"Timeline"** tab to open the multi-strand narrative plotting matrix.
 
 ---
 
-## Chapter 6: Cast Presence Heatmap & Character Grid
+## Chapter 6: Presence Grid
 
-Click the **"Cast Grid"** tab to inspect character screen-time balance across chapters.
+Click the **"Presence Grid"** tab to inspect character screen-time balance across chapters.
 
-![Cast Presence Grid](docs/assets/guide/08-cast-presence-grid.png)
-*Figure 6.1: Cast Presence Grid with chapter columns along the horizontal axis, character profiles along the vertical axis, and density heat nodes.*
+![Presence Grid](docs/assets/guide/08-cast-presence-grid.png)
+*Figure 6.1: Presence Grid with chapter columns along the horizontal axis, character profiles along the vertical axis, and density heat nodes.*
 
 ### Key Capabilities:
 * **Audit Screen Time**: Circular color nodes visually demonstrate where each character appears and how frequently they speak or are mentioned.
@@ -188,7 +188,7 @@ Click the **"Cast Grid"** tab to inspect character screen-time balance across ch
 
 ## Chapter 7: Worldbuilding Codex (Characters & Locations)
 
-Click the **"Codex"** tab to manage your novel's worldbuilding bible.
+Click the **"Characters"** or **"Locations"** tab within the Knowledge Base to manage your novel's worldbuilding details.
 
 ![Worldbuilding Codex](docs/assets/guide/09-worldbuilding-codex.png)
 *Figure 7.1: Character Codex profile drawer displaying archetype, role, physical appearance, psychological traits, and goals checklist.*

@@ -97,7 +97,7 @@ interface EpubContextType {
   primaryMode: PrimaryAppMode;
   setPrimaryMode: (mode: PrimaryAppMode) => void;
   lastWriteView: AppViewMode;
-  lastBibleView: AppViewMode;
+  lastKnowledgeBaseView: AppViewMode;
   lastPublishView: AppViewMode;
   setViewMode: (mode: AppViewMode) => void;
   setEditorSubMode: (mode: EditorSubMode) => void;
@@ -256,8 +256,8 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [lastWriteView, setLastWriteView] = useState<AppViewMode>(() =>
     ['editor', 'reader', 'inspector'].includes(initialSettings.viewMode) ? initialSettings.viewMode : 'editor'
   );
-  const [lastBibleView, setLastBibleView] = useState<AppViewMode>(() =>
-    ['timeline', 'cast-grid', 'characters', 'locations'].includes(initialSettings.viewMode) ? initialSettings.viewMode : 'timeline'
+  const [lastKnowledgeBaseView, setLastKnowledgeBaseView] = useState<AppViewMode>(() =>
+    ['timeline', 'cast-grid', 'characters', 'locations'].includes(initialSettings.viewMode) ? initialSettings.viewMode : 'cast-grid'
   );
   const [lastPublishView, setLastPublishView] = useState<AppViewMode>(() =>
     ['cover', 'styles', 'toc', 'metadata', 'assets'].includes(initialSettings.viewMode) ? initialSettings.viewMode : 'cover'
@@ -400,7 +400,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           if (typeof window !== 'undefined' && window.location && window.location.search) {
             const params = new URLSearchParams(window.location.search);
             const viewParam = params.get('view');
-            const validViews: AppViewMode[] = ['reader', 'editor', 'toc', 'metadata', 'cover', 'styles', 'assets', 'inspector', 'timeline'];
+            const validViews: AppViewMode[] = ['reader', 'editor', 'toc', 'metadata', 'cover', 'styles', 'assets', 'inspector', 'timeline', 'cast-grid', 'characters', 'locations'];
             if (viewParam && validViews.includes(viewParam as AppViewMode)) {
               setViewModeState(viewParam as AppViewMode);
             }
@@ -490,7 +490,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setViewModeState(mode);
     const parentPrimary = PRIMARY_MODE_MAP[mode] || 'write';
     if (parentPrimary === 'write') setLastWriteView(mode);
-    else if (parentPrimary === 'bible') setLastBibleView(mode);
+    else if (parentPrimary === 'knowledge-base') setLastKnowledgeBaseView(mode);
     else if (parentPrimary === 'publish') setLastPublishView(mode);
     saveSetting('viewMode', mode);
   }, []);
@@ -499,12 +499,12 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     (mode: PrimaryAppMode) => {
       let targetView: AppViewMode;
       if (mode === 'write') targetView = lastWriteView;
-      else if (mode === 'bible') targetView = lastBibleView;
+      else if (mode === 'knowledge-base') targetView = lastKnowledgeBaseView;
       else if (mode === 'publish') targetView = lastPublishView;
       else targetView = PRIMARY_DEFAULT_VIEWS[mode] || 'editor';
       setViewMode(targetView);
     },
-    [lastWriteView, lastBibleView, lastPublishView, setViewMode]
+    [lastWriteView, lastKnowledgeBaseView, lastPublishView, setViewMode]
   );
 
   const setEditorSubMode = useCallback((subMode: EditorSubMode) => {
@@ -2285,7 +2285,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         primaryMode,
         setPrimaryMode,
         lastWriteView,
-        lastBibleView,
+        lastKnowledgeBaseView,
         lastPublishView,
         viewMode,
         setViewMode,

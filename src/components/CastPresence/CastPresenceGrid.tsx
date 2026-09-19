@@ -274,7 +274,7 @@ export const CastPresenceGrid: React.FC = () => {
             </div>
             <h3 className="presence-empty-title">No Cast Members or Locations Found</h3>
             <p className="presence-empty-desc">
-              The Cast Presence Grid maps every chapter to see where your characters and
+              The Presence Grid maps every chapter to see where your characters and
               story locations appear throughout your book. Add characters or locations
               in your manuscript to generate the matrix.
             </p>
@@ -328,7 +328,7 @@ export const CastPresenceGrid: React.FC = () => {
               <Layers size={18} />
             </div>
             <div>
-              <div className="presence-brand-heading">Cast Presence Grid</div>
+              <div className="presence-brand-heading">Presence Grid</div>
               <div className="presence-brand-subheading">
                 {castPresenceData?.chapters.length || 0} Chapters × {castPresenceData?.entities.length || 0} Entities
               </div>
