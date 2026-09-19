@@ -196,7 +196,7 @@ export const LocationCodexPanel: React.FC<LocationCodexPanelProps> = ({
                   setViewMode('cast-grid');
                   onClose();
                 }}
-                title="Open Cast Presence Grid"
+                title="Open Presence Grid"
               >
                 <LayoutGrid size={14} />
               </button>

@@ -219,7 +219,7 @@ export const CharacterStudio: React.FC = () => {
           <button
             className="btn btn-sm btn-outline entity-action-btn"
             onClick={() => setViewMode('cast-grid')}
-            title="View in Cast Presence Grid"
+            title="View in Presence Grid"
           >
             <LayoutGrid size={13} />
             <span>Presence Grid</span>
@@ -459,7 +459,7 @@ export const CharacterStudio: React.FC = () => {
                     <label className="form-label">
                       <span>Aliases & Nicknames</span>
                       <span className="label-hint">
-                        (Used for automatic match detection in the Cast Presence Grid & Chapters)
+                        (Used for automatic match detection in the Presence Grid & Chapters)
                       </span>
                     </label>
                     <input
@@ -702,7 +702,7 @@ export const CharacterStudio: React.FC = () => {
                     </div>
                   ) : (
                     <div className="footprint-empty-hint">
-                      No chapter mentions found for "{selectedCharacter.name}". Run the Cast Presence Grid scanner
+                      No chapter mentions found for "{selectedCharacter.name}". Run the Presence Grid scanner
                       or check that their name matches the manuscript text.
                     </div>
                   )}

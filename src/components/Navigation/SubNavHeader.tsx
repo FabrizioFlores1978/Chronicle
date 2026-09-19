@@ -81,7 +81,7 @@ export const SubNavHeader: React.FC = () => {
   }[] = [
     {
       id: 'cast-grid',
-      label: 'Cast grid',
+      label: 'Presence Grid',
       icon: <LayoutGrid size={14} />,
       badge: characters.length + locations.length > 0 ? characters.length + locations.length : undefined,
       title: 'Chapter cast presence and character occurrence matrix',

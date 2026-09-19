@@ -83,7 +83,7 @@ export const Header: React.FC = () => {
 
   const primaryModes: { id: PrimaryAppMode; label: string; icon: React.ReactNode; tooltip: string }[] = [
     { id: 'write', label: 'Write', icon: <Edit3 size={14} />, tooltip: 'Creative Writing Workspace (Editor, Reader, Inspector)' },
-    { id: 'knowledge-base', label: 'Knowledge Base', icon: <Compass size={14} />, tooltip: 'Worldbuilding & Narrative Intelligence (Timeline, Cast Grid, Characters, Locations)' },
+    { id: 'knowledge-base', label: 'Knowledge Base', icon: <Compass size={14} />, tooltip: 'Worldbuilding & Narrative Intelligence (Timeline, Presence Grid, Characters, Locations)' },
     { id: 'publish', label: 'Publish', icon: <BookOpen size={14} />, tooltip: 'Production & Publishing (Cover Studio, Styles & CSS, TOC, Metadata, Assets, Export)' },
   ];
 
