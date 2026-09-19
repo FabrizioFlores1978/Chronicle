@@ -5,6 +5,8 @@
 @import './themes/modernx-light.css';
 @import './themes/glass-dark.css';
 @import './themes/glass-light.css';
+@import './themes/classic-dark.css';
+@import './themes/classic-light.css';
 
 /* ==========================================================================
    Base Design Tokens & Layout Constants

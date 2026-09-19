@@ -288,7 +288,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [isCloudBrowserOpen, setIsCloudBrowserOpen] = useState<boolean>(false);
   const [isCloudDesktopNoticeOpen, setIsCloudDesktopNoticeOpen] = useState<boolean>(false);
 
-  const [uiTheme, setUiThemeState] = useState<UiTheme>('modernx-dark');
+  const [uiTheme, setUiThemeState] = useState<UiTheme>('classic-dark');
   const [minimalistMode, setMinimalistModeState] = useState<boolean>(false);
   const [isZenMode, setIsZenModeState] = useState<boolean>(false);
   const [zenSettings, setZenSettingsState] = useState<ZenModeSettings>(DEFAULT_ZEN_SETTINGS);

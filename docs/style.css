@@ -1137,8 +1137,8 @@ body {
 /* Theme Swatches Preview */
 .theme-swatches-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 0.65rem;
   margin-top: 1.2rem;
 }
 
@@ -1151,6 +1151,8 @@ body {
   border: 1px solid var(--border-starlight);
 }
 
+.swatch-classic-dark { background: #080a10; color: #fae19c; border-color: rgba(230, 190, 117, 0.4); }
+.swatch-classic-light { background: #f8f8f7; color: #18181b; border-color: #d1d1cd; }
 .swatch-modern-dark { background: #0c0e14; color: #f7f4ec; }
 .swatch-modern-light { background: #f8fafc; color: #0f172a; border-color: #cbd5e1; }
 .swatch-glass-dark { background: rgba(15, 23, 42, 0.85); color: #38bdf8; border-color: rgba(56, 189, 248, 0.4); }

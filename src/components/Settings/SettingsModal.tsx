@@ -767,7 +767,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       flexShrink: 0,
                     }}
                   >
-                    Active: {UI_THEMES.find(t => t.id === uiTheme)?.name || 'ModernX Dark'}
+                    Active: {UI_THEMES.find(t => t.id === uiTheme)?.name || 'Classic - Dark'}
                   </span>
                 </div>
 
@@ -851,12 +851,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         {/* Title & Badge */}
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            {theme.id === 'modernx-dark' ? (
-                              <Moon size={16} color="#8b5cf6" />
-                            ) : theme.id === 'modernx-light' ? (
-                              <Sun size={16} color="#f59e0b" />
+                            {theme.id.includes('dark') ? (
+                              <Moon size={16} color={theme.accent} />
                             ) : (
-                              <Sparkles size={16} color="#06b6d4" />
+                              <Sun size={16} color={theme.accent} />
                             )}
                             <span style={{ fontWeight: 600, fontSize: '0.92rem', color: 'var(--text-primary)' }}>
                               {theme.name}

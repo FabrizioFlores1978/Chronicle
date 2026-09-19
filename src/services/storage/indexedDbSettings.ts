@@ -50,7 +50,7 @@ export const DEFAULT_ZEN_SETTINGS: ZenModeSettings = {
 };
 
 export const DEFAULT_CHRONICLE_SETTINGS: ChronicleSettings = {
-  uiTheme: 'modernx-dark',
+  uiTheme: 'classic-dark',
   webdavConfig: null,
   showWelcomeOnStartup: true,
   readerTheme: 'light',

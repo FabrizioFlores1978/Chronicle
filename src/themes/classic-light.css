@@ -1,0 +1,491 @@
+/* ==========================================================================
+   Classic - Light Theme (Crisp Literary Alabaster & Rich Cognac Gold)
+   Clean, high-contrast, elegant editorial look with zero washed-out tones
+   ========================================================================== */
+
+[data-theme="classic-light"] {
+  --bg-app: #f8f8f7;
+  --bg-sidebar: #f5f5f4;
+  --bg-surface: #ffffff;
+  --bg-surface-elevated: #ffffff;
+  --bg-surface-hover: #ececeb;
+  --bg-input: #ffffff;
+
+  --border-subtle: #e5e5e2;
+  --border-medium: #d1d1cd;
+  --border-focus: #925b18;
+
+  --text-primary: #18181b;
+  --text-secondary: #4b4b52;
+  --text-muted: #787882;
+  --text-inverse: #ffffff;
+
+  --accent-primary: #925b18;
+  --accent-primary-hover: #7a4b12;
+  --accent-primary-glow: rgba(146, 91, 24, 0.16);
+
+  --accent-secondary: #b07222;
+  --accent-success: #15803d;
+  --accent-warning: #b45309;
+  --accent-danger: #b91c1c;
+  --accent-cyan: #0369a1;
+
+  /* Crisp Editorial Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.07);
+  --shadow-lg: 0 16px 36px rgba(0, 0, 0, 0.10);
+  --shadow-glow: 0 0 16px rgba(146, 91, 24, 0.15);
+
+  /* Overlays & Blur */
+  --glass-bg: rgba(255, 255, 255, 0.96);
+  --glass-backdrop: blur(12px);
+  --overlay-bg: rgba(20, 20, 24, 0.45);
+
+  /* Scrollbars & Interactions */
+  --scrollbar-thumb: rgba(0, 0, 0, 0.18);
+  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.32);
+  --hover-subtle: rgba(0, 0, 0, 0.04);
+  --active-subtle: rgba(146, 91, 24, 0.08);
+  --kbd-bg: #ececeb;
+  --kbd-border: #d1d1cd;
+  --kbd-text: #4b4b52;
+
+  /* Classic Restrained Radii (Less rounded, architectural) */
+  --radius-sm: 3px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+  --radius-xl: 8px;
+  --radius-full: 4px;
+}
+
+/* ==========================================================================
+   Classic - Light Component Refinements (Crisp, High-Contrast Editorial)
+   ========================================================================== */
+
+/* Overall Canvas Atmosphere */
+[data-theme="classic-light"] body,
+[data-theme="classic-light"] #root,
+[data-theme="classic-light"] .app-container {
+  background: #f8f8f7 !important;
+  background-image: none !important;
+}
+
+/* Header & Top Navigation */
+[data-theme="classic-light"] .app-header {
+  background: #ffffff !important;
+  border-bottom: 1px solid #e5e5e2 !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03) !important;
+}
+
+[data-theme="classic-light"] .brand-badge {
+  border-radius: 4px !important;
+  background: #f8f8f7 !important;
+  border: 1px solid #e5e5e2 !important;
+  color: #925b18 !important;
+  transition: all 0.18s ease !important;
+}
+
+[data-theme="classic-light"] .brand-badge .brand-text {
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  -webkit-text-fill-color: #18181b !important;
+  color: #18181b !important;
+}
+
+[data-theme="classic-light"] .brand-badge:hover {
+  border-color: #d1d1cd !important;
+  background: #f0f0ee !important;
+}
+
+[data-theme="classic-light"] .document-title-pill {
+  border-radius: 4px !important;
+  background: #f8f8f7 !important;
+  border: 1px solid #e5e5e2 !important;
+}
+
+[data-theme="classic-light"] .document-title-pill:hover {
+  border-color: #d1d1cd !important;
+  background: #f0f0ee !important;
+}
+
+[data-theme="classic-light"] .document-status-dot.dot-clean,
+[data-theme="classic-light"] .status-dot.dot-ready {
+  background: #15803d !important;
+  box-shadow: 0 0 5px rgba(21, 128, 61, 0.4) !important;
+  border-radius: 2px !important;
+}
+
+/* Primary 3 Workspaces (Write, Story Bible, Publish) */
+[data-theme="classic-light"] .primary-workspace-nav,
+[data-theme="classic-light"] .segmented-nav-control,
+[data-theme="classic-light"] .view-tabs {
+  border-radius: 4px !important;
+  background: #f0f0ee !important;
+  border: 1px solid #e5e5e2 !important;
+  padding: 3px !important;
+}
+
+[data-theme="classic-light"] .primary-mode-pill,
+[data-theme="classic-light"] .segmented-pill,
+[data-theme="classic-light"] .view-tab-btn {
+  border-radius: 3px !important;
+  font-size: 0.78rem !important;
+  font-weight: 500 !important;
+  color: #4b4b52 !important;
+  transition: all 0.16s ease !important;
+}
+
+[data-theme="classic-light"] .primary-mode-pill:hover,
+[data-theme="classic-light"] .segmented-pill:hover,
+[data-theme="classic-light"] .view-tab-btn:hover {
+  color: #18181b !important;
+  background: rgba(0, 0, 0, 0.05) !important;
+}
+
+[data-theme="classic-light"] .primary-mode-pill.active,
+[data-theme="classic-light"] .segmented-pill.active,
+[data-theme="classic-light"] .view-tab-btn.active {
+  background: #ffffff !important;
+  color: #925b18 !important;
+  font-weight: 700 !important;
+  border: 1px solid #d1d1cd !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Sub-Navigation Bar */
+[data-theme="classic-light"] .sub-nav-header {
+  background: #ffffff !important;
+  border-bottom: 1px solid #e5e5e2 !important;
+}
+
+[data-theme="classic-light"] .sub-nav-pill {
+  border-radius: 3px !important;
+  color: #4b4b52 !important;
+}
+
+[data-theme="classic-light"] .sub-nav-pill:hover {
+  color: #18181b !important;
+  background: #f0f0ee !important;
+  border-color: #e5e5e2 !important;
+}
+
+[data-theme="classic-light"] .sub-nav-pill.active {
+  color: #925b18 !important;
+  background: #f0f0ee !important;
+  border: 1px solid #d1d1cd !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  font-weight: 600 !important;
+}
+
+[data-theme="classic-light"] .sub-nav-badge {
+  border-radius: 3px !important;
+  background: #e5e5e2 !important;
+  color: #4b4b52 !important;
+}
+
+[data-theme="classic-light"] .sub-nav-badge.badge-active {
+  background: #925b18 !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+[data-theme="classic-light"] .sub-nav-separator {
+  background: #e5e5e2 !important;
+}
+
+[data-theme="classic-light"] .sub-nav-export-btn {
+  background: #925b18 !important;
+  color: #ffffff !important;
+  border: 1px solid #7a4b12 !important;
+  box-shadow: 0 1px 3px rgba(146, 91, 24, 0.2) !important;
+}
+
+[data-theme="classic-light"] .sub-nav-export-btn:hover {
+  background: #7a4b12 !important;
+  color: #ffffff !important;
+  transform: translateY(-1px);
+}
+
+/* Sidebar & Chapter Navigation */
+[data-theme="classic-light"] .sidebar-container,
+[data-theme="classic-light"] .app-sidebar {
+  background: #f5f5f4 !important;
+  border-right: 1px solid #e5e5e2 !important;
+}
+
+[data-theme="classic-light"] .sidebar-header,
+[data-theme="classic-light"] .sidebar-footer {
+  background: #efefee !important;
+  border-color: #e5e5e2 !important;
+}
+
+[data-theme="classic-light"] .chapter-item {
+  border-radius: 3px !important;
+  border-left: 2px solid transparent !important;
+  transition: all 0.15s ease !important;
+  color: #4b4b52 !important;
+}
+
+[data-theme="classic-light"] .chapter-item:hover {
+  background: #ececeb !important;
+  color: #18181b !important;
+}
+
+[data-theme="classic-light"] .chapter-item.active {
+  background: #ffffff !important;
+  border: 1px solid #d1d1cd !important;
+  border-left: 3px solid #925b18 !important;
+  color: #925b18 !important;
+  font-weight: 600 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Classical Rectangular Buttons */
+[data-theme="classic-light"] .btn {
+  border-radius: 4px !important;
+}
+
+[data-theme="classic-light"] .btn-primary {
+  background: #925b18 !important;
+  color: #ffffff !important;
+  border: 1px solid #7a4b12 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+  font-weight: 600 !important;
+}
+
+[data-theme="classic-light"] .btn-primary:hover {
+  background: #7a4b12 !important;
+  color: #ffffff !important;
+  border-color: #633c0c !important;
+  box-shadow: 0 2px 6px rgba(146, 91, 24, 0.25) !important;
+}
+
+/* Split & Connected Button Groups (Save, Reader Audio Listening/Stop, etc.) */
+[data-theme="classic-light"] .btn-split-group,
+[data-theme="classic-light"] div[style*="inline-flex"]:has(> .btn + .btn) {
+  display: inline-flex !important;
+  align-items: stretch !important;
+  border-radius: 4px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+}
+
+[data-theme="classic-light"] .btn-split-group .btn-split-main,
+[data-theme="classic-light"] div[style*="inline-flex"] > .btn:first-child:has(+ .btn) {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  border-top-left-radius: 4px !important;
+  border-bottom-left-radius: 4px !important;
+  border-right: none !important;
+  box-shadow: none !important;
+}
+
+[data-theme="classic-light"] .btn-split-group .btn-split-arrow,
+[data-theme="classic-light"] div[style*="inline-flex"] > .btn + .btn {
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  border-top-right-radius: 4px !important;
+  border-bottom-right-radius: 4px !important;
+  border-left: 1px solid rgba(255, 255, 255, 0.25) !important;
+  box-shadow: none !important;
+}
+
+[data-theme="classic-light"] .btn-split-group:hover .btn-split-main,
+[data-theme="classic-light"] .btn-split-group:hover .btn-split-arrow {
+  background: #7a4b12 !important;
+}
+
+[data-theme="classic-light"] .btn-secondary {
+  background: #ffffff !important;
+  border: 1px solid #d1d1cd !important;
+  color: #18181b !important;
+}
+
+[data-theme="classic-light"] .btn-secondary:hover {
+  background: #f5f5f4 !important;
+  border-color: #b8b8b2 !important;
+  color: #18181b !important;
+}
+
+[data-theme="classic-light"] .btn-ghost {
+  color: #4b4b52 !important;
+}
+
+[data-theme="classic-light"] .btn-ghost:hover {
+  background: #f0f0ee !important;
+  color: #18181b !important;
+}
+
+[data-theme="classic-light"] .btn-outline {
+  border: 1px solid #d1d1cd !important;
+  border-radius: 4px !important;
+  color: #4b4b52 !important;
+}
+
+[data-theme="classic-light"] .btn-outline:hover {
+  background: #f0f0ee !important;
+  border-color: #925b18 !important;
+  color: #925b18 !important;
+}
+
+[data-theme="classic-light"] .btn-danger {
+  color: #b91c1c !important;
+  background: rgba(185, 28, 28, 0.08) !important;
+  border-color: rgba(185, 28, 28, 0.25) !important;
+}
+
+[data-theme="classic-light"] .btn-danger:hover {
+  background: #b91c1c !important;
+  color: #ffffff !important;
+}
+
+/* Modals, Dialogs & Dropdowns */
+[data-theme="classic-light"] .modal-card,
+[data-theme="classic-light"] .intro-modal-card,
+[data-theme="classic-light"] .popover-menu-card,
+[data-theme="classic-light"] .header-dropdown-menu,
+[data-theme="classic-light"] .chapter-context-menu {
+  background: #ffffff !important;
+  border: 1px solid #d1d1cd !important;
+  border-radius: 6px !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12) !important;
+}
+
+[data-theme="classic-light"] .modal-header {
+  border-bottom: 1px solid #e5e5e2 !important;
+}
+
+[data-theme="classic-light"] .modal-footer {
+  border-top: 1px solid #e5e5e2 !important;
+}
+
+/* Form Controls */
+[data-theme="classic-light"] .form-input,
+[data-theme="classic-light"] .form-textarea,
+[data-theme="classic-light"] .form-select {
+  background: #ffffff !important;
+  border: 1px solid #d1d1cd !important;
+  border-radius: 3px !important;
+  color: #18181b !important;
+}
+
+[data-theme="classic-light"] .form-input:focus,
+[data-theme="classic-light"] .form-textarea:focus,
+[data-theme="classic-light"] .form-select:focus {
+  border-color: #925b18 !important;
+  box-shadow: 0 0 0 3px rgba(146, 91, 24, 0.15) !important;
+}
+
+/* Status Bar */
+[data-theme="classic-light"] .app-status-bar {
+  background: #ffffff !important;
+  border-top: 1px solid #e5e5e2 !important;
+  color: #4b4b52 !important;
+}
+
+[data-theme="classic-light"] .status-btn {
+  color: #55555c !important;
+}
+
+[data-theme="classic-light"] .status-btn:hover {
+  color: #18181b !important;
+  background: #f0f0ee !important;
+}
+
+[data-theme="classic-light"] .status-btn.active {
+  color: #925b18 !important;
+  background: #f0f0ee !important;
+}
+
+[data-theme="classic-light"] .active-chapter-pill {
+  border-radius: 3px !important;
+  background: #f5f5f4 !important;
+  border: 1px solid #e5e5e2 !important;
+  color: #18181b !important;
+}
+
+/* Cards & Worldbuilding Panels */
+[data-theme="classic-light"] .character-drawer-panel {
+  background: #f8f8f7 !important;
+  border-left: 1px solid #e5e5e2 !important;
+}
+
+[data-theme="classic-light"] .char-card,
+[data-theme="classic-light"] .location-card,
+[data-theme="classic-light"] .welcome-card,
+[data-theme="classic-light"] .intro-feature-card,
+[data-theme="classic-light"] .intro-action-card,
+[data-theme="classic-light"] .intro-shortcut-row {
+  border-radius: 4px !important;
+  border: 1px solid #e5e5e2 !important;
+  background: #ffffff !important;
+}
+
+[data-theme="classic-light"] .welcome-card:hover,
+[data-theme="classic-light"] .char-card:hover,
+[data-theme="classic-light"] .location-card:hover {
+  border-color: #d1d1cd !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06) !important;
+}
+
+[data-theme="classic-light"] .welcome-screen-container {
+  background: #f8f8f7 !important;
+  background-image: none !important;
+}
+
+[data-theme="classic-light"] .welcome-title {
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  -webkit-text-fill-color: #18181b !important;
+  color: #18181b !important;
+}
+
+[data-theme="classic-light"] .intro-hero-banner {
+  background: #f5f5f4 !important;
+  background-image: none !important;
+  border: 1px solid #e5e5e2 !important;
+}
+
+/* Reader Segmented Controls */
+[data-theme="classic-light"] .reader-theme-segmented {
+  border-radius: 4px !important;
+  background: #f0f0ee !important;
+  border: 1px solid #e5e5e2 !important;
+  padding: 2px !important;
+}
+
+[data-theme="classic-light"] .theme-segment-btn {
+  border-radius: 3px !important;
+  color: #4b4b52 !important;
+}
+
+[data-theme="classic-light"] .theme-segment-btn:hover {
+  color: #18181b !important;
+  background: rgba(0, 0, 0, 0.04) !important;
+}
+
+[data-theme="classic-light"] .theme-segment-btn.active {
+  background: #ffffff !important;
+  color: #925b18 !important;
+  font-weight: 700 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Timeline & Cast Grid Track */
+[data-theme="classic-light"] .timeline-track-canvas {
+  background: #f3f3f2 !important;
+  border: 1px solid #e5e5e2 !important;
+}
+
+[data-theme="classic-light"] .timeline-segment-card {
+  border-radius: 4px !important;
+  background: #ffffff !important;
+  border: 1px solid #d1d1cd !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* Author Comment Highlight Contrast */
+[data-theme="classic-light"] .author-comment-highlight {
+  color: #18181b !important;
+  caret-color: #000000 !important;
+  font-weight: 500;
+}

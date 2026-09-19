@@ -1,4 +1,4 @@
-export type UiTheme = 'modernx-dark' | 'modernx-light' | 'glass-dark' | 'glass-light';
+export type UiTheme = 'classic-dark' | 'classic-light' | 'modernx-dark' | 'modernx-light' | 'glass-dark' | 'glass-light';
 
 export interface ThemeOption {
   id: UiTheme;
@@ -14,9 +14,31 @@ export interface ThemeOption {
 
 export const UI_THEMES: ThemeOption[] = [
   {
+    id: 'classic-dark',
+    name: 'Classic - Dark',
+    tagline: 'Nocturnal Sanctuary & Warm Gold (Default)',
+    description: 'Literary dark aesthetic inspired by the Chronicle showcase, featuring candlelight gold accents, restrained architectural corners, and warm tactile surfaces.',
+    accent: '#e6be75',
+    bgPreview: '#080a10',
+    surfacePreview: '#131625',
+    textColor: '#f7f4ec',
+    borderPreview: 'rgba(230, 190, 117, 0.28)',
+  },
+  {
+    id: 'classic-light',
+    name: 'Classic - Light',
+    tagline: 'Literary Alabaster & Cognac Gold',
+    description: 'Crisp alabaster paper and clean manuscript aesthetic with rich cognac gold accents, crisp architectural corners, and high-contrast book ink.',
+    accent: '#925b18',
+    bgPreview: '#f8f8f7',
+    surfacePreview: '#ffffff',
+    textColor: '#18181b',
+    borderPreview: '#d1d1cd',
+  },
+  {
     id: 'modernx-dark',
     name: 'ModernX - Dark',
-    tagline: 'Obsidian & Graphite (Default)',
+    tagline: 'Obsidian & Graphite',
     description: 'Deep obsidian and neutral graphite dark palette with neon violet glow, high-contrast typography, and dark glassmorphism.',
     accent: '#8b5cf6',
     bgPreview: '#09090b',
@@ -58,3 +80,5 @@ export const UI_THEMES: ThemeOption[] = [
     borderPreview: 'rgba(14, 165, 233, 0.35)',
   },
 ];
+
+

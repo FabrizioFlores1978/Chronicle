@@ -133,9 +133,12 @@ Chronicle decouples your studio application chrome theme from your writing canva
 *Figure 4.2: The Themes Settings section featuring live UI theme previews and manuscript paper tone presets.*
 
 * **Application UI Themes**:
+  * **Classic Dark (Default)**: Nocturnal sanctuary aesthetic with warm candlelight gold accents.
+  * **Classic Light**: Crisp literary alabaster and clean manuscript aesthetic with rich cognac gold accents.
   * **ModernX Dark**: Deep obsidian graphite with violet neon accents.
-  * **ModernX Light**: Porcelain and slate surfaces with warm amber accents.
-  * **Cyberpunk Dark**: Midnight backdrop with electric cyan highlights.
+  * **ModernX Light**: Crisp porcelain and slate surfaces with vibrant violet accents.
+  * **Glass Dark**: Cinematic frosted glass with specular highlights and luminous cyan accents.
+  * **Glass Light**: Translucent pearlescent glassmorphism with luminous azure glow.
 * **Manuscript Canvas Paper Tones**:
   * **Light**: Crisp warm white book paper with dark charcoal typography.
   * **Sepia**: Warm antique cream paper with soft amber-sepia text.
