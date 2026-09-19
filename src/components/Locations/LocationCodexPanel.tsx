@@ -82,7 +82,6 @@ export const LocationCodexPanel: React.FC<LocationCodexPanelProps> = ({
     addLocationFeature,
     removeLocationFeature,
     setViewMode,
-    openKnowledgeBase,
   } = useEpub();
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -194,7 +193,7 @@ export const LocationCodexPanel: React.FC<LocationCodexPanelProps> = ({
               <button
                 className="btn btn-sm btn-ghost"
                 onClick={() => {
-                  openKnowledgeBase('cast-grid');
+                  setViewMode('cast-grid');
                   onClose();
                 }}
                 title="Open Cast Presence Grid"

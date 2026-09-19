@@ -180,9 +180,6 @@ interface EpubContextType {
   openSettings: (tab?: 'appearance' | 'themes' | 'cloud' | 'editor' | 'general') => void;
   closeSettings: () => void;
 
-  knowledgeBaseInitialTab: 'timeline' | 'cast-grid';
-  openKnowledgeBase: (tab?: 'timeline' | 'cast-grid') => void;
-
   pendingUnsavedAction: PendingUnsavedAction | null;
   setPendingUnsavedAction: (action: PendingUnsavedAction | null) => void;
 
@@ -260,7 +257,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     ['editor', 'reader', 'inspector'].includes(initialSettings.viewMode) ? initialSettings.viewMode : 'editor'
   );
   const [lastBibleView, setLastBibleView] = useState<AppViewMode>(() =>
-    ['timeline', 'cast-grid', 'characters', 'locations'].includes(initialSettings.viewMode) ? initialSettings.viewMode : 'timeline'
+    ['timeline', 'cast-grid', 'characters', 'locations'].includes(initialSettings.viewMode) ? initialSettings.viewMode : 'cast-grid'
   );
   const [lastPublishView, setLastPublishView] = useState<AppViewMode>(() =>
     ['cover', 'styles', 'toc', 'metadata', 'assets'].includes(initialSettings.viewMode) ? initialSettings.viewMode : 'cover'
@@ -318,13 +315,6 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const closeSettings = useCallback(() => {
     setIsSettingsOpen(false);
-  }, []);
-
-  const [knowledgeBaseInitialTab, setKnowledgeBaseInitialTab] = useState<'timeline' | 'cast-grid'>('cast-grid');
-
-  const openKnowledgeBase = useCallback((tab: 'timeline' | 'cast-grid' = 'cast-grid') => {
-    setKnowledgeBaseInitialTab(tab);
-    setViewMode('knowledge-base');
   }, []);
 
   const setUiTheme = useCallback((theme: UiTheme) => {
@@ -410,7 +400,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           if (typeof window !== 'undefined' && window.location && window.location.search) {
             const params = new URLSearchParams(window.location.search);
             const viewParam = params.get('view');
-            const validViews: AppViewMode[] = ['reader', 'editor', 'toc', 'metadata', 'cover', 'styles', 'assets', 'inspector', 'knowledge-base'];
+            const validViews: AppViewMode[] = ['reader', 'editor', 'toc', 'metadata', 'cover', 'styles', 'assets', 'inspector', 'timeline', 'cast-grid', 'characters', 'locations'];
             if (viewParam && validViews.includes(viewParam as AppViewMode)) {
               setViewModeState(viewParam as AppViewMode);
             }
@@ -2357,8 +2347,6 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         settingsInitialTab,
         openSettings,
         closeSettings,
-        knowledgeBaseInitialTab,
-        openKnowledgeBase,
         pendingUnsavedAction,
         setPendingUnsavedAction,
         updateChapterContent,

@@ -71,7 +71,6 @@ export const CharacterSheetPanel: React.FC<CharacterSheetPanelProps> = ({
     addCharacterTrait,
     removeCharacterTrait,
     setViewMode,
-    openKnowledgeBase,
   } = useEpub();
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -166,7 +165,7 @@ export const CharacterSheetPanel: React.FC<CharacterSheetPanelProps> = ({
               <button
                 className="btn btn-sm btn-ghost"
                 onClick={() => {
-                  openKnowledgeBase('cast-grid');
+                  setViewMode('cast-grid');
                   onClose();
                 }}
                 title="Open Cast Presence Grid"

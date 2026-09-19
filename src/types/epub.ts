@@ -214,7 +214,7 @@ export type AppViewMode =
   | 'styles'
   | 'assets'
   | 'inspector'
-  | 'knowledge-base'
+  | 'timeline'
   | 'cast-grid'
   | 'characters'
   | 'locations';
@@ -236,7 +236,7 @@ export const PRIMARY_MODE_MAP: Record<AppViewMode, PrimaryAppMode> = {
 
 export const PRIMARY_DEFAULT_VIEWS: Record<PrimaryAppMode, AppViewMode> = {
   write: 'editor',
-  bible: 'timeline',
+  bible: 'cast-grid',
   publish: 'cover',
 };
 

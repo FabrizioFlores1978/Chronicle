@@ -63,7 +63,6 @@ export const CharacterStudio: React.FC = () => {
     runCastPresenceAnalysis,
     setActiveChapterId,
     setViewMode,
-    openKnowledgeBase,
   } = useEpub();
 
   // Selection & active tabs
@@ -219,7 +218,7 @@ export const CharacterStudio: React.FC = () => {
           {/* Presence Grid shortcut */}
           <button
             className="btn btn-sm btn-outline entity-action-btn"
-            onClick={() => openKnowledgeBase('cast-grid')}
+            onClick={() => setViewMode('cast-grid')}
             title="View in Cast Presence Grid"
           >
             <LayoutGrid size={13} />
@@ -652,7 +651,7 @@ export const CharacterStudio: React.FC = () => {
                     <div className="footprint-actions">
                       <button
                         className="btn btn-sm btn-outline"
-                        onClick={() => openKnowledgeBase('cast-grid')}
+                        onClick={() => setViewMode('cast-grid')}
                       >
                         <LayoutGrid size={14} />
                         <span>Open Presence Grid</span>
