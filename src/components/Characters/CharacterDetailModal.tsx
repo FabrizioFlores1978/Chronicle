@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useEpub } from '../../context/EpubContext';
+import { CHARACTER_PRESET_COLORS } from '../../types/epub';
 import {
   X,
   Trash2,
@@ -32,17 +33,7 @@ const ROLE_OPTIONS = [
   'Minor',
 ];
 
-const PRESET_COLORS = [
-  '#3b82f6', // Blue
-  '#8b5cf6', // Violet
-  '#ec4899', // Pink
-  '#ef4444', // Red
-  '#f97316', // Orange
-  '#eab308', // Amber
-  '#10b981', // Emerald
-  '#06b6d4', // Cyan
-  '#64748b', // Slate
-];
+const PRESET_COLORS = CHARACTER_PRESET_COLORS;
 
 const TRAIT_CATEGORIES = [
   { id: 'goal', label: 'Goal' },

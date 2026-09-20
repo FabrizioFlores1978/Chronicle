@@ -35,11 +35,25 @@ export const COMMENT_HIGHLIGHT_COLORS: CommentColorOption[] = [
     darkHex: 'rgba(191, 219, 254, 0.45)',
   },
   {
+    id: 'teal',
+    name: 'Aqua Teal',
+    hex: '#99f6e4',
+    borderColor: '#0d9488',
+    darkHex: 'rgba(153, 246, 228, 0.45)',
+  },
+  {
     id: 'pink',
     name: 'Rose Pink',
     hex: '#fbcfe8',
     borderColor: '#ec4899',
     darkHex: 'rgba(251, 207, 232, 0.45)',
+  },
+  {
+    id: 'coral',
+    name: 'Coral Red',
+    hex: '#fecaca',
+    borderColor: '#ef4444',
+    darkHex: 'rgba(254, 202, 202, 0.45)',
   },
   {
     id: 'orange',
@@ -49,11 +63,32 @@ export const COMMENT_HIGHLIGHT_COLORS: CommentColorOption[] = [
     darkHex: 'rgba(254, 215, 170, 0.45)',
   },
   {
+    id: 'amber',
+    name: 'Golden Amber',
+    hex: '#fde68a',
+    borderColor: '#d97706',
+    darkHex: 'rgba(253, 230, 138, 0.45)',
+  },
+  {
     id: 'purple',
     name: 'Lavender Purple',
     hex: '#e9d5ff',
     borderColor: '#a855f7',
     darkHex: 'rgba(233, 213, 255, 0.45)',
+  },
+  {
+    id: 'indigo',
+    name: 'Soft Indigo',
+    hex: '#c7d2fe',
+    borderColor: '#6366f1',
+    darkHex: 'rgba(199, 210, 254, 0.45)',
+  },
+  {
+    id: 'lime',
+    name: 'Fresh Lime',
+    hex: '#d9f99d',
+    borderColor: '#84cc16',
+    darkHex: 'rgba(217, 249, 157, 0.45)',
   },
 ];
 

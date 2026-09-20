@@ -129,6 +129,42 @@ export interface LocationCodexEntry {
   imageUrl?: string;
 }
 
+export const CHARACTER_PRESET_COLORS: string[] = [
+  '#3b82f6', // Blue
+  '#8b5cf6', // Violet
+  '#ec4899', // Pink
+  '#ef4444', // Red
+  '#f97316', // Orange
+  '#eab308', // Amber
+  '#10b981', // Emerald
+  '#06b6d4', // Cyan
+  '#14b8a6', // Teal
+  '#6366f1', // Indigo
+  '#d946ef', // Fuchsia
+  '#84cc16', // Lime
+  '#e11d48', // Crimson
+  '#64748b', // Slate
+];
+
+export const LOCATION_PRESET_COLORS: string[] = [
+  '#10b981', // Emerald
+  '#06b6d4', // Cyan
+  '#3b82f6', // Blue
+  '#8b5cf6', // Violet
+  '#f97316', // Orange
+  '#d89614', // Warm Amber / Gold
+  '#ef4444', // Red
+  '#ec4899', // Pink
+  '#14b8a6', // Teal
+  '#6366f1', // Indigo
+  '#d946ef', // Fuchsia
+  '#84cc16', // Lime
+  '#e11d48', // Crimson
+  '#3a6982', // Sea Steel
+  '#78350f', // Earthy Brown
+  '#475569', // Slate
+];
+
 export type TimelineTimescale = 'hours' | 'days' | 'weeks' | 'months' | 'years';
 
 export interface TimelineEvent {

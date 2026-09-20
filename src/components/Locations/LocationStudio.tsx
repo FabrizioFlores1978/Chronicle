@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useEpub } from '../../context/EpubContext';
+import { LOCATION_PRESET_COLORS } from '../../types/epub';
 import {
   Compass,
   Plus,
@@ -45,17 +46,7 @@ const SCALE_OPTIONS = [
   'Realm / World',
 ];
 
-const PRESET_COLORS = [
-  '#10b981', // Emerald
-  '#06b6d4', // Cyan
-  '#3b82f6', // Blue
-  '#8b5cf6', // Violet
-  '#f59e0b', // Amber
-  '#ef4444', // Red
-  '#ec4899', // Pink
-  '#64748b', // Slate
-  '#14b8a6', // Teal
-];
+const PRESET_COLORS = LOCATION_PRESET_COLORS;
 
 const FEATURE_CATEGORIES = [
   { id: 'landmark', label: 'Landmark' },

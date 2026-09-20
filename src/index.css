@@ -2585,17 +2585,20 @@ html, body, #root {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .char-caption-label {
   font-size: 0.7rem;
   color: var(--text-muted);
+  flex-shrink: 0;
 }
 
 .char-mini-palette {
   display: flex;
   align-items: center;
   gap: 5px;
+  flex-wrap: wrap;
 }
 
 .char-mini-dot {
@@ -3012,6 +3015,7 @@ html, body, #root {
 .char-color-palette {
   display: flex;
   gap: 6px;
+  flex-wrap: wrap;
 }
 
 .char-color-dot {
@@ -4450,7 +4454,7 @@ html, body, #root {
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg), 0 0 36px rgba(0, 0, 0, 0.55);
   width: 100%;
-  max-width: 480px;
+  max-width: 560px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -4565,14 +4569,16 @@ html, body, #root {
 .comment-color-palette {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
+  gap: 0.65rem;
+  flex-wrap: nowrap;
   padding: 4px 6px;
+  overflow-x: auto;
 }
 
 .comment-color-swatch {
   width: 28px;
   height: 28px;
+  flex-shrink: 0;
   border-radius: 50%;
   border: 2px solid rgba(255, 255, 255, 0.15);
   cursor: pointer;
@@ -6264,6 +6270,8 @@ html, body, #root {
   padding: 4px 6px;
   border-radius: var(--radius-full);
   border: 1px solid var(--border-subtle);
+  flex-wrap: wrap;
+  max-width: 100%;
 }
 
 .dossier-color-dot {
