@@ -12,6 +12,7 @@ import {
   Heading1,
   Heading2,
   Heading3,
+  Pilcrow,
   List,
   ListOrdered,
   Quote,
@@ -818,6 +819,13 @@ export const WysiwygEditor: React.FC = () => {
       {/* Editor Sub-toolbar */}
       <div className={`sub-toolbar ${minimalistMode ? 'minimalist-sub-toolbar' : ''}`}>
         <div className="toolbar-group toolbar-group-scrollable">
+          <button
+            className="tool-btn"
+            onClick={() => insertHeading('p')}
+            title="Normal text size (Paragraph)"
+          >
+            <Pilcrow size={17} />
+          </button>
           <button
             className="tool-btn"
             onClick={() => insertHeading('h1')}
