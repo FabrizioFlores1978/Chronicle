@@ -208,12 +208,36 @@ export interface AuthorComment {
   updatedAt?: string; // ISO string
 }
 
+export interface StorySnapshotData {
+  metadata: EpubMetadata;
+  toc: EpubTocItem[];
+  chapters: EpubChapter[];
+  characters: CharacterProfile[];
+  locations: LocationCodexEntry[];
+  timelines: StoryTimeline[];
+  comments: AuthorComment[];
+  worldbuilding?: WorldbuildingNote[];
+  synopsis?: string;
+  customNotes?: string;
+}
+
+export interface StorySnapshot {
+  id: string;
+  name: string;
+  description?: string;
+  createdAt: string; // ISO string
+  totalWordCount: number;
+  chapterCount: number;
+  data: StorySnapshotData;
+}
+
 export interface WriterProjectData {
   characters?: CharacterProfile[];
   locations?: LocationCodexEntry[];
   worldbuilding?: WorldbuildingNote[];
   timelines?: StoryTimeline[];
   comments?: AuthorComment[];
+  snapshots?: StorySnapshot[];
   synopsis?: string;
   dailyWordGoal?: number;
   customNotes?: string;

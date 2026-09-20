@@ -17,6 +17,7 @@ import {
   LocationCodexEntry,
   LocationFeatureItem,
   AuthorComment,
+  StorySnapshot,
 } from '../../types/epub';
 
 export const CHRONICLE_PROJECT_EXTENSION = '.chronicle';
@@ -153,7 +154,31 @@ export async function saveChronicleProject(book: EpubBook): Promise<Blob> {
     )
   );
 
-  // 8. Raw EPUB support files (container.xml, OPF, etc.)
+  // 8. Snapshots (saved separately in snapshots/ folder)
+  const snapshots = writerData.snapshots || [];
+  if (snapshots.length > 0) {
+    const snapshotsFolder = zip.folder('snapshots');
+    snapshotsFolder?.file(
+      'index.json',
+      JSON.stringify(
+        snapshots.map(s => ({
+          id: s.id,
+          name: s.name,
+          description: s.description || '',
+          createdAt: s.createdAt,
+          totalWordCount: s.totalWordCount,
+          chapterCount: s.chapterCount,
+        })),
+        null,
+        2
+      )
+    );
+    snapshots.forEach(snapshot => {
+      snapshotsFolder?.file(`${snapshot.id}.json`, JSON.stringify(snapshot, null, 2));
+    });
+  }
+
+  // 9. Raw EPUB support files (container.xml, OPF, etc.)
   const rawFolder = zip.folder('raw_files');
   book.rawFiles.forEach((bytes, path) => {
     // Only store structural files that aren't chapters/assets to save space
@@ -484,6 +509,57 @@ export async function parseChronicleProject(
       writerData.dailyWordGoal = parsedNotes.dailyWordGoal;
       writerData.customNotes = parsedNotes.customNotes;
     }
+  }
+
+  // 8. Read Snapshots (saved separately in snapshots/ folder)
+  let normalizedSnapshots: StorySnapshot[] = [];
+  const snapshotFiles = Object.keys(zip.files).filter(
+    p => p.startsWith('snapshots/') && p.endsWith('.json') && !p.endsWith('index.json')
+  );
+
+  for (const sPath of snapshotFiles) {
+    const file = zip.file(sPath);
+    if (file) {
+      try {
+        const raw = JSON.parse(await file.async('string'));
+        if (raw && raw.id && raw.data) {
+          normalizedSnapshots.push({
+            id: raw.id,
+            name: raw.name || 'Untitled Snapshot',
+            description: raw.description || '',
+            createdAt: raw.createdAt || new Date().toISOString(),
+            totalWordCount: typeof raw.totalWordCount === 'number' ? raw.totalWordCount : 0,
+            chapterCount: typeof raw.chapterCount === 'number' ? raw.chapterCount : (raw.data.chapters?.length || 0),
+            data: {
+              metadata: raw.data.metadata || metadata,
+              toc: Array.isArray(raw.data.toc) ? raw.data.toc : [],
+              chapters: Array.isArray(raw.data.chapters) ? raw.data.chapters : [],
+              characters: Array.isArray(raw.data.characters) ? raw.data.characters : [],
+              locations: Array.isArray(raw.data.locations) ? raw.data.locations : [],
+              timelines: Array.isArray(raw.data.timelines) ? raw.data.timelines : [],
+              comments: Array.isArray(raw.data.comments) ? raw.data.comments : [],
+              worldbuilding: Array.isArray(raw.data.worldbuilding) ? raw.data.worldbuilding : [],
+              synopsis: raw.data.synopsis || '',
+              customNotes: raw.data.customNotes || '',
+            },
+          });
+        }
+      } catch (err) {
+        console.warn('Failed to parse snapshot:', sPath, err);
+      }
+    }
+  }
+
+  // Sort newest first
+  normalizedSnapshots.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+  if (normalizedSnapshots.length > 0) {
+    if (!writerData) {
+      writerData = {};
+    }
+    writerData.snapshots = normalizedSnapshots;
+  } else if (writerData) {
+    writerData.snapshots = [];
   }
 
   return {

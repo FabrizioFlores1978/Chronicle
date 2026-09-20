@@ -22,12 +22,15 @@ import {
   LocationFeatureItem,
   AuthorComment,
   CastPresenceMatrix,
+  StorySnapshot,
+  StorySnapshotData,
 } from '../types/epub';
 import { analyzeCastPresence, AnalysisProgress } from '../services/analysis/presenceAnalysisService';
 import {
   unwrapCommentHighlightInHtml,
   updateCommentHighlightColorInHtml,
   DEFAULT_HIGHLIGHT_COLOR,
+  reconcileChapterComments,
 } from '../services/epub/commentHighlightService';
 import { parseEpub } from '../services/epub/epubParser';
 import { exportEpub } from '../services/epub/epubExporter';
@@ -258,6 +261,14 @@ interface EpubContextType {
   updateComment: (commentId: string, updates: { comment?: string; color?: string }) => void;
   deleteComment: (commentId: string) => void;
 
+  snapshots: StorySnapshot[];
+  isSnapshotsModalOpen: boolean;
+  setIsSnapshotsModalOpen: (open: boolean) => void;
+  createSnapshot: (name?: string, description?: string) => StorySnapshot;
+  updateSnapshot: (id: string, updates: { name?: string; description?: string }) => void;
+  deleteSnapshot: (id: string) => void;
+  restoreSnapshot: (id: string) => void;
+
   castPresenceData: CastPresenceMatrix | null;
   isPresenceCacheValid: boolean;
   isPresenceAnalyzing: boolean;
@@ -383,6 +394,9 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [isExportModalOpen, setIsExportModalOpen] = useState<boolean>(false);
   const [isCharacterSidebarOpen, setIsCharacterSidebarOpen] = useState<boolean>(false);
   const [isLocationSidebarOpen, setIsLocationSidebarOpen] = useState<boolean>(false);
+  const [activeCommentId, setActiveCommentId] = useState<string | null>(null);
+  const [isCommentsSidebarOpen, setIsCommentsSidebarOpen] = useState<boolean>(false);
+  const [showCommentHighlights, setShowCommentHighlights] = useState<boolean>(true);
 
   const [pendingUnsavedAction, setPendingUnsavedAction] = useState<PendingUnsavedAction | null>(null);
   const isDirtyRef = useRef<boolean>(isDirty);
@@ -492,6 +506,16 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // Keep bookRef synchronously up-to-date with book state
   useEffect(() => {
     bookRef.current = book;
+  }, [book]);
+
+  // Session-wide comment history cache to allow seamless resurrection during Undo (Ctrl+Z) / Redo
+  const commentHistoryCacheRef = useRef<Map<string, AuthorComment>>(new Map());
+  useEffect(() => {
+    if (book?.writerData?.comments) {
+      book.writerData.comments.forEach(c => {
+        commentHistoryCacheRef.current.set(c.id, c);
+      });
+    }
   }, [book]);
 
   // Guarded setIsDirty: ignores dirty triggers occurring during save or download cooldown
@@ -987,13 +1011,89 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const targetChapter = currentBook.chapters.find(c => c.id === chapterId);
       if (!targetChapter) return;
 
-      // Strict equality check: if content is identical, do not mark dirty or trigger re-render
-      if (targetChapter.content === newContent) {
+      const currentComments = currentBook.writerData?.comments || [];
+      const currentChapterComments = currentComments.filter(c => c.chapterId === chapterId);
+
+      let processedContent = newContent;
+      let updatedComments = currentComments;
+      let commentsChanged = false;
+
+      if (currentChapterComments.length > 0 || newContent.includes('data-comment-id')) {
+        const {
+          cleanedHtml,
+          survivingCommentIds,
+          removedCommentIds,
+          resurrectedComments,
+          updatedSnippets,
+        } = reconcileChapterComments(newContent, currentChapterComments);
+
+        processedContent = cleanedHtml;
+
+        if (
+          removedCommentIds.size > 0 ||
+          resurrectedComments.length > 0 ||
+          Object.keys(updatedSnippets).length > 0
+        ) {
+          commentsChanged = true;
+
+          // 1. Keep surviving comments and update snippets
+          let nextComments = currentComments
+            .filter(c => c.chapterId !== chapterId || survivingCommentIds.has(c.id))
+            .map(c => {
+              if (c.chapterId === chapterId && updatedSnippets[c.id]) {
+                const updated = { ...c, selectedText: updatedSnippets[c.id] };
+                commentHistoryCacheRef.current.set(c.id, updated);
+                return updated;
+              }
+              return c;
+            });
+
+          // 2. Resurrect any restored comments (e.g. from Ctrl+Z / Redo)
+          if (resurrectedComments.length > 0) {
+            const restoredList: AuthorComment[] = [];
+            resurrectedComments.forEach(res => {
+              const cached = commentHistoryCacheRef.current.get(res.id);
+              if (cached) {
+                const restored: AuthorComment = {
+                  ...cached,
+                  chapterId,
+                  selectedText: res.selectedText || cached.selectedText,
+                  color: res.color || cached.color,
+                };
+                commentHistoryCacheRef.current.set(res.id, restored);
+                restoredList.push(restored);
+              } else {
+                const fallback: AuthorComment = {
+                  id: res.id,
+                  chapterId,
+                  selectedText: res.selectedText || '',
+                  comment: '',
+                  color: res.color || DEFAULT_HIGHLIGHT_COLOR,
+                  createdAt: new Date().toISOString(),
+                };
+                commentHistoryCacheRef.current.set(res.id, fallback);
+                restoredList.push(fallback);
+              }
+            });
+
+            nextComments = [...nextComments, ...restoredList];
+          }
+
+          updatedComments = nextComments;
+
+          if (activeCommentId && removedCommentIds.has(activeCommentId)) {
+            setActiveCommentId(null);
+          }
+        }
+      }
+
+      // Strict equality check: if content is identical and comments haven't changed, do not mark dirty or trigger re-render
+      if (targetChapter.content === processedContent && !commentsChanged) {
         return;
       }
 
       const updatedOriginalXhtml = wrapInXhtml(
-        restoreAssetUrls(newContent, targetChapter.fullPath, currentBook.assets),
+        restoreAssetUrls(processedContent, targetChapter.fullPath, currentBook.assets),
         targetChapter.title
       );
 
@@ -1001,23 +1101,27 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         c.id === chapterId
           ? {
             ...c,
-            content: newContent,
+            content: processedContent,
             originalXhtml: updatedOriginalXhtml,
-            wordCount: calculateWordCount(newContent),
+            wordCount: calculateWordCount(processedContent),
           }
           : c
       );
 
-      const updatedBook = {
+      const updatedBook: EpubBook = {
         ...currentBook,
         chapters: updatedChapters,
+        writerData: {
+          ...currentBook.writerData,
+          comments: updatedComments,
+        },
       };
 
       bookRef.current = updatedBook;
       setBook(updatedBook);
       setIsDirty(true);
     },
-    [setIsDirty]
+    [activeCommentId, setIsDirty]
   );
 
   const updateChapterTitle = useCallback(
@@ -1116,6 +1220,9 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
       const newToc = removeTocItem(book.toc);
 
+      const currentComments = book.writerData?.comments || [];
+      const filteredComments = currentComments.filter(c => c.chapterId !== chapterId);
+
       setBook(prev =>
         prev
           ? {
@@ -1124,6 +1231,10 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             spine: newSpine,
             manifest: newManifest,
             toc: newToc,
+            writerData: {
+              ...prev.writerData,
+              comments: filteredComments,
+            },
           }
           : null
       );
@@ -2259,10 +2370,6 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, [setIsDirty]);
 
   // Author Comments & Highlighting
-  const [activeCommentId, setActiveCommentId] = useState<string | null>(null);
-  const [isCommentsSidebarOpen, setIsCommentsSidebarOpen] = useState<boolean>(false);
-  const [showCommentHighlights, setShowCommentHighlights] = useState<boolean>(true);
-
   const toggleCommentHighlights = useCallback(() => {
     setShowCommentHighlights(prev => !prev);
   }, []);
@@ -2294,6 +2401,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         color,
         createdAt: new Date().toISOString(),
       };
+      commentHistoryCacheRef.current.set(newComment.id, newComment);
 
       const currentBook = bookRef.current;
       if (currentBook) {
@@ -2348,11 +2456,14 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       const currentComments = currentBook.writerData?.comments || [];
       const target = currentComments.find(c => c.id === commentId);
-      const updatedComments = currentComments.map(c =>
-        c.id === commentId
-          ? { ...c, ...updates, updatedAt: new Date().toISOString() }
-          : c
-      );
+      const updatedComments = currentComments.map(c => {
+        if (c.id === commentId) {
+          const updated = { ...c, ...updates, updatedAt: new Date().toISOString() };
+          commentHistoryCacheRef.current.set(commentId, updated);
+          return updated;
+        }
+        return c;
+      });
 
       let updatedChapters = currentBook.chapters;
       if (target && updates.color && updates.color !== target.color) {
@@ -2390,6 +2501,9 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       const currentComments = currentBook.writerData?.comments || [];
       const target = currentComments.find(c => c.id === commentId);
+      if (target) {
+        commentHistoryCacheRef.current.set(commentId, target);
+      }
       const filtered = currentComments.filter(c => c.id !== commentId);
 
       let updatedChapters = currentBook.chapters;
@@ -2423,6 +2537,199 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       showNotification('info', 'Comment removed');
     },
     [activeCommentId, showNotification, setIsDirty]
+  );
+
+  // Snapshots (Time Machine) State & Actions
+  const [isSnapshotsModalOpen, setIsSnapshotsModalOpen] = useState<boolean>(false);
+
+  const snapshots = useMemo(() => {
+    return book?.writerData?.snapshots || [];
+  }, [book]);
+
+  const createSnapshot = useCallback(
+    (name?: string, description?: string): StorySnapshot => {
+      let currentBook = bookRef.current || book;
+      if (!currentBook) {
+        throw new Error('Cannot create snapshot: No manuscript loaded');
+      }
+
+      // Synchronously flush any active WYSIWYG editor DOM content into book before creating snapshot
+      if (typeof document !== 'undefined') {
+        const wysiwygEl = document.querySelector('.wysiwyg-content');
+        if (wysiwygEl) {
+          const domContent = (wysiwygEl as HTMLElement).innerHTML;
+          const currentActiveCh = currentBook.chapters.find(c => c.id === activeChapterId) || currentBook.chapters[0];
+          if (currentActiveCh && currentActiveCh.content !== domContent) {
+            const updatedOriginalXhtml = wrapInXhtml(
+              restoreAssetUrls(domContent, currentActiveCh.fullPath, currentBook.assets),
+              currentActiveCh.title
+            );
+            const updatedChapters = currentBook.chapters.map(c =>
+              c.id === currentActiveCh.id
+                ? {
+                  ...c,
+                  content: domContent,
+                  originalXhtml: updatedOriginalXhtml,
+                  wordCount: calculateWordCount(domContent),
+                }
+                : c
+            );
+            currentBook = {
+              ...currentBook,
+              chapters: updatedChapters,
+            };
+            bookRef.current = currentBook;
+            setBook(currentBook);
+          }
+        }
+      }
+
+      const totalWordCount = currentBook.chapters.reduce((acc, c) => acc + (c.wordCount || 0), 0);
+      const createdAt = new Date().toISOString();
+      const now = new Date();
+      const formattedDate = now.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+      const formattedTime = now.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+      const defaultName = name?.trim() || `Snapshot — ${formattedDate}, ${formattedTime}`;
+
+      const snapshotData: StorySnapshotData = {
+        metadata: JSON.parse(JSON.stringify(currentBook.metadata)),
+        toc: JSON.parse(JSON.stringify(currentBook.toc)),
+        chapters: JSON.parse(JSON.stringify(currentBook.chapters)),
+        characters: JSON.parse(JSON.stringify(currentBook.writerData?.characters || [])),
+        locations: JSON.parse(JSON.stringify(currentBook.writerData?.locations || [])),
+        timelines: JSON.parse(JSON.stringify(currentBook.writerData?.timelines || [])),
+        comments: JSON.parse(JSON.stringify(currentBook.writerData?.comments || [])),
+        worldbuilding: JSON.parse(JSON.stringify(currentBook.writerData?.worldbuilding || [])),
+        synopsis: currentBook.writerData?.synopsis || '',
+        customNotes: currentBook.writerData?.customNotes || '',
+      };
+
+      const newSnapshot: StorySnapshot = {
+        id: `snapshot-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+        name: defaultName,
+        description: description?.trim() || undefined,
+        createdAt,
+        totalWordCount,
+        chapterCount: currentBook.chapters.length,
+        data: snapshotData,
+      };
+
+      setBook(prev => {
+        if (!prev) return null;
+        const currentSnapshots = prev.writerData?.snapshots || [];
+        return {
+          ...prev,
+          writerData: {
+            ...prev.writerData,
+            snapshots: [newSnapshot, ...currentSnapshots],
+          },
+        };
+      });
+
+      setIsDirty(true);
+      showNotification('success', `Captured snapshot: "${defaultName}"`);
+      return newSnapshot;
+    },
+    [book, activeChapterId, setIsDirty, showNotification]
+  );
+
+  const updateSnapshot = useCallback(
+    (id: string, updates: { name?: string; description?: string }) => {
+      setBook(prev => {
+        if (!prev) return null;
+        const currentSnapshots = prev.writerData?.snapshots || [];
+        const updated = currentSnapshots.map(s => (s.id === id ? { ...s, ...updates } : s));
+        return {
+          ...prev,
+          writerData: {
+            ...prev.writerData,
+            snapshots: updated,
+          },
+        };
+      });
+      setIsDirty(true);
+      showNotification('success', 'Snapshot details updated');
+    },
+    [setIsDirty, showNotification]
+  );
+
+  const deleteSnapshot = useCallback(
+    (id: string) => {
+      setBook(prev => {
+        if (!prev) return null;
+        const currentSnapshots = prev.writerData?.snapshots || [];
+        const filtered = currentSnapshots.filter(s => s.id !== id);
+        return {
+          ...prev,
+          writerData: {
+            ...prev.writerData,
+            snapshots: filtered,
+          },
+        };
+      });
+      setIsDirty(true);
+      showNotification('info', 'Snapshot deleted');
+    },
+    [setIsDirty, showNotification]
+  );
+
+  const restoreSnapshot = useCallback(
+    (id: string) => {
+      const currentBook = bookRef.current;
+      if (!currentBook) return;
+
+      const target = (currentBook.writerData?.snapshots || []).find(s => s.id === id);
+      if (!target) {
+        showNotification('error', 'Snapshot not found');
+        return;
+      }
+
+      // Reconstruct book with snapshot data while preserving assets, rawFiles, originalFileName, and snapshots list
+      const restoredChapters = JSON.parse(JSON.stringify(target.data.chapters));
+      const restoredToc = JSON.parse(JSON.stringify(target.data.toc));
+      const restoredMetadata = JSON.parse(JSON.stringify(target.data.metadata));
+      const restoredCharacters = JSON.parse(JSON.stringify(target.data.characters || []));
+      const restoredLocations = JSON.parse(JSON.stringify(target.data.locations || []));
+      const restoredTimelines = JSON.parse(JSON.stringify(target.data.timelines || []));
+      const restoredComments = JSON.parse(JSON.stringify(target.data.comments || []));
+      const restoredWorldbuilding = JSON.parse(JSON.stringify(target.data.worldbuilding || []));
+
+      // Reconstruct spine from chapters
+      const restoredSpine = restoredChapters.map((c: EpubChapter) => ({ idref: c.id }));
+
+      const updatedBook: EpubBook = {
+        ...currentBook,
+        metadata: restoredMetadata,
+        toc: restoredToc,
+        chapters: restoredChapters,
+        spine: restoredSpine,
+        writerData: {
+          ...currentBook.writerData,
+          characters: restoredCharacters,
+          locations: restoredLocations,
+          timelines: restoredTimelines,
+          comments: restoredComments,
+          worldbuilding: restoredWorldbuilding,
+          synopsis: target.data.synopsis || '',
+          customNotes: target.data.customNotes || '',
+        },
+      };
+
+      bookRef.current = updatedBook;
+      setBook(updatedBook);
+
+      if (restoredChapters.length > 0) {
+        const stillValidActive = restoredChapters.find((c: EpubChapter) => c.id === activeChapterId);
+        setActiveChapterId(stillValidActive ? stillValidActive.id : restoredChapters[0].id);
+      }
+
+      refreshBookSession();
+      setCastPresenceData(null);
+      setIsPresenceCacheValid(false);
+      setIsDirty(true);
+      showNotification('success', `Restored manuscript to snapshot: "${target.name}"`);
+    },
+    [activeChapterId, showNotification, setIsDirty, refreshBookSession]
   );
 
   return (
@@ -2572,6 +2879,13 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         addComment,
         updateComment,
         deleteComment,
+        snapshots,
+        isSnapshotsModalOpen,
+        setIsSnapshotsModalOpen,
+        createSnapshot,
+        updateSnapshot,
+        deleteSnapshot,
+        restoreSnapshot,
         castPresenceData,
         isPresenceCacheValid,
         isPresenceAnalyzing,
