@@ -31,6 +31,7 @@ export interface ChronicleSettings {
   shunnChapterPageBreak?: boolean;
   shunnIncludeChapterTitles?: boolean;
   shunnFontFamily?: 'Times New Roman' | 'Courier New';
+  checkUpdatesOnStartup?: boolean;
 }
 
 export interface ZenModeSettings {
@@ -53,6 +54,7 @@ export const DEFAULT_CHRONICLE_SETTINGS: ChronicleSettings = {
   uiTheme: 'classic-dark',
   webdavConfig: null,
   showWelcomeOnStartup: true,
+  checkUpdatesOnStartup: true,
   readerTheme: 'light',
   readerFont: 'serif',
   readerFontSize: 18,

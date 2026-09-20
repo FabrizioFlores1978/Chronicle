@@ -53,6 +53,11 @@ import {
   DEFAULT_ZEN_SETTINGS,
 } from '../services/storage/indexedDbSettings';
 import { uploadFile, downloadFile, isTauri } from '../services/cloud/webdavClient';
+import {
+  UpdateCheckResult,
+  checkForUpdates,
+  getCachedUpdate,
+} from '../services/update/updateChecker';
 
 export interface PendingUnsavedAction {
   actionType: 'new' | 'open' | 'sample' | 'cloud';
@@ -62,9 +67,16 @@ export interface PendingUnsavedAction {
   onProceed: () => void | Promise<void>;
 }
 
-interface NotificationState {
-  type: 'success' | 'error' | 'info';
+export interface NotificationAction {
+  label: string;
+  onClick: () => void;
+}
+
+export interface NotificationState {
+  type: 'success' | 'error' | 'info' | 'update';
   message: string;
+  title?: string;
+  action?: NotificationAction;
 }
 
 interface EpubContextType {
@@ -129,7 +141,14 @@ interface EpubContextType {
   updateCoverImage: (file: File | Blob, mediaType?: string) => Promise<void>;
   generateCustomCover: (svgString: string) => Promise<void>;
   exportAndDownload: () => Promise<void>;
-  showNotification: (type: 'success' | 'error' | 'info', message: string) => void;
+  showNotification: (
+    type: 'success' | 'error' | 'info' | 'update',
+    message: string,
+    action?: NotificationAction,
+    duration?: number,
+    title?: string
+  ) => void;
+  dismissNotification: () => void;
 
   storageTarget: StorageTarget | null;
   setStorageTarget: (target: StorageTarget | null) => void;
@@ -177,9 +196,15 @@ interface EpubContextType {
 
   isSettingsOpen: boolean;
   setIsSettingsOpen: (open: boolean) => void;
-  settingsInitialTab: 'appearance' | 'themes' | 'cloud' | 'editor' | 'general';
-  openSettings: (tab?: 'appearance' | 'themes' | 'cloud' | 'editor' | 'general') => void;
+  settingsInitialTab: 'appearance' | 'themes' | 'cloud' | 'editor' | 'general' | 'updates';
+  openSettings: (tab?: 'appearance' | 'themes' | 'cloud' | 'editor' | 'general' | 'updates') => void;
   closeSettings: () => void;
+
+  checkUpdatesOnStartup: boolean;
+  setCheckUpdatesOnStartup: (enabled: boolean) => Promise<void>;
+  isUpdateAvailable: boolean;
+  latestRelease: UpdateCheckResult | null;
+  checkForUpdatesManually: (forceRefresh?: boolean) => Promise<UpdateCheckResult>;
 
   pendingUnsavedAction: PendingUnsavedAction | null;
   setPendingUnsavedAction: (action: PendingUnsavedAction | null) => void;
@@ -306,9 +331,37 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, []);
 
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
-  const [settingsInitialTab, setSettingsInitialTab] = useState<'appearance' | 'themes' | 'cloud' | 'editor' | 'general'>('appearance');
+  const [settingsInitialTab, setSettingsInitialTab] = useState<'appearance' | 'themes' | 'cloud' | 'editor' | 'general' | 'updates'>('appearance');
 
-  const openSettings = useCallback((tab: 'appearance' | 'themes' | 'cloud' | 'editor' | 'general' = 'appearance') => {
+  const [checkUpdatesOnStartup, setCheckUpdatesOnStartupState] = useState<boolean>(true);
+  const [isUpdateAvailable, setIsUpdateAvailable] = useState<boolean>(false);
+  const [latestRelease, setLatestRelease] = useState<UpdateCheckResult | null>(() => getCachedUpdate());
+
+  const setCheckUpdatesOnStartup = useCallback(async (enabled: boolean) => {
+    setCheckUpdatesOnStartupState(enabled);
+    await saveSetting('checkUpdatesOnStartup', enabled);
+    try {
+      localStorage.setItem('chronicle_check_updates_on_startup', String(enabled));
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const checkForUpdatesManually = useCallback(async (forceRefresh = true): Promise<UpdateCheckResult> => {
+    const res = await checkForUpdates(forceRefresh);
+    if (res.hasUpdate) {
+      setIsUpdateAvailable(true);
+      setLatestRelease(res);
+    } else {
+      setIsUpdateAvailable(false);
+      if (!res.error) {
+        setLatestRelease(res);
+      }
+    }
+    return res;
+  }, []);
+
+  const openSettings = useCallback((tab: 'appearance' | 'themes' | 'cloud' | 'editor' | 'general' | 'updates' = 'appearance') => {
     const effectiveTab = (!isTauri() && tab === 'cloud') ? 'appearance' : tab;
     setSettingsInitialTab(effectiveTab);
     setIsSettingsOpen(true);
@@ -412,6 +465,9 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         } catch {
           /* Ignore query param parsing error */
         }
+        if (typeof settings.checkUpdatesOnStartup === 'boolean') {
+          setCheckUpdatesOnStartupState(settings.checkUpdatesOnStartup);
+        }
       } catch (err) {
         console.error('Failed to load settings from IndexedDB on startup:', err);
       }
@@ -449,6 +505,16 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setIsDirtyState(dirty);
   }, []);
   const [notification, setNotification] = useState<NotificationState | null>(null);
+  const notificationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const dismissNotification = useCallback(() => {
+    if (notificationTimerRef.current) {
+      clearTimeout(notificationTimerRef.current);
+      notificationTimerRef.current = null;
+    }
+    setNotification(null);
+  }, []);
+
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
 
   const toggleSidebar = useCallback(() => {
@@ -543,12 +609,54 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     saveSetting('readerMarginWidth', w);
   }, []);
 
-  const showNotification = useCallback((type: 'success' | 'error' | 'info', message: string) => {
-    setNotification({ type, message });
-    setTimeout(() => {
-      setNotification(prev => (prev?.message === message ? null : prev));
-    }, 4000);
-  }, []);
+  const showNotification = useCallback(
+    (
+      type: 'success' | 'error' | 'info' | 'update',
+      message: string,
+      action?: NotificationAction,
+      duration: number = 4000,
+      title?: string
+    ) => {
+      if (notificationTimerRef.current) {
+        clearTimeout(notificationTimerRef.current);
+      }
+      setNotification({ type, message, action, title });
+      if (duration > 0) {
+        notificationTimerRef.current = setTimeout(() => {
+          setNotification(null);
+          notificationTimerRef.current = null;
+        }, duration);
+      }
+    },
+    []
+  );
+
+  // Automatic background update check on startup
+  useEffect(() => {
+    if (checkUpdatesOnStartup) {
+      const timer = setTimeout(() => {
+        checkForUpdates(false).then(res => {
+          if (res.hasUpdate) {
+            setIsUpdateAvailable(true);
+            setLatestRelease(res);
+            showNotification(
+              'update',
+              `A new version of Chronicle (${res.latestVersion}) is available!`,
+              {
+                label: 'View Update',
+                onClick: () => openSettings('updates'),
+              },
+              10000,
+              'New Release Available'
+            );
+          }
+        }).catch(err => {
+          console.warn('Background update check failed:', err);
+        });
+      }, 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [checkUpdatesOnStartup, showNotification, openSettings]);
 
   const setMinimalistMode = useCallback(
     (val: boolean | ((prev: boolean) => boolean)) => {
@@ -2399,6 +2507,11 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         settingsInitialTab,
         openSettings,
         closeSettings,
+        checkUpdatesOnStartup,
+        setCheckUpdatesOnStartup,
+        isUpdateAvailable,
+        latestRelease,
+        checkForUpdatesManually,
         pendingUnsavedAction,
         setPendingUnsavedAction,
         updateChapterContent,
@@ -2420,6 +2533,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         generateCustomCover,
         exportAndDownload,
         showNotification,
+        dismissNotification,
         characters,
         addCharacter,
         updateCharacter,

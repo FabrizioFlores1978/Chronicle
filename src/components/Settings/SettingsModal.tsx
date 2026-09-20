@@ -33,9 +33,20 @@ import {
   Focus,
   MoveVertical,
   MessageSquareOff,
+  ArrowUpCircle,
+  DownloadCloud,
+  ExternalLink,
+  RefreshCw,
 } from 'lucide-react';
+import { ChronicleLogo } from '../Common/ChronicleLogo';
+import { markdownToHtml } from '../../services/epub/markdownImporter';
+import {
+  CURRENT_VERSION,
+  GUMROAD_DOWNLOAD_URL,
+  UpdateCheckResult,
+} from '../../services/update/updateChecker';
 
-export type SettingsTab = 'appearance' | 'themes' | 'cloud' | 'editor' | 'general';
+export type SettingsTab = 'appearance' | 'themes' | 'cloud' | 'editor' | 'general' | 'updates';
 
 interface SettingsModalProps {
   initialTab?: SettingsTab;
@@ -66,6 +77,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     readerMarginWidth,
     setReaderMarginWidth,
     setIsWelcomeModalOpen,
+    checkUpdatesOnStartup,
+    setCheckUpdatesOnStartup,
+    isUpdateAvailable,
+    latestRelease,
+    checkForUpdatesManually,
   } = useEpub();
 
   useEscapeKey(onClose);
@@ -73,6 +89,44 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const isDesktop = isTauri();
   const effectiveInitialTab = (!isDesktop && initialTab === 'cloud') ? 'appearance' : initialTab;
   const [activeTab, setActiveTab] = useState<SettingsTab>(effectiveInitialTab);
+
+  useEffect(() => {
+    setActiveTab(effectiveInitialTab);
+  }, [effectiveInitialTab]);
+
+  // Updates checking state
+  const [isCheckingUpdates, setIsCheckingUpdates] = useState<boolean>(false);
+  const [updateResult, setUpdateResult] = useState<UpdateCheckResult | null>(latestRelease);
+
+  useEffect(() => {
+    if (latestRelease) {
+      setUpdateResult(latestRelease);
+    }
+  }, [latestRelease]);
+
+  const handleCheckUpdatesManual = async () => {
+    setIsCheckingUpdates(true);
+    try {
+      const res = await checkForUpdatesManually(true);
+      setUpdateResult(res);
+      if (res.hasUpdate) {
+        showNotification('success', `New version ${res.latestVersion} available!`);
+      } else if (res.error) {
+        showNotification('error', `Update check failed: ${res.error}`);
+      } else {
+        showNotification('info', `Chronicle is up to date (${res.currentVersion}).`);
+      }
+    } catch (err: any) {
+      showNotification('error', `Failed to check for updates: ${err?.message || 'Error'}`);
+    } finally {
+      setIsCheckingUpdates(false);
+    }
+  };
+
+  const handleToggleCheckUpdates = async (checked: boolean) => {
+    await setCheckUpdatesOnStartup(checked);
+    showNotification('info', checked ? 'Automatic update checks enabled on startup.' : 'Automatic update checks disabled.');
+  };
 
   useEffect(() => {
     if (!isDesktop && initialTab === 'cloud') {
@@ -209,7 +263,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     }
   };
 
-  const allNavTabs: { id: SettingsTab; label: string; icon: React.ReactNode; badge?: string }[] = [
+  const allNavTabs: { id: SettingsTab; label: string; icon: React.ReactNode; badge?: string; badgeColor?: string }[] = [
     { id: 'appearance', label: 'Appearance', icon: <Layout size={16} /> },
     { id: 'themes', label: 'Themes', icon: <Palette size={16} /> },
     {
@@ -220,6 +274,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     },
     { id: 'editor', label: 'Editor & Reading', icon: <Sliders size={16} /> },
     { id: 'general', label: 'General & Storage', icon: <Database size={16} /> },
+    {
+      id: 'updates',
+      label: 'Updates',
+      icon: <ArrowUpCircle size={16} />,
+      badge: isUpdateAvailable ? (latestRelease?.latestVersion || 'New') : undefined,
+      badgeColor: isUpdateAvailable ? '#e6be75' : undefined,
+    },
   ];
 
   const navTabs = isDesktop ? allNavTabs : allNavTabs.filter(tab => tab.id !== 'cloud');
@@ -321,10 +382,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       style={{
                         fontSize: '0.66rem',
                         fontWeight: 700,
-                        backgroundColor: 'rgba(16, 185, 129, 0.15)',
-                        color: '#10b981',
+                        backgroundColor: tab.badgeColor ? 'rgba(230, 190, 117, 0.2)' : 'rgba(16, 185, 129, 0.15)',
+                        color: tab.badgeColor || '#10b981',
                         padding: '1px 6px',
                         borderRadius: '9999px',
+                        border: tab.badgeColor ? '1px solid rgba(230, 190, 117, 0.35)' : 'none',
                       }}
                     >
                       {tab.badge}
@@ -359,9 +421,30 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <span>Guide & Overview</span>
               </button>
 
-              <div style={{ padding: '0 0.5rem', fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-                <div>Chronicle Studio</div>
-                <div style={{ opacity: 0.8 }}>v1.2.0</div>
+              <div style={{ padding: '0 0.5rem', fontSize: '0.72rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div>
+                  <div>Chronicle Studio</div>
+                  <div style={{ opacity: 0.8 }}>v{CURRENT_VERSION}</div>
+                </div>
+                {isUpdateAvailable && (
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('updates')}
+                    style={{
+                      padding: '2px 6px',
+                      borderRadius: '4px',
+                      border: '1px solid rgba(230, 190, 117, 0.4)',
+                      background: 'rgba(230, 190, 117, 0.15)',
+                      color: 'var(--gold-primary)',
+                      fontSize: '0.68rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                    }}
+                    title="View new update details"
+                  >
+                    Update
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -1423,6 +1506,292 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     </div>
                   </div>
                 </div>
+              </div>
+            )}
+
+            {/* TAB 6: UPDATES & VERSION INFORMATION */}
+            {activeTab === 'updates' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.4rem' }}>
+                {/* Header */}
+                <div>
+                  <h3 style={{ fontSize: '1.25rem', fontWeight: 700, margin: '0 0 0.35rem 0', color: 'var(--text-primary)' }}>
+                    Application Updates & Version Information
+                  </h3>
+                  <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
+                    Check for the latest Chronicle releases directly from GitHub Releases and download desktop packages.
+                  </p>
+                </div>
+
+                {/* Current Version & Channel Status Card */}
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '1.2rem 1.4rem',
+                    borderRadius: '12px',
+                    backgroundColor: 'var(--bg-surface)',
+                    border: '1px solid var(--border-medium)',
+                    flexWrap: 'wrap',
+                    gap: '1rem',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <div
+                      style={{
+                        width: 46,
+                        height: 46,
+                        borderRadius: '12px',
+                        background: 'linear-gradient(135deg, rgba(230, 190, 117, 0.2), rgba(168, 85, 247, 0.2))',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        border: '1px solid var(--border-starlight)',
+                        color: 'var(--gold-primary)',
+                      }}
+                    >
+                      <ChronicleLogo size={26} />
+                    </div>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <span style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                          Chronicle Studio
+                        </span>
+                        <span
+                          style={{
+                            fontSize: '0.72rem',
+                            fontWeight: 700,
+                            padding: '2px 8px',
+                            borderRadius: '9999px',
+                            backgroundColor: 'rgba(230, 190, 117, 0.15)',
+                            color: 'var(--gold-primary)',
+                            border: '1px solid rgba(230, 190, 117, 0.3)',
+                          }}
+                        >
+                          v{CURRENT_VERSION}
+                        </span>
+                        <span
+                          style={{
+                            fontSize: '0.7rem',
+                            color: 'var(--text-muted)',
+                            backgroundColor: 'var(--bg-surface-hover)',
+                            padding: '2px 6px',
+                            borderRadius: '4px',
+                          }}
+                        >
+                          {isDesktop ? 'Desktop App' : 'Web Studio'}
+                        </span>
+                      </div>
+                      <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '3px' }}>
+                        Open-source AGPL-3.0 authoring suite • 100% Local-first
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <button
+                      type="button"
+                      className="btn btn-primary"
+                      onClick={handleCheckUpdatesManual}
+                      disabled={isCheckingUpdates}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        padding: '0.55rem 1.1rem',
+                        fontSize: '0.84rem',
+                        fontWeight: 600,
+                      }}
+                    >
+                      <RefreshCw size={15} className={isCheckingUpdates ? 'animate-spin' : ''} />
+                      <span>{isCheckingUpdates ? 'Checking GitHub...' : 'Check for Updates'}</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Auto-check setting toggle */}
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '1rem 1.2rem',
+                    borderRadius: '10px',
+                    backgroundColor: 'var(--bg-surface)',
+                    border: '1px solid var(--border-subtle)',
+                  }}
+                >
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                    <span style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                      Check for updates automatically on startup
+                    </span>
+                    <span style={{ fontSize: '0.76rem', color: 'var(--text-muted)' }}>
+                      Queries GitHub Releases when opening Chronicle and alerts you if a newer version is available
+                    </span>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={checkUpdatesOnStartup !== false}
+                    onChange={e => handleToggleCheckUpdates(e.target.checked)}
+                    className="form-checkbox"
+                    style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                  />
+                </div>
+
+                {/* Update Check Results Area */}
+                {updateResult && (
+                  <>
+                    {updateResult.hasUpdate ? (
+                      /* UPDATE AVAILABLE CARD */
+                      <div
+                        style={{
+                          padding: '1.4rem',
+                          borderRadius: '12px',
+                          background: 'linear-gradient(135deg, rgba(230, 190, 117, 0.12), rgba(168, 85, 247, 0.1))',
+                          border: '1px solid rgba(230, 190, 117, 0.4)',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '1rem',
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                            <div
+                              style={{
+                                width: 34,
+                                height: 34,
+                                borderRadius: '8px',
+                                backgroundColor: 'rgba(230, 190, 117, 0.25)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifySelf: 'center',
+                                justifyContent: 'center',
+                                color: 'var(--gold-primary)',
+                              }}
+                            >
+                              <Sparkles size={18} />
+                            </div>
+                            <div>
+                              <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                                {updateResult.releaseName || `New Release ${updateResult.latestVersion}`}
+                              </div>
+                              <div style={{ fontSize: '0.76rem', color: 'var(--text-secondary)' }}>
+                                Latest version: <strong style={{ color: 'var(--gold-primary)' }}>{updateResult.latestVersion}</strong>
+                                {updateResult.publishedAt && ` • Released ${new Date(updateResult.publishedAt).toLocaleDateString()}`}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div style={{ display: 'flex', gap: '0.65rem', flexWrap: 'wrap' }}>
+                            <a
+                              href={updateResult.gumroadUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="btn btn-primary"
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.45rem',
+                                padding: '0.5rem 1rem',
+                                fontSize: '0.82rem',
+                                fontWeight: 700,
+                                textDecoration: 'none',
+                              }}
+                            >
+                              <DownloadCloud size={15} />
+                              <span>Download on Gumroad</span>
+                              <ExternalLink size={12} />
+                            </a>
+                          </div>
+                        </div>
+
+                        {/* Release Notes Changelog Container */}
+                        {updateResult.releaseNotes && (
+                          <div
+                            style={{
+                              marginTop: '0.5rem',
+                              padding: '1rem 1.2rem',
+                              borderRadius: '8px',
+                              backgroundColor: 'rgba(0, 0, 0, 0.25)',
+                              border: '1px solid var(--border-subtle)',
+                              maxHeight: '260px',
+                              overflowY: 'auto',
+                            }}
+                          >
+                            <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--gold-primary)', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                              What's New in {updateResult.latestVersion}
+                            </div>
+                            <div
+                              className="release-notes-content"
+                              style={{
+                                fontSize: '0.82rem',
+                                color: 'var(--text-secondary)',
+                                lineHeight: 1.6,
+                              }}
+                              dangerouslySetInnerHTML={{ __html: markdownToHtml(updateResult.releaseNotes) }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    ) : updateResult.error ? (
+                      /* ERROR CARD */
+                      <div
+                        style={{
+                          padding: '1rem 1.2rem',
+                          borderRadius: '10px',
+                          backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                          border: '1px solid rgba(239, 68, 68, 0.25)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.75rem',
+                          color: '#ef4444',
+                        }}
+                      >
+                        <AlertCircle size={20} style={{ flexShrink: 0 }} />
+                        <div style={{ fontSize: '0.82rem' }}>
+                          <strong>Could not check for updates:</strong> {updateResult.error}
+                        </div>
+                      </div>
+                    ) : (
+                      /* UP TO DATE CARD */
+                      <div
+                        style={{
+                          padding: '1.2rem 1.4rem',
+                          borderRadius: '12px',
+                          backgroundColor: 'var(--bg-surface)',
+                          border: '1px solid rgba(16, 185, 129, 0.25)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          gap: '1rem',
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                          <CheckCircle2 size={24} style={{ color: '#10b981', flexShrink: 0 }} />
+                          <div>
+                            <div style={{ fontSize: '0.92rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                              Chronicle is up to date
+                            </div>
+                            <div style={{ fontSize: '0.76rem', color: 'var(--text-muted)' }}>
+                              You are running the latest release ({updateResult.currentVersion}) • Checked {new Date(updateResult.checkedAt).toLocaleTimeString()}
+                            </div>
+                          </div>
+                        </div>
+
+                        <a
+                          href={GUMROAD_DOWNLOAD_URL}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn btn-ghost btn-sm"
+                          style={{ fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+                        >
+                          <span>Gumroad Store</span>
+                          <ExternalLink size={12} />
+                        </a>
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
             )}
           </div>

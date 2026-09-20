@@ -24,6 +24,7 @@ import {
   Layout,
   Sun,
   Moon,
+  ArrowUpCircle,
 } from 'lucide-react';
 import { PrimaryAppMode } from '../types/epub';
 import { TypographyModal } from './Typography/TypographyModal';
@@ -31,6 +32,7 @@ import { ExportModal } from './Export/ExportModal';
 import { TitleRenameModal } from './Header/TitleRenameModal';
 import { ChronicleLogo } from './Common/ChronicleLogo';
 import { isTauri } from '../services/cloud/webdavClient';
+import { CURRENT_VERSION } from '../services/update/updateChecker';
 
 export const Header: React.FC = () => {
   const {
@@ -62,6 +64,8 @@ export const Header: React.FC = () => {
     setPrimaryMode,
     isExportModalOpen,
     setIsExportModalOpen,
+    isUpdateAvailable,
+    latestRelease,
   } = useEpub();
   const { stopAudio } = useTts();
 
@@ -655,10 +659,25 @@ export const Header: React.FC = () => {
             <button
               className="btn btn-ghost btn-sm header-btn-collapsible"
               onClick={() => openSettings('appearance')}
-              title="Settings & Preferences (Ctrl+,)"
+              title={isUpdateAvailable ? `Update Available: ${latestRelease?.latestVersion || 'New version'} (Click to open Settings)` : 'Settings & Preferences (Ctrl+,)'}
+              style={{ position: 'relative' }}
             >
               <Settings size={14} />
               <span>Settings</span>
+              {isUpdateAvailable && (
+                <span
+                  style={{
+                    width: 7,
+                    height: 7,
+                    borderRadius: '50%',
+                    backgroundColor: '#e6be75',
+                    boxShadow: '0 0 6px rgba(230, 190, 117, 0.9)',
+                    position: 'absolute',
+                    top: 4,
+                    right: 4,
+                  }}
+                />
+              )}
             </button>
 
             {/* Responsive Overflow "More" Menu for Narrow/Standard Screens */}
@@ -946,6 +965,37 @@ export const Header: React.FC = () => {
                         <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Themes, display & behavior</div>
                       </div>
                       <kbd className="kbd-shortcut">Ctrl+,</kbd>
+                    </button>
+
+                    <button
+                      className="dropdown-item"
+                      onClick={() => {
+                        setIsMoreMenuOpen(false);
+                        openSettings('updates');
+                      }}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.55rem',
+                        padding: '0.45rem 0.65rem',
+                        borderRadius: '6px',
+                        border: 'none',
+                        background: isUpdateAvailable ? 'rgba(230, 190, 117, 0.12)' : 'none',
+                        fontSize: '0.8rem',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        width: '100%',
+                      }}
+                    >
+                      <ArrowUpCircle size={15} color={isUpdateAvailable ? 'var(--gold-primary)' : 'var(--accent-primary)'} />
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: 600, color: isUpdateAvailable ? 'var(--gold-primary)' : 'inherit' }}>
+                          {isUpdateAvailable ? `Update Available (${latestRelease?.latestVersion || 'New'})` : 'Check for Updates...'}
+                        </div>
+                        <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                          v{CURRENT_VERSION}
+                        </div>
+                      </div>
                     </button>
                   </div>
                 </>
