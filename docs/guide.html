@@ -431,13 +431,14 @@
           <li><a href="#ch1-getting-started" class="guide-nav-link active"><span class="guide-nav-num">01</span> Getting Started</a></li>
           <li><a href="#ch2-studio-interface" class="guide-nav-link"><span class="guide-nav-num">02</span> Studio Interface</a></li>
           <li><a href="#ch3-focus-modes" class="guide-nav-link"><span class="guide-nav-num">03</span> Studio, Minimalist &amp; Zen</a></li>
-          <li><a href="#ch4-settings-themes" class="guide-nav-link"><span class="guide-nav-num">04</span> Settings &amp; Themes</a></li>
-          <li><a href="#ch5-timeline-studio" class="guide-nav-link"><span class="guide-nav-num">05</span> Narrative Timelines</a></li>
-          <li><a href="#ch6-cast-grid" class="guide-nav-link"><span class="guide-nav-num">06</span> Presence Grid</a></li>
-          <li><a href="#ch7-worldbuilding-codex" class="guide-nav-link"><span class="guide-nav-num">07</span> Worldbuilding Codex</a></li>
-          <li><a href="#ch8-reading-tts-covers" class="guide-nav-link"><span class="guide-nav-num">08</span> Reading, TTS &amp; Covers</a></li>
-          <li><a href="#ch9-export-hub" class="guide-nav-link"><span class="guide-nav-num">09</span> Multi-Format Publishing</a></li>
-          <li><a href="#ch10-shortcuts" class="guide-nav-link"><span class="guide-nav-num">10</span> Keyboard Shortcuts</a></li>
+          <li><a href="#ch4-snapshots-diff" class="guide-nav-link"><span class="guide-nav-num">04</span> Snapshots &amp; Diff Studio</a></li>
+          <li><a href="#ch5-settings-themes" class="guide-nav-link"><span class="guide-nav-num">05</span> Settings &amp; Themes</a></li>
+          <li><a href="#ch6-timeline-studio" class="guide-nav-link"><span class="guide-nav-num">06</span> Narrative Timelines</a></li>
+          <li><a href="#ch7-cast-grid" class="guide-nav-link"><span class="guide-nav-num">07</span> Presence Grid</a></li>
+          <li><a href="#ch8-worldbuilding-codex" class="guide-nav-link"><span class="guide-nav-num">08</span> Worldbuilding Codex</a></li>
+          <li><a href="#ch9-reading-tts-covers" class="guide-nav-link"><span class="guide-nav-num">09</span> Reading, TTS &amp; Covers</a></li>
+          <li><a href="#ch10-export-hub" class="guide-nav-link"><span class="guide-nav-num">10</span> Multi-Format Publishing</a></li>
+          <li><a href="#ch11-shortcuts" class="guide-nav-link"><span class="guide-nav-num">11</span> Keyboard Shortcuts</a></li>
         </ul>
       </nav>
     </aside>
@@ -640,10 +641,83 @@
         </div>
       </article>
 
-      <!-- Chapter 4: Settings & Themes -->
-      <article id="ch4-settings-themes" class="guide-chapter">
+      <!-- Chapter 4: Version Snapshots & Git-Style Diff Studio -->
+      <article id="ch4-snapshots-diff" class="guide-chapter">
         <div class="guide-chapter-header">
           <span class="chapter-eyebrow">Chapter 04</span>
+          <h2 class="chapter-heading">Version Snapshots &amp; Git-Style Diff Studio</h2>
+          <span class="chapter-subhead">Milestone restore points, side-by-side comparison, and 1-click cherry-pick restore</span>
+        </div>
+
+        <p class="guide-p">
+          Authors frequently face moments of creative hesitation: <em>"What if this complete rewrite of the climax is worse than my original draft?"</em> Chronicle eliminates this anxiety with <strong>Project Snapshots</strong> and a dedicated <strong>Side-by-Side Git-Style Diff Studio</strong>. Take frozen, instant milestones before daring revisions, compare any snapshot with your active working manuscript, and restore chapters, whole paragraphs, or individual words with a single click.
+        </p>
+
+        <div class="guide-grid-2">
+          <div class="guide-card">
+            <h3 class="guide-card-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" color="var(--gold-primary)"><circle cx="12" cy="12" r="3"></circle><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path></svg>
+              1. Creating Milestone Snapshots
+            </h3>
+            <p class="guide-card-desc">
+              Click <strong>"Snapshots"</strong> in the top header or press the snapshot shortcut to capture your entire creative state—all manuscript chapters, character dossiers, story timelines, world codex entries, and metadata. Give your snapshot a descriptive label like <em>"Pre-Editor Revisions"</em> or <em>"Draft 2 - Alternate Ending"</em>.
+            </p>
+          </div>
+
+          <div class="guide-card">
+            <h3 class="guide-card-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" color="var(--gold-primary)"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"></path></svg>
+              2. Selective Module Restoration
+            </h3>
+            <p class="guide-card-desc">
+              Unlike traditional all-or-nothing backups, Chronicle lets you cherry-pick which project modules to restore. If you rewrote chapter prose but accidentally ruined your character profiles or timeline arcs, you can selectively restore <strong>only the Timelines</strong> or <strong>only Character dossiers</strong> while leaving your manuscript untouched.
+            </p>
+          </div>
+        </div>
+
+        <h3 style="font-family: var(--font-serif-display); color: var(--gold-primary); margin: 2rem 0 0.8rem; font-size: 1.35rem;">
+          Side-by-Side Chapter Diff &amp; Merge Studio
+        </h3>
+        <p class="guide-p">
+          Click the <strong>"Compare"</strong> button on any snapshot card to enter the full-screen Git-style Diff Studio. Chronicle loads your manuscript chapter-by-chapter into an interactive split view:
+        </p>
+
+        <ul style="padding-left: 1.5rem; margin-bottom: 1.5rem; color: var(--text-parchment); line-height: 1.85;">
+          <li>
+            <strong>Left Pane (Current Working Draft):</strong> Shows your live manuscript text cleanly formatted, with line and paragraph markers (<code>P1</code>, <code>P2</code>, ...), so you can evaluate how your current draft reads.
+          </li>
+          <li>
+            <strong>Center Action Gutter:</strong> An interactive column featuring 1-click <code>[← Restore]</code> buttons aligned with every modified or inserted paragraph.
+          </li>
+          <li>
+            <strong>Right Pane (Snapshot Version):</strong> Displays the archived snapshot version with syntax-grade color highlights—additions in emerald green, deletions in rose red, and intra-paragraph word-level diffs.
+          </li>
+          <li>
+            <strong>Intra-Paragraph Word-Level Restore:</strong> If a paragraph contains multiple edits, hovering over any changed word or phrase reveals a floating <code>[← Restore]</code> micro-action pill. Clicking it restores <strong>only that individual change</strong> into your live draft while leaving the rest of the paragraph untouched.
+          </li>
+          <li>
+            <strong>Dedicated Chapter Sidebar:</strong> Easily navigate manuscripts with 50+ chapters using the search bar and the <em>"Changed (N)"</em> filter tab to focus strictly on modified scenes.
+          </li>
+          <li>
+            <strong>Batch Restore &amp; Local Undo:</strong> Restore an entire chapter with <em>"← Restore All Snapshot Changes"</em>, or undo any restored change using the multi-step <em>"Undo Restore"</em> stack.
+          </li>
+        </ul>
+
+        <div class="guide-callout callout-tip">
+          <div class="guide-callout-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            Live Editor Synchronization
+          </div>
+          <p>
+            Every restored paragraph or word immediately synchronizes with Chronicle's live WYSIWYG editor DOM and active book session. When you close the Diff Studio, your editor reflects the restored text with zero reload delay.
+          </p>
+        </div>
+      </article>
+
+      <!-- Chapter 5: Settings & Themes -->
+      <article id="ch5-settings-themes" class="guide-chapter">
+        <div class="guide-chapter-header">
+          <span class="chapter-eyebrow">Chapter 05</span>
           <h2 class="chapter-heading">Settings, Themes &amp; Workspace Customization</h2>
           <span class="chapter-subhead">Adjusting interface aesthetics, paper tones, and WebDAV cloud storage</span>
         </div>
@@ -685,10 +759,10 @@
         </ul>
       </article>
 
-      <!-- Chapter 5: Visual Narrative Timeline Studio -->
-      <article id="ch5-timeline-studio" class="guide-chapter">
+      <!-- Chapter 6: Visual Narrative Timeline Studio -->
+      <article id="ch6-timeline-studio" class="guide-chapter">
         <div class="guide-chapter-header">
-          <span class="chapter-eyebrow">Chapter 05</span>
+          <span class="chapter-eyebrow">Chapter 06</span>
           <h2 class="chapter-heading">Visual Narrative Timeline Studio</h2>
           <span class="chapter-subhead">Multi-strand narrative plotting, story beats, and character collision prevention</span>
         </div>
@@ -744,10 +818,10 @@
         </div>
       </article>
 
-      <!-- Chapter 6: Presence Grid -->
-      <article id="ch6-cast-grid" class="guide-chapter">
+      <!-- Chapter 7: Presence Grid -->
+      <article id="ch7-cast-grid" class="guide-chapter">
         <div class="guide-chapter-header">
-          <span class="chapter-eyebrow">Chapter 06</span>
+          <span class="chapter-eyebrow">Chapter 07</span>
           <h2 class="chapter-heading">Presence Grid</h2>
           <span class="chapter-subhead">Analyzing character density, screen time balance, and scene appearances</span>
         </div>
@@ -775,10 +849,10 @@
         </ul>
       </article>
 
-      <!-- Chapter 7: Worldbuilding Codex -->
-      <article id="ch7-worldbuilding-codex" class="guide-chapter">
+      <!-- Chapter 8: Worldbuilding Codex -->
+      <article id="ch8-worldbuilding-codex" class="guide-chapter">
         <div class="guide-chapter-header">
-          <span class="chapter-eyebrow">Chapter 07</span>
+          <span class="chapter-eyebrow">Chapter 08</span>
           <h2 class="chapter-heading">Worldbuilding Codex: Characters &amp; Locations</h2>
           <span class="chapter-subhead">Dossiers, psychological traits, sensory notes, and landmark checklists</span>
         </div>
@@ -812,10 +886,10 @@
         </div>
       </article>
 
-      <!-- Chapter 8: Reading, TTS & Covers -->
-      <article id="ch8-reading-tts-covers" class="guide-chapter">
+      <!-- Chapter 9: Reading, TTS & Covers -->
+      <article id="ch9-reading-tts-covers" class="guide-chapter">
         <div class="guide-chapter-header">
-          <span class="chapter-eyebrow">Chapter 08</span>
+          <span class="chapter-eyebrow">Chapter 09</span>
           <h2 class="chapter-heading">Reading Mode, Offline Neural TTS &amp; Cover Design</h2>
           <span class="chapter-subhead">Reader view, Kokoro audio proofreading, and typography book covers</span>
         </div>
@@ -858,10 +932,10 @@
         </figure>
       </article>
 
-      <!-- Chapter 9: Export Hub -->
-      <article id="ch9-export-hub" class="guide-chapter">
+      <!-- Chapter 10: Export Hub -->
+      <article id="ch10-export-hub" class="guide-chapter">
         <div class="guide-chapter-header">
-          <span class="chapter-eyebrow">Chapter 09</span>
+          <span class="chapter-eyebrow">Chapter 10</span>
           <h2 class="chapter-heading">Publication &amp; Multi-Format Export Hub</h2>
           <span class="chapter-subhead">Print-ready PDFs, valid EPUB 3, Shunn DOCX, and project archives</span>
         </div>
@@ -942,10 +1016,10 @@
         </div>
       </article>
 
-      <!-- Chapter 10: Keyboard Shortcuts -->
-      <article id="ch10-shortcuts" class="guide-chapter">
+      <!-- Chapter 11: Keyboard Shortcuts -->
+      <article id="ch11-shortcuts" class="guide-chapter">
         <div class="guide-chapter-header">
-          <span class="chapter-eyebrow">Chapter 10</span>
+          <span class="chapter-eyebrow">Chapter 11</span>
           <h2 class="chapter-heading">Keyboard Shortcuts &amp; Power User Cheatsheet</h2>
           <span class="chapter-subhead">Every essential global keybinding to accelerate your authoring flow</span>
         </div>
@@ -1040,9 +1114,10 @@
         <ul class="footer-links">
           <li><a href="guide.html#ch1-getting-started">Getting Started</a></li>
           <li><a href="guide.html#ch3-focus-modes">Focus Modes Guide</a></li>
-          <li><a href="guide.html#ch5-timeline-studio">Timelines Handbook</a></li>
-          <li><a href="guide.html#ch6-cast-grid">Presence Grid</a></li>
-          <li><a href="guide.html#ch10-shortcuts">Keyboard Shortcuts</a></li>
+          <li><a href="guide.html#ch4-snapshots-diff">Snapshots &amp; Diff Studio</a></li>
+          <li><a href="guide.html#ch6-timeline-studio">Timelines Handbook</a></li>
+          <li><a href="guide.html#ch7-cast-grid">Presence Grid</a></li>
+          <li><a href="guide.html#ch11-shortcuts">Keyboard Shortcuts</a></li>
         </ul>
       </div>
 

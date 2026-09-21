@@ -72,6 +72,7 @@
           "featureList": [
             "100% GenAI-Free. No LLMs. No text generation. Built exclusively for human writers.",
             "Typewriter Zen Mode with Vertical Eye-Level Centering, Spotlight Dimming & Ghost HUD",
+            "Version Snapshots & Git-Style Diff Studio with 1-Click Paragraph & Word-Level Restore",
             "Interactive Cast Presence Heatmap Matrix for Chapter-by-Chapter Character Tracking",
             "Distraction-Free Chapter Authoring with Dual-View Comments",
             "Visual Narrative Timelines with Collision Avoidance",
@@ -397,7 +398,19 @@
                   stroke-linecap="round" stroke-linejoin="round">
                   <polyline points="20 6 9 17 4 12"></polyline>
                 </svg>
-                <span><strong>Instant Markdown &amp; EPUB Manuscript Import:</strong> Drag and drop any <code>.md</code>, <code>.markdown</code>, or <code>.epub</code> file. Markdown files are automatically split into structured chapters on top-level headings (<code>#</code>), with YAML frontmatter parsing, formatted tables, and images preserved.</span>
+                <span><strong>Instant Markdown &amp; EPUB Manuscript Import:</strong> Drag and drop any
+                  <code>.md</code>, <code>.markdown</code>, or <code>.epub</code> file. Markdown files are automatically
+                  split into structured chapters on top-level headings (<code>#</code>), with YAML frontmatter parsing,
+                  formatted tables, and images preserved.</span>
+              </li>
+              <li class="showcase-feature-item">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span><strong>Version Snapshots &amp; Visual Diff Studio:</strong> Capture frozen restore points of your
+                  manuscript before daring revisions. Compare any past snapshot against your active draft in a Git-style
+                  side-by-side view, and restore chapters, paragraphs, or single words with 1 click.</span>
               </li>
               <li class="showcase-feature-item">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
@@ -1060,7 +1073,110 @@
           </div>
         </div>
 
-        <!-- 4. Cast Presence Heatmap & Character Grid (span 2) -->
+        <!-- 4. Version Snapshots & Git-Style Diff Studio (span 2) -->
+        <div class="craft-card craft-card-span-2">
+          <div class="craft-icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"></circle>
+              <line x1="3" y1="12" x2="9" y2="12"></line>
+              <line x1="15" y1="12" x2="21" y2="12"></line>
+              <path d="M12 3a9 9 0 0 0-9 9"></path>
+              <path d="M21 12a9 9 0 0 1-9 9"></path>
+            </svg>
+          </div>
+          <h3 class="craft-title">Version Snapshots &amp; Git-Style Diff Studio</h3>
+          <p class="craft-desc">
+            Never fear cutting a scene or restructuring an act again. Capture frozen, timestamped milestones of your
+            entire project in a single click. Compare any past snapshot against your active draft in a visual
+            side-by-side diff studio, view color-coded additions and deletions, and restore chapters, whole paragraphs,
+            or individual words with 1 click. Need to bring back a deleted character sheet or timeline beat without
+            touching your manuscript? Selective restore allows you to recover only the modules you choose.
+          </p>
+
+          <!-- Interactive Diff Preview Shell -->
+          <div class="snapshot-diff-preview-shell">
+            <div class="snapshot-diff-preview-toolbar">
+              <div class="snapshot-toolbar-left">
+                <span class="snapshot-tag-pill">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                  </svg>
+                  <span>Snapshot: "Pre-Climax Polish"</span>
+                </span>
+                <span class="snapshot-meta-text">Chapter VII: A Mad Tea-Party</span>
+              </div>
+              <div class="snapshot-toolbar-right">
+                <span class="snapshot-delta-badge">
+                  <span>● 3 Changes in Chapter</span>
+                </span>
+              </div>
+            </div>
+
+            <div class="snapshot-diff-panes-wrap">
+              <!-- Left: Current Working Draft -->
+              <div class="snapshot-diff-pane-col left-col">
+                <div class="snapshot-pane-header-title current">
+                  <span>Current Working Version</span>
+                  <span>P14</span>
+                </div>
+                <p class="snapshot-diff-p">
+                  "Take some more tea," the March Hare said to Alice, very earnestly. "I've had nothing yet," Alice
+                  replied in an offended tone, "so I can't take more."
+                </p>
+              </div>
+
+              <!-- Center: 1-Click Restore Gutter -->
+              <div class="snapshot-gutter-col">
+                <button type="button" class="snapshot-preview-restore-btn"
+                  title="Restore snapshot paragraph into current manuscript">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                  </svg>
+                  <span>Restore</span>
+                </button>
+              </div>
+
+              <!-- Right: Snapshot Version with Word-Level Diff Highlights -->
+              <div class="snapshot-diff-pane-col right-col">
+                <div class="snapshot-pane-header-title snapshot">
+                  <span>Snapshot Version (Oct 14)</span>
+                  <span>P14</span>
+                </div>
+                <p class="snapshot-diff-p">
+                  "Take some more <span class="snap-del">warm</span> tea," the March Hare said to Alice, very earnestly.
+                  "I've had nothing yet," Alice replied <span class="snap-change-interactive"
+                    title="Click to restore this change"><span class="snap-del">coldly</span><span class="snap-ins">in
+                      an offended tone</span><span class="snap-floating-restore-pill">← Restore</span></span>, "so I
+                  can't take more."
+                </p>
+              </div>
+            </div>
+
+            <!-- Footer: Selective Restore Presets -->
+            <div class="snapshot-preview-footer">
+              <span class="snapshot-selective-label">Selective Restore Presets:</span>
+              <div class="snapshot-selective-pills">
+                <span class="snapshot-selective-chip active">✓ Chapters</span>
+                <span class="snapshot-selective-chip active">✓ Characters</span>
+                <span class="snapshot-selective-chip active">✓ Timelines</span>
+                <span class="snapshot-selective-chip active">✓ Codex</span>
+                <span class="snapshot-selective-chip active">✓ Notes</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="timeline-beats-preview" style="margin-top: 1.1rem;">
+            <span class="beat-tag">Side-by-Side Split Diff</span>
+            <span class="beat-tag">1-Click Paragraph Restore</span>
+            <span class="beat-tag">Word-Level Cherry-Picking</span>
+            <span class="beat-tag">Selective Module Rollback</span>
+          </div>
+        </div>
+
+        <!-- 5. Cast Presence Heatmap & Character Grid (span 2) -->
         <div class="craft-card craft-card-span-2">
           <div class="craft-icon-box">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1231,7 +1347,7 @@
           </div>
         </div>
 
-        <!-- 3. Built-In Book Cover Designer -->
+        <!-- 6. Built-In Book Cover Designer -->
         <div class="craft-card">
           <div class="craft-icon-box">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1247,7 +1363,24 @@
           </p>
         </div>
 
-        <!-- 4. PDF Typesetter with Scaled Drop Caps (span 2) -->
+        <!-- 7. Industry Shunn Manuscript (.docx) -->
+        <div class="craft-card">
+          <div class="craft-icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+            </svg>
+          </div>
+          <h3 class="craft-title">Shunn Manuscript (.docx)</h3>
+          <p class="craft-desc">
+            Generate submission-ready Word documents adhering to the industry-standard William Shunn format (running
+            headers,
+            approximate word counts, courier type, sluglines, and proper contact blocks).
+          </p>
+        </div>
+
+        <!-- 8. PDF Typesetter with Scaled Drop Caps (span 2) -->
         <div class="craft-card craft-card-span-2">
           <div class="craft-icon-box">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1270,24 +1403,7 @@
           </div>
         </div>
 
-        <!-- 5. Industry Shunn Manuscript (.docx) -->
-        <div class="craft-card">
-          <div class="craft-icon-box">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-              <polyline points="14 2 14 8 20 8"></polyline>
-              <line x1="16" y1="13" x2="8" y2="13"></line>
-            </svg>
-          </div>
-          <h3 class="craft-title">Shunn Manuscript (.docx)</h3>
-          <p class="craft-desc">
-            Generate submission-ready Word documents adhering to the industry-standard William Shunn format (running
-            headers,
-            approximate word counts, courier type, sluglines, and proper contact blocks).
-          </p>
-        </div>
-
-        <!-- 6. Offline Kokoro Text-to-Speech Voices -->
+        <!-- 9. Offline Kokoro Text-to-Speech Voices -->
         <div class="craft-card">
           <div class="craft-icon-box">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1305,7 +1421,7 @@
           </p>
         </div>
 
-        <!-- 7. Deep Worldbuilding Codex -->
+        <!-- 10. Deep Worldbuilding Codex -->
         <div class="craft-card">
           <div class="craft-icon-box">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1321,7 +1437,23 @@
           </p>
         </div>
 
-        <!-- 8. Signature Quad-Theme Design System (span 2) -->
+        <!-- 11. Pacing & Writing Velocity -->
+        <div class="craft-card">
+          <div class="craft-icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 20V10"></path>
+              <path d="M18 20V4"></path>
+              <path d="M6 20v-4"></path>
+            </svg>
+          </div>
+          <h3 class="craft-title">Pacing &amp; Writing Velocity</h3>
+          <p class="craft-desc">
+            Keep your storytelling momentum steady. Track live session words (+words written today), set chapter target
+            milestones, and view instant reading time estimations for every scene.
+          </p>
+        </div>
+
+        <!-- 12. Signature Quad-Theme Design System (span 2) -->
         <div class="craft-card craft-card-span-2">
           <div class="craft-icon-box">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1352,7 +1484,7 @@
           </div>
         </div>
 
-        <!-- 9. WebDAV Private Cloud Sync -->
+        <!-- 13. WebDAV Private Cloud Sync -->
         <div class="craft-card">
           <div class="craft-icon-box">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1367,29 +1499,7 @@
           </p>
         </div>
 
-        <!-- 10. Instant Markdown & EPUB Import (span 2) -->
-        <div class="craft-card craft-card-span-2">
-          <div class="craft-icon-box">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-              <polyline points="14 2 14 8 20 8"></polyline>
-              <line x1="12" y1="18" x2="12" y2="12"></line>
-              <line x1="9" y1="15" x2="15" y2="15"></line>
-            </svg>
-          </div>
-          <h3 class="craft-title">Instant Markdown &amp; EPUB Import</h3>
-          <p class="craft-desc">
-            Bring your manuscripts into Chronicle with zero friction. Drag-and-drop any standard <code>.md</code>, <code>.markdown</code>, or <code>.epub</code> file. Markdown files are automatically split into chapters based on top-level headings (<code>#</code>), complete with YAML frontmatter parsing, formatted tables, code blocks, and embedded images. Edit freely and save as an open <code>.chronicle</code> project.
-          </p>
-          <div class="timeline-beats-preview">
-            <span class="beat-tag">Auto Chapter Split (# H1)</span>
-            <span class="beat-tag">Standard EPUB 2/3</span>
-            <span class="beat-tag">YAML Frontmatter</span>
-            <span class="beat-tag">Tables &amp; Code Blocks</span>
-          </div>
-        </div>
-
-        <!-- 11. Transparent Open Formats -->
+        <!-- 14. Transparent Open Formats -->
         <div class="craft-card">
           <div class="craft-icon-box">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1408,7 +1518,32 @@
           </p>
         </div>
 
-        <!-- 12. Smart Typography Engine -->
+        <!-- 15. Instant Markdown & EPUB Import (span 2) -->
+        <div class="craft-card craft-card-span-2">
+          <div class="craft-icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="12" y1="18" x2="12" y2="12"></line>
+              <line x1="9" y1="15" x2="15" y2="15"></line>
+            </svg>
+          </div>
+          <h3 class="craft-title">Instant Markdown &amp; EPUB Import</h3>
+          <p class="craft-desc">
+            Bring your manuscripts into Chronicle with zero friction. Drag-and-drop any standard <code>.md</code>,
+            <code>.markdown</code>, or <code>.epub</code> file. Markdown files are automatically split into chapters
+            based on top-level headings (<code>#</code>), complete with YAML frontmatter parsing, formatted tables, code
+            blocks, and embedded images. Edit freely and save as an open <code>.chronicle</code> project.
+          </p>
+          <div class="timeline-beats-preview">
+            <span class="beat-tag">Auto Chapter Split (# H1)</span>
+            <span class="beat-tag">Standard EPUB 2/3</span>
+            <span class="beat-tag">YAML Frontmatter</span>
+            <span class="beat-tag">Tables &amp; Code Blocks</span>
+          </div>
+        </div>
+
+        <!-- 16. Smart Typography Engine -->
         <div class="craft-card">
           <div class="craft-icon-box">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1424,7 +1559,7 @@
           </p>
         </div>
 
-        <!-- 13. Raw Code & EPUB Inspector -->
+        <!-- 17. Raw Code & EPUB Inspector -->
         <div class="craft-card">
           <div class="craft-icon-box">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1439,7 +1574,7 @@
           </p>
         </div>
 
-        <!-- 14. In-Editor Image Controls -->
+        <!-- 18. In-Editor Image Controls -->
         <div class="craft-card">
           <div class="craft-icon-box">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1450,7 +1585,8 @@
           </div>
           <h3 class="craft-title">In-Editor Image Controls</h3>
           <p class="craft-desc">
-            Select, resize, reposition, and manage embedded chapter artwork directly on the writing canvas. Move images up or down between paragraphs, cycle display widths, and delete with confirmation and undo.
+            Select, resize, reposition, and manage embedded chapter artwork directly on the writing canvas. Move images
+            up or down between paragraphs, cycle display widths, and delete with confirmation and undo.
           </p>
         </div>
       </div>
@@ -1574,6 +1710,27 @@
                 </td>
                 <td><span class="comp-badge-warn">Manual toggle only (no auto-switch, no Ghost HUD, breaks flow on
                     chapter change)</span></td>
+                <td><span class="comp-badge-dim">Not supported</span></td>
+                <td><span class="comp-badge-dim">Not supported</span></td>
+              </tr>
+
+              <tr>
+                <td>
+                  <span class="comp-feature-name">Version Snapshots &amp; Visual Diff Studio</span>
+                  <span class="comp-feature-sub">Full project milestones, side-by-side visual diffs &amp; selective item
+                    restoration</span>
+                </td>
+                <td class="col-chronicle">
+                  <span class="comp-badge-check">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      stroke-width="2.8">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Side-by-side Git diffs, 1-click paragraph &amp; word restore, selective rollback
+                  </span>
+                </td>
+                <td><span class="comp-badge-warn">Basic text inspector diff only (no visual side-by-side diffs, no
+                    word-level or selective module restore)</span></td>
                 <td><span class="comp-badge-dim">Not supported</span></td>
                 <td><span class="comp-badge-dim">Not supported</span></td>
               </tr>
@@ -1839,6 +1996,38 @@
               click
               any cell to inspect in-text dialogue excerpts, jump straight into the scene, or export the entire cast
               tracking matrix to a spreadsheet for editorial analysis.
+            </p>
+          </div>
+        </div>
+
+        <!-- Question: Snapshots & Diff Studio -->
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">
+            <span>How does Chronicle handle revision history, snapshots, and manuscript comparison?</span>
+            <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2.5">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+          <div class="faq-answer">
+            <p>
+              Chronicle features an integrated, Git-grade <strong>Version Snapshots &amp; Comparison Studio</strong>
+              built specifically for novelists:
+            </p>
+            <p>
+              <strong>1. Instant Project Snapshots:</strong> Take a complete, frozen milestone of your entire project
+              (chapters, character sheets, timelines, locations, and metadata) in a single click before embarking on
+              major structural edits or rewrites.<br>
+              <strong>2. Side-by-Side Visual Comparison:</strong> Open any snapshot in a Git-like side-by-side diff
+              studio. Your active draft is displayed on the left and the snapshot on the right, with color-coded
+              additions in emerald, deletions in rose, and word-level changes highlighted.<br>
+              <strong>3. 1-Click Paragraph &amp; Word-Level Restore:</strong> Cherry-pick exactly what you want to bring
+              back. Click <code>[Restore]</code> in the center gutter to restore an entire paragraph, or hover over any
+              modified phrase to restore just a single word or sentence while leaving the rest of the chapter
+              intact.<br>
+              <strong>4. Selective Module Rollback:</strong> If you revised your manuscript but accidentally lost a
+              character profile or complex timeline arc, selective restore allows you to recover only the Timelines or
+              Character sheets from a snapshot without touching your manuscript text.
             </p>
           </div>
         </div>

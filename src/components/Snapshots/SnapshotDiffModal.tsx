@@ -182,8 +182,8 @@ export const SnapshotDiffModal: React.FC<SnapshotDiffModalProps> = ({
     if (hasNext) setSelectedChapterId(allChapterIds[currentIndex + 1]);
   };
 
-  // 1-Click Move single row
-  const handleMoveDiffRow = (row: DiffRow) => {
+  // 1-Click Restore single row
+  const handleRestoreDiffRow = (row: DiffRow) => {
     if (!activeCurrentChapter) {
       showNotification('error', 'Chapter does not exist in current manuscript');
       return;
@@ -203,7 +203,7 @@ export const SnapshotDiffModal: React.FC<SnapshotDiffModalProps> = ({
       {
         chapterId: selectedChapterId,
         previousHtml,
-        label: `Move ${row.type} paragraph`,
+        label: `Restore ${row.type} paragraph`,
       },
       ...prev.slice(0, 19),
     ]);
@@ -213,11 +213,11 @@ export const SnapshotDiffModal: React.FC<SnapshotDiffModalProps> = ({
     if (activeChapterId !== selectedChapterId) {
       setActiveChapterId(selectedChapterId);
     }
-    showNotification('success', `Moved change from snapshot to current chapter`);
+    showNotification('success', `Restored paragraph from snapshot to current chapter`);
   };
 
-  // 1-Click Move single word or small change within a paragraph
-  const handleMoveIntraParagraphChange = (row: DiffRow, change: IntraParagraphChange) => {
+  // 1-Click Restore single word or small change within a paragraph
+  const handleRestoreIntraParagraphChange = (row: DiffRow, change: IntraParagraphChange) => {
     if (!activeCurrentChapter) {
       showNotification('error', 'Chapter does not exist in current manuscript');
       return;
@@ -234,7 +234,7 @@ export const SnapshotDiffModal: React.FC<SnapshotDiffModalProps> = ({
     if (updatedHtml === previousHtml) return;
 
     const actionVerb =
-      change.type === 'added' ? 'Inserted' : change.type === 'removed' ? 'Deleted' : 'Moved';
+      change.type === 'added' ? 'Inserted' : change.type === 'removed' ? 'Deleted' : 'Restored';
     const label = `${actionVerb} "${change.displayText}"`;
 
     // Push to undo stack
@@ -252,7 +252,7 @@ export const SnapshotDiffModal: React.FC<SnapshotDiffModalProps> = ({
     if (activeChapterId !== selectedChapterId) {
       setActiveChapterId(selectedChapterId);
     }
-    showNotification('success', `${label} into current chapter`);
+    showNotification('success', `Restored "${change.displayText}" from snapshot into current chapter`);
   };
 
   // 1-Click Apply all changes in this chapter
@@ -266,7 +266,7 @@ export const SnapshotDiffModal: React.FC<SnapshotDiffModalProps> = ({
       {
         chapterId: selectedChapterId,
         previousHtml,
-        label: `Apply all changes in "${chapterTitle}"`,
+        label: `Restore all changes in "${chapterTitle}"`,
       },
       ...prev.slice(0, 19),
     ]);
@@ -276,7 +276,7 @@ export const SnapshotDiffModal: React.FC<SnapshotDiffModalProps> = ({
     if (activeChapterId !== selectedChapterId) {
       setActiveChapterId(selectedChapterId);
     }
-    showNotification('success', `Applied all snapshot changes to "${chapterTitle}"`);
+    showNotification('success', `Restored all snapshot changes to "${chapterTitle}"`);
   };
 
   const handleRestoreDeletedChapter = () => {
@@ -346,7 +346,7 @@ export const SnapshotDiffModal: React.FC<SnapshotDiffModalProps> = ({
                 </span>
               </div>
               <p className="snapshot-diff-subtitle">
-                Side-by-side manuscript comparison • Review and merge paragraphs from this snapshot into your current draft
+                Side-by-side manuscript comparison • Review and restore paragraphs from this snapshot into your current draft
               </p>
             </div>
           </div>
@@ -357,10 +357,10 @@ export const SnapshotDiffModal: React.FC<SnapshotDiffModalProps> = ({
                 type="button"
                 className="btn btn-sm btn-ghost snapshot-diff-undo-btn"
                 onClick={handleUndo}
-                title={`Undo last move: ${undoStack[0].label}`}
+                title={`Undo last restore: ${undoStack[0].label}`}
               >
                 <Undo2 size={14} />
-                <span>Undo Move ({undoStack.length})</span>
+                <span>Undo Restore ({undoStack.length})</span>
               </button>
             )}
 
@@ -568,10 +568,10 @@ export const SnapshotDiffModal: React.FC<SnapshotDiffModalProps> = ({
                     type="button"
                     className="btn btn-sm btn-primary snapshot-diff-apply-all-btn"
                     onClick={handleApplyAllChapterChanges}
-                    title="Replace current chapter with entire snapshot version"
+                    title="Restore current chapter with entire snapshot version"
                   >
                     <ArrowLeft size={14} />
-                    <span>Apply All Snapshot Changes</span>
+                    <span>Restore All Snapshot Changes</span>
                   </button>
                 )}
 
@@ -607,7 +607,7 @@ export const SnapshotDiffModal: React.FC<SnapshotDiffModalProps> = ({
           </div>
 
           <div className="snapshot-diff-pane-header-divider">
-            <span>Move</span>
+            <span>Restore</span>
           </div>
 
           <div className="snapshot-diff-pane-header right">
@@ -684,17 +684,17 @@ export const SnapshotDiffModal: React.FC<SnapshotDiffModalProps> = ({
                       </div>
                     </div>
 
-                    {/* CENTER ACTION GUTTER: 1-Click Move Button */}
+                    {/* CENTER ACTION GUTTER: 1-Click Restore Button */}
                     <div className="snapshot-diff-gutter-cell">
                       {isModified && (
                         <button
                           type="button"
                           className="snapshot-diff-gutter-btn modify"
-                          onClick={() => handleMoveDiffRow(row)}
-                          title="Move snapshot paragraph into current working copy"
+                          onClick={() => handleRestoreDiffRow(row)}
+                          title="Restore snapshot paragraph into current working copy"
                         >
                           <ArrowLeft size={13} />
-                          <span>Move</span>
+                          <span>Restore</span>
                         </button>
                       )}
 
@@ -702,11 +702,11 @@ export const SnapshotDiffModal: React.FC<SnapshotDiffModalProps> = ({
                         <button
                           type="button"
                           className="snapshot-diff-gutter-btn insert"
-                          onClick={() => handleMoveDiffRow(row)}
-                          title="Insert this snapshot paragraph into current draft"
+                          onClick={() => handleRestoreDiffRow(row)}
+                          title="Restore this snapshot paragraph into current draft"
                         >
                           <ArrowLeft size={13} />
-                          <span>Insert</span>
+                          <span>Restore</span>
                         </button>
                       )}
 
@@ -714,7 +714,7 @@ export const SnapshotDiffModal: React.FC<SnapshotDiffModalProps> = ({
                         <button
                           type="button"
                           className="snapshot-diff-gutter-btn revert"
-                          onClick={() => handleMoveDiffRow(row)}
+                          onClick={() => handleRestoreDiffRow(row)}
                           title="Delete paragraph from current to match snapshot"
                         >
                           <ArrowLeft size={13} />
@@ -750,10 +750,10 @@ export const SnapshotDiffModal: React.FC<SnapshotDiffModalProps> = ({
                                     <span
                                       key={change.id}
                                       className={`diff-word-change-group ${change.type}`}
-                                      title={`Click to move this change: "${change.displayText}"`}
+                                      title={`Click to restore this change: "${change.displayText}"`}
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        handleMoveIntraParagraphChange(row, change);
+                                        handleRestoreIntraParagraphChange(row, change);
                                       }}
                                     >
                                       {seg.removedText && (
@@ -767,18 +767,18 @@ export const SnapshotDiffModal: React.FC<SnapshotDiffModalProps> = ({
                                         </span>
                                       )}
 
-                                      {/* Floating Hover "Move" Action Pill */}
+                                      {/* Floating Hover "Restore" Action Pill */}
                                       <button
                                         type="button"
-                                        className="diff-word-move-pill"
+                                        className="diff-word-restore-pill diff-word-move-pill"
                                         onClick={(e) => {
                                           e.stopPropagation();
-                                          handleMoveIntraParagraphChange(row, change);
+                                          handleRestoreIntraParagraphChange(row, change);
                                         }}
-                                        title={`Move "${change.displayText}" into current draft`}
+                                        title={`Restore "${change.displayText}" into current draft`}
                                       >
                                         <ArrowLeft size={10} />
-                                        <span>Move</span>
+                                        <span>Restore</span>
                                       </button>
                                     </span>
                                   );
@@ -817,7 +817,7 @@ export const SnapshotDiffModal: React.FC<SnapshotDiffModalProps> = ({
               <strong>-{currentSummary.removedCount}</strong> Only in Current
             </span>
             <span className="snapshot-diff-footer-tip">
-              Tip: Hover over any changed word or phrase to <strong>Move</strong> just that change, or click <strong>← Move</strong> in the center gutter to adopt the whole paragraph.
+              Tip: Hover over any changed word or phrase to <strong>Restore</strong> just that change, or click <strong>← Restore</strong> in the center gutter to restore the whole paragraph.
             </span>
           </div>
 
