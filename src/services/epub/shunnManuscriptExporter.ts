@@ -10,7 +10,7 @@ import {
   PageBreak,
   TabStopType,
 } from 'docx';
-import { EpubBook } from '../../types/epub';
+import { EpubBook } from '../../types/project';
 
 export interface ShunnExportOptions {
   // Submitter / Author Contact

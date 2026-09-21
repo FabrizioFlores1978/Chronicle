@@ -32,7 +32,7 @@ import { SplitChapterModal } from './SplitChapterModal';
 import { scopeCssForContainer } from '../../services/epub/cssPresets';
 import { getStoredSettings, updateStoredSettings } from '../../services/epub/settingsStorage';
 import { useEscapeKey } from '../../hooks/useEscapeKey';
-import { AuthorComment } from '../../types/epub';
+import { AuthorComment } from '../../types/project';
 import {
   wrapSelectionWithComment,
   unwrapCommentHighlight,

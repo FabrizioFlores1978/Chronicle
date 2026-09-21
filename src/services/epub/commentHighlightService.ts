@@ -4,7 +4,7 @@
  * unwrapping highlights when deleted, and stripping comment markers for export.
  */
 
-import { AuthorComment } from '../../types/epub';
+import { AuthorComment } from '../../types/project';
 
 export interface CommentColorOption {
   id: string;

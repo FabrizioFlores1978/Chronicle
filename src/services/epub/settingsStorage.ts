@@ -1,4 +1,4 @@
-import { AppViewMode, EditorSubMode, ReaderTheme, ReaderFont } from '../../types/epub';
+import { AppViewMode, EditorSubMode, ReaderTheme, ReaderFont } from '../../types/project';
 
 export interface AppSettings {
   readerTheme: ReaderTheme;

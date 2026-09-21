@@ -8254,4 +8254,272 @@ html[data-zen-hide-comments="true"] .comment-floating-pill {
   background: var(--bg-surface, #141419);
 }
 
+/* ==========================================================================
+   Selective Snapshot Restore Modal
+   ========================================================================== */
+.snapshot-selective-restore-dialog {
+  background: var(--bg-surface-elevated, #181820);
+  border: 1px solid var(--border-medium, rgba(255, 255, 255, 0.15));
+  border-radius: var(--radius-lg, 14px);
+  box-shadow: var(--shadow-xl, 0 24px 48px rgba(0, 0, 0, 0.7)), 0 0 60px rgba(99, 102, 241, 0.12);
+  width: 92%;
+  max-width: 660px;
+  max-height: 88vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: snapshotModalZoomIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.snapshot-restore-presets-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.6rem 0.85rem;
+  background: var(--bg-surface, #141419);
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+  border-radius: 8px;
+  flex-wrap: wrap;
+}
+
+.snapshot-restore-presets-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted, #64748b);
+}
+
+.snapshot-restore-presets-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.snapshot-restore-preset-btn {
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 0.22rem 0.55rem;
+  border-radius: 5px;
+  background: var(--bg-input, rgba(255, 255, 255, 0.05));
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
+  color: var(--text-secondary, #94a3b8);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.snapshot-restore-preset-btn:hover {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: rgba(99, 102, 241, 0.4);
+  color: var(--text-primary, #f8fafc);
+}
+
+.snapshot-restore-categories-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.snapshot-restore-card {
+  background: var(--bg-surface, #141419);
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+  border-radius: 9px;
+  overflow: hidden;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.snapshot-restore-card.checked {
+  border-color: rgba(99, 102, 241, 0.4);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.04), rgba(20, 20, 25, 1));
+}
+
+.snapshot-restore-card.disabled {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.snapshot-restore-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.65rem 0.85rem;
+  cursor: pointer;
+  user-select: none;
+  gap: 0.65rem;
+}
+
+.snapshot-restore-card-left {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex: 1;
+}
+
+.snapshot-restore-checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent-primary, #6366f1);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.snapshot-restore-icon-box {
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary, #94a3b8);
+  transition: all 0.15s ease;
+}
+
+.snapshot-restore-card.checked .snapshot-restore-icon-box {
+  background: rgba(99, 102, 241, 0.18);
+  border-color: rgba(99, 102, 241, 0.35);
+  color: var(--accent-primary, #818cf8);
+}
+
+.snapshot-restore-card-titles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.snapshot-restore-card-title {
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--text-primary, #f8fafc);
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.snapshot-restore-card-subtitle {
+  font-size: 0.72rem;
+  color: var(--text-muted, #64748b);
+}
+
+.snapshot-restore-card-right {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.snapshot-restore-badge {
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--bg-input, rgba(255, 255, 255, 0.06));
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+  color: var(--text-secondary, #94a3b8);
+}
+
+.snapshot-restore-card.checked .snapshot-restore-badge {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: rgba(99, 102, 241, 0.3);
+  color: var(--accent-primary, #818cf8);
+}
+
+.snapshot-restore-drilldown-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  color: var(--text-muted, #64748b);
+  transition: all 0.15s ease;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.snapshot-restore-drilldown-toggle:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary, #f8fafc);
+}
+
+.snapshot-restore-drilldown-panel {
+  border-top: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.06));
+  background: var(--bg-input, rgba(0, 0, 0, 0.25));
+  padding: 0.65rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  animation: snapshotExpand 0.15s ease;
+}
+
+.snapshot-restore-drilldown-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-muted, #64748b);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 0.15rem;
+}
+
+.snapshot-restore-drilldown-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.35rem;
+  max-height: 160px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.snapshot-restore-drilldown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.73rem;
+  background: var(--bg-surface, #17171f);
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.07));
+  border-radius: 5px;
+  padding: 4px 7px;
+  cursor: pointer;
+  user-select: none;
+  transition: border-color 0.12s ease, background 0.12s ease;
+}
+
+.snapshot-restore-drilldown-item:hover {
+  border-color: var(--border-medium, rgba(255, 255, 255, 0.18));
+}
+
+.snapshot-restore-drilldown-item.item-selected {
+  border-color: rgba(99, 102, 241, 0.4);
+  background: rgba(99, 102, 241, 0.08);
+}
+
+.snapshot-restore-drilldown-item-name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text-primary, #f8fafc);
+}
+
+.snapshot-restore-drilldown-item-meta {
+  font-size: 0.67rem;
+  color: var(--text-muted, #64748b);
+  flex-shrink: 0;
+}
+
+.snapshot-restore-avatar-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+
 

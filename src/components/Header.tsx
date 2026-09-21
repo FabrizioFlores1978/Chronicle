@@ -27,7 +27,7 @@ import {
   ArrowUpCircle,
   Camera,
 } from 'lucide-react';
-import { PrimaryAppMode } from '../types/epub';
+import { PrimaryAppMode } from '../types/project';
 import { TypographyModal } from './Typography/TypographyModal';
 import { ExportModal } from './Export/ExportModal';
 import { TitleRenameModal } from './Header/TitleRenameModal';

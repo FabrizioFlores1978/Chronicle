@@ -10,7 +10,7 @@ import {
   Link,
   ChevronRight,
 } from 'lucide-react';
-import { EpubTocItem } from '../../types/epub';
+import { EpubTocItem } from '../../types/project';
 
 export const TocManager: React.FC = () => {
   const { book, updateToc, showNotification } = useEpub();

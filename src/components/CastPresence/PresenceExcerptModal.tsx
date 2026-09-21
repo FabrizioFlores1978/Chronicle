@@ -3,7 +3,7 @@ import {
   EntityChapterPresence,
   CastPresenceEntity,
   CastPresenceChapterSummary,
-} from '../../types/epub';
+} from '../../types/project';
 import {
   X,
   BookOpen,

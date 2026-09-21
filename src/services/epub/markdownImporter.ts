@@ -5,7 +5,7 @@ import {
   EpubSpineItem,
   EpubTocItem,
   EpubAsset,
-} from '../../types/epub';
+} from '../../types/project';
 import { calculateWordCount, escapeXml, wrapInXhtml } from './htmlUtils';
 
 export interface MarkdownMetadata {

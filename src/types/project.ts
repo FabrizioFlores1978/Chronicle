@@ -231,6 +231,23 @@ export interface StorySnapshot {
   data: StorySnapshotData;
 }
 
+export interface SnapshotRestoreOptions {
+  chapters?: boolean;
+  characters?: boolean;
+  locations?: boolean;
+  timelines?: boolean;
+  worldbuilding?: boolean;
+  comments?: boolean;
+  metadata?: boolean;
+  synopsis?: boolean;
+  selectedChapterIds?: string[];
+  selectedCharacterIds?: string[];
+  selectedLocationIds?: string[];
+  selectedTimelineIds?: string[];
+  selectedWorldbuildingIds?: string[];
+  selectedCommentIds?: string[];
+}
+
 export interface WriterProjectData {
   characters?: CharacterProfile[];
   locations?: LocationCodexEntry[];

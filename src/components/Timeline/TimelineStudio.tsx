@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useEpub } from '../../context/EpubContext';
-import { TimelineSegment, TimelineEvent, TimelineTimescale } from '../../types/epub';
+import { TimelineSegment, TimelineEvent, TimelineTimescale } from '../../types/project';
 import { TimelineEventModal } from './TimelineEventModal';
 import {
   Clock,

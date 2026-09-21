@@ -9,7 +9,7 @@ import {
   Quote,
   Palette,
 } from 'lucide-react';
-import { AuthorComment } from '../../types/epub';
+import { AuthorComment } from '../../types/project';
 import {
   COMMENT_HIGHLIGHT_COLORS,
   DEFAULT_HIGHLIGHT_COLOR,

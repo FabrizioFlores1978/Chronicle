@@ -1,5 +1,5 @@
 import JSZip from 'jszip';
-import { EpubBook, EpubTocItem } from '../../types/epub';
+import { EpubBook, EpubTocItem } from '../../types/project';
 import { escapeXml, restoreAssetUrls, wrapInXhtml } from './htmlUtils';
 import { resolvePath, getRelativePath, getDirectory } from './pathUtils';
 import { stripCommentsFromHtml } from './commentHighlightService';

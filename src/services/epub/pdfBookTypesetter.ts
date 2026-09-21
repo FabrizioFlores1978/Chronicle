@@ -1,6 +1,6 @@
 import jsPDF from 'jspdf';
 import { zlibSync } from 'fflate';
-import { EpubBook, EpubAsset, EpubChapter } from '../../types/epub';
+import { EpubBook, EpubAsset, EpubChapter } from '../../types/project';
 import { resolvePath } from './pathUtils';
 
 // Enable FlateEncode compression for jsPDF PNG images

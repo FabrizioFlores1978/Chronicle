@@ -1,5 +1,5 @@
 import { resolvePath, getRelativePath } from './pathUtils';
-import { EpubAsset } from '../../types/epub';
+import { EpubAsset } from '../../types/project';
 
 /**
  * Calculates word count from HTML or plain text string

@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { useEpub } from '../../context/EpubContext';
 import { Plus, Image as ImageIcon, FileCode, FileType } from 'lucide-react';
-import { EpubAsset } from '../../types/epub';
+import { EpubAsset } from '../../types/project';
 import { formatBytes } from '../../services/epub/pathUtils';
 
 export const AssetManager: React.FC = () => {

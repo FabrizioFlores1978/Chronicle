@@ -24,7 +24,8 @@ import {
   CastPresenceMatrix,
   StorySnapshot,
   StorySnapshotData,
-} from '../types/epub';
+  SnapshotRestoreOptions,
+} from '../types/project';
 import { analyzeCastPresence, AnalysisProgress } from '../services/analysis/presenceAnalysisService';
 import {
   unwrapCommentHighlightInHtml,
@@ -267,7 +268,7 @@ interface EpubContextType {
   createSnapshot: (name?: string, description?: string) => StorySnapshot;
   updateSnapshot: (id: string, updates: { name?: string; description?: string }) => void;
   deleteSnapshot: (id: string) => void;
-  restoreSnapshot: (id: string) => void;
+  restoreSnapshot: (id: string, options?: SnapshotRestoreOptions) => void;
 
   castPresenceData: CastPresenceMatrix | null;
   isPresenceCacheValid: boolean;
@@ -2674,8 +2675,8 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   );
 
   const restoreSnapshot = useCallback(
-    (id: string) => {
-      const currentBook = bookRef.current;
+    (id: string, options?: SnapshotRestoreOptions) => {
+      const currentBook = bookRef.current || book;
       if (!currentBook) return;
 
       const target = (currentBook.writerData?.snapshots || []).find(s => s.id === id);
@@ -2684,52 +2685,287 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return;
       }
 
-      // Reconstruct book with snapshot data while preserving assets, rawFiles, originalFileName, and snapshots list
-      const restoredChapters = JSON.parse(JSON.stringify(target.data.chapters));
-      const restoredToc = JSON.parse(JSON.stringify(target.data.toc));
-      const restoredMetadata = JSON.parse(JSON.stringify(target.data.metadata));
-      const restoredCharacters = JSON.parse(JSON.stringify(target.data.characters || []));
-      const restoredLocations = JSON.parse(JSON.stringify(target.data.locations || []));
-      const restoredTimelines = JSON.parse(JSON.stringify(target.data.timelines || []));
-      const restoredComments = JSON.parse(JSON.stringify(target.data.comments || []));
-      const restoredWorldbuilding = JSON.parse(JSON.stringify(target.data.worldbuilding || []));
+      // Check if full restore (no options provided or all booleans undefined)
+      const isFullRestore =
+        !options ||
+        (options.chapters === undefined &&
+          options.characters === undefined &&
+          options.locations === undefined &&
+          options.timelines === undefined &&
+          options.worldbuilding === undefined &&
+          options.comments === undefined &&
+          options.metadata === undefined &&
+          options.synopsis === undefined);
 
-      // Reconstruct spine from chapters
-      const restoredSpine = restoredChapters.map((c: EpubChapter) => ({ idref: c.id }));
+      const restoreChapters = isFullRestore || !!options?.chapters;
+      const restoreCharacters = isFullRestore || !!options?.characters;
+      const restoreLocations = isFullRestore || !!options?.locations;
+      const restoreTimelines = isFullRestore || !!options?.timelines;
+      const restoreWorldbuilding = isFullRestore || !!options?.worldbuilding;
+      const restoreComments = isFullRestore || !!options?.comments;
+      const restoreMetadata = isFullRestore || !!options?.metadata;
+      const restoreSynopsis = isFullRestore || !!options?.synopsis;
+
+      const restoredItemLabels: string[] = [];
+
+      // 1. Chapters & TOC & Spine
+      let nextChapters = currentBook.chapters;
+      let nextToc = currentBook.toc;
+      let nextSpine = currentBook.spine;
+
+      if (restoreChapters) {
+        if (options?.selectedChapterIds && options.selectedChapterIds.length > 0) {
+          const snapshotChapters = target.data.chapters || [];
+          const selectedChMap = new Map<string, EpubChapter>();
+          snapshotChapters.forEach(c => {
+            if (options.selectedChapterIds!.includes(c.id)) {
+              selectedChMap.set(c.id, JSON.parse(JSON.stringify(c)));
+            }
+          });
+
+          const updatedList = currentBook.chapters.map(existing => {
+            if (selectedChMap.has(existing.id)) {
+              const restored = selectedChMap.get(existing.id)!;
+              selectedChMap.delete(existing.id);
+              return restored;
+            }
+            return existing;
+          });
+
+          selectedChMap.forEach(newCh => {
+            updatedList.push(newCh);
+          });
+
+          nextChapters = updatedList;
+          nextSpine = nextChapters.map(c => ({ idref: c.id }));
+          nextToc = nextChapters.map((c, idx) => {
+            const existingToc = currentBook.toc.find(t => t.href === c.href || t.id === c.id);
+            const snapshotToc = target.data.toc?.find(t => t.href === c.href || t.id === c.id);
+            return (
+              snapshotToc ||
+              existingToc || {
+                id: c.id,
+                label: c.title,
+                href: c.href,
+                order: idx + 1,
+              }
+            );
+          });
+          restoredItemLabels.push(
+            `${options.selectedChapterIds.length} Chapter${options.selectedChapterIds.length === 1 ? '' : 's'}`
+          );
+        } else {
+          nextChapters = JSON.parse(JSON.stringify(target.data.chapters || []));
+          nextToc = JSON.parse(JSON.stringify(target.data.toc || []));
+          nextSpine = nextChapters.map((c: EpubChapter) => ({ idref: c.id }));
+          restoredItemLabels.push('Chapters');
+        }
+      }
+
+      // 2. Metadata
+      let nextMetadata = currentBook.metadata;
+      if (restoreMetadata) {
+        nextMetadata = JSON.parse(JSON.stringify(target.data.metadata));
+        restoredItemLabels.push('Book Metadata');
+      }
+
+      // 3. Characters
+      let nextCharacters = currentBook.writerData?.characters || [];
+      if (restoreCharacters) {
+        if (options?.selectedCharacterIds && options.selectedCharacterIds.length > 0) {
+          const snapshotChars = target.data.characters || [];
+          const selectedCharMap = new Map<string, CharacterProfile>();
+          snapshotChars.forEach(c => {
+            if (options.selectedCharacterIds!.includes(c.id)) {
+              selectedCharMap.set(c.id, JSON.parse(JSON.stringify(c)));
+            }
+          });
+          const merged = (currentBook.writerData?.characters || []).map(existing => {
+            if (selectedCharMap.has(existing.id)) {
+              const restored = selectedCharMap.get(existing.id)!;
+              selectedCharMap.delete(existing.id);
+              return restored;
+            }
+            return existing;
+          });
+          selectedCharMap.forEach(newChar => merged.push(newChar));
+          nextCharacters = merged;
+          restoredItemLabels.push(
+            `${options.selectedCharacterIds.length} Character Sheet${options.selectedCharacterIds.length === 1 ? '' : 's'}`
+          );
+        } else {
+          nextCharacters = JSON.parse(JSON.stringify(target.data.characters || []));
+          restoredItemLabels.push('Character Sheets');
+        }
+      }
+
+      // 4. Locations
+      let nextLocations = currentBook.writerData?.locations || [];
+      if (restoreLocations) {
+        if (options?.selectedLocationIds && options.selectedLocationIds.length > 0) {
+          const snapshotLocs = target.data.locations || [];
+          const selectedLocMap = new Map<string, LocationCodexEntry>();
+          snapshotLocs.forEach(l => {
+            if (options.selectedLocationIds!.includes(l.id)) {
+              selectedLocMap.set(l.id, JSON.parse(JSON.stringify(l)));
+            }
+          });
+          const merged = (currentBook.writerData?.locations || []).map(existing => {
+            if (selectedLocMap.has(existing.id)) {
+              const restored = selectedLocMap.get(existing.id)!;
+              selectedLocMap.delete(existing.id);
+              return restored;
+            }
+            return existing;
+          });
+          selectedLocMap.forEach(newLoc => merged.push(newLoc));
+          nextLocations = merged;
+          restoredItemLabels.push(
+            `${options.selectedLocationIds.length} Location${options.selectedLocationIds.length === 1 ? '' : 's'}`
+          );
+        } else {
+          nextLocations = JSON.parse(JSON.stringify(target.data.locations || []));
+          restoredItemLabels.push('Location Codex');
+        }
+      }
+
+      // 5. Timelines
+      let nextTimelines = currentBook.writerData?.timelines || [];
+      if (restoreTimelines) {
+        if (options?.selectedTimelineIds && options.selectedTimelineIds.length > 0) {
+          const snapshotTimelines = target.data.timelines || [];
+          const selectedTimeMap = new Map<string, StoryTimeline>();
+          snapshotTimelines.forEach(t => {
+            if (options.selectedTimelineIds!.includes(t.id)) {
+              selectedTimeMap.set(t.id, JSON.parse(JSON.stringify(t)));
+            }
+          });
+          const merged = (currentBook.writerData?.timelines || []).map(existing => {
+            if (selectedTimeMap.has(existing.id)) {
+              const restored = selectedTimeMap.get(existing.id)!;
+              selectedTimeMap.delete(existing.id);
+              return restored;
+            }
+            return existing;
+          });
+          selectedTimeMap.forEach(newT => merged.push(newT));
+          nextTimelines = merged;
+          restoredItemLabels.push(
+            `${options.selectedTimelineIds.length} Timeline${options.selectedTimelineIds.length === 1 ? '' : 's'}`
+          );
+        } else {
+          nextTimelines = JSON.parse(JSON.stringify(target.data.timelines || []));
+          restoredItemLabels.push('Timelines');
+        }
+      }
+
+      // 6. Worldbuilding
+      let nextWorldbuilding = currentBook.writerData?.worldbuilding || [];
+      if (restoreWorldbuilding) {
+        if (options?.selectedWorldbuildingIds && options.selectedWorldbuildingIds.length > 0) {
+          const snapshotWb = target.data.worldbuilding || [];
+          const selectedWbMap = new Map<string, any>();
+          snapshotWb.forEach(w => {
+            if (options.selectedWorldbuildingIds!.includes(w.id)) {
+              selectedWbMap.set(w.id, JSON.parse(JSON.stringify(w)));
+            }
+          });
+          const merged = (currentBook.writerData?.worldbuilding || []).map(existing => {
+            if (selectedWbMap.has(existing.id)) {
+              const restored = selectedWbMap.get(existing.id)!;
+              selectedWbMap.delete(existing.id);
+              return restored;
+            }
+            return existing;
+          });
+          selectedWbMap.forEach(newWb => merged.push(newWb));
+          nextWorldbuilding = merged;
+          restoredItemLabels.push(
+            `${options.selectedWorldbuildingIds.length} Worldbuilding Note${options.selectedWorldbuildingIds.length === 1 ? '' : 's'}`
+          );
+        } else {
+          nextWorldbuilding = JSON.parse(JSON.stringify(target.data.worldbuilding || []));
+          restoredItemLabels.push('Worldbuilding Notes');
+        }
+      }
+
+      // 7. Comments
+      let nextComments = currentBook.writerData?.comments || [];
+      if (restoreComments) {
+        if (options?.selectedCommentIds && options.selectedCommentIds.length > 0) {
+          const snapshotComments = target.data.comments || [];
+          const selectedCommMap = new Map<string, AuthorComment>();
+          snapshotComments.forEach(c => {
+            if (options.selectedCommentIds!.includes(c.id)) {
+              selectedCommMap.set(c.id, JSON.parse(JSON.stringify(c)));
+            }
+          });
+          const merged = (currentBook.writerData?.comments || []).map(existing => {
+            if (selectedCommMap.has(existing.id)) {
+              const restored = selectedCommMap.get(existing.id)!;
+              selectedCommMap.delete(existing.id);
+              return restored;
+            }
+            return existing;
+          });
+          selectedCommMap.forEach(newComm => merged.push(newComm));
+          nextComments = merged;
+          restoredItemLabels.push(
+            `${options.selectedCommentIds.length} Comment${options.selectedCommentIds.length === 1 ? '' : 's'}`
+          );
+        } else {
+          nextComments = JSON.parse(JSON.stringify(target.data.comments || []));
+          restoredItemLabels.push('Author Comments');
+        }
+      }
+
+      // 8. Synopsis & Notes
+      let nextSynopsis = currentBook.writerData?.synopsis || '';
+      let nextCustomNotes = currentBook.writerData?.customNotes || '';
+      if (restoreSynopsis) {
+        nextSynopsis = target.data.synopsis || '';
+        nextCustomNotes = target.data.customNotes || '';
+        restoredItemLabels.push('Synopsis & Notes');
+      }
 
       const updatedBook: EpubBook = {
         ...currentBook,
-        metadata: restoredMetadata,
-        toc: restoredToc,
-        chapters: restoredChapters,
-        spine: restoredSpine,
+        metadata: nextMetadata,
+        toc: nextToc,
+        chapters: nextChapters,
+        spine: nextSpine,
         writerData: {
           ...currentBook.writerData,
-          characters: restoredCharacters,
-          locations: restoredLocations,
-          timelines: restoredTimelines,
-          comments: restoredComments,
-          worldbuilding: restoredWorldbuilding,
-          synopsis: target.data.synopsis || '',
-          customNotes: target.data.customNotes || '',
+          characters: nextCharacters,
+          locations: nextLocations,
+          timelines: nextTimelines,
+          comments: nextComments,
+          worldbuilding: nextWorldbuilding,
+          synopsis: nextSynopsis,
+          customNotes: nextCustomNotes,
         },
       };
 
       bookRef.current = updatedBook;
       setBook(updatedBook);
 
-      if (restoredChapters.length > 0) {
-        const stillValidActive = restoredChapters.find((c: EpubChapter) => c.id === activeChapterId);
-        setActiveChapterId(stillValidActive ? stillValidActive.id : restoredChapters[0].id);
+      if (restoreChapters && nextChapters.length > 0) {
+        const stillValidActive = nextChapters.find((c: EpubChapter) => c.id === activeChapterId);
+        setActiveChapterId(stillValidActive ? stillValidActive.id : nextChapters[0].id);
       }
 
       refreshBookSession();
       setCastPresenceData(null);
       setIsPresenceCacheValid(false);
       setIsDirty(true);
-      showNotification('success', `Restored manuscript to snapshot: "${target.name}"`);
+
+      const restoreMsg = isFullRestore
+        ? `Restored manuscript to snapshot: "${target.name}"`
+        : `Restored ${restoredItemLabels.join(', ')} from snapshot: "${target.name}"`;
+
+      showNotification('success', restoreMsg);
     },
-    [activeChapterId, showNotification, setIsDirty, refreshBookSession]
+    [book, activeChapterId, showNotification, setIsDirty, refreshBookSession]
   );
 
   return (

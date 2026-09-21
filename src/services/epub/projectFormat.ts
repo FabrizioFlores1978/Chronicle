@@ -18,7 +18,7 @@ import {
   LocationFeatureItem,
   AuthorComment,
   StorySnapshot,
-} from '../../types/epub';
+} from '../../types/project';
 
 export const CHRONICLE_PROJECT_EXTENSION = '.chronicle';
 export const CHRONICLE_PROJECT_MIME = 'application/x-chronicle+zip';
