@@ -21,6 +21,13 @@ export interface ChronicleSettings {
   todayWordsDate?: string;
   todayWordsCount?: number;
 
+  // Auto-save preferences
+  autoSaveEnabled: boolean;
+  autoSaveInterval: number;
+
+  // Language / i18n
+  language: 'en' | 'pt-BR';
+
   // Shunn manuscript author preferences
   shunnLegalName?: string;
   shunnPenName?: string;
@@ -69,6 +76,9 @@ export const DEFAULT_CHRONICLE_SETTINGS: ChronicleSettings = {
   minimalistMode: false,
   zenSettings: DEFAULT_ZEN_SETTINGS,
   todayWordsCount: 0,
+  autoSaveEnabled: true,
+  autoSaveInterval: 60,
+  language: typeof navigator !== 'undefined' && navigator.language?.toLowerCase().startsWith('pt') ? 'pt-BR' : 'en',
   shunnChapterPageBreak: true,
   shunnIncludeChapterTitles: true,
   shunnFontFamily: 'Times New Roman',

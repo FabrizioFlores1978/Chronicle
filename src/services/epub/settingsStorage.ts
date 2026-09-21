@@ -11,6 +11,10 @@ export interface AppSettings {
   editorLayout: 'page' | 'widescreen';
   editorWidth: number;
 
+  // Auto-save preferences
+  autoSaveEnabled?: boolean;
+  autoSaveInterval?: number;
+
   // Shunn manuscript author preferences
   shunnLegalName?: string;
   shunnPenName?: string;
@@ -42,6 +46,8 @@ const DEFAULT_SETTINGS: AppSettings = {
   editorSubMode: 'visual',
   editorLayout: 'page',
   editorWidth: 820,
+  autoSaveEnabled: true,
+  autoSaveInterval: 60,
   shunnChapterPageBreak: true,
   shunnIncludeChapterTitles: true,
   shunnFontFamily: 'Times New Roman',
