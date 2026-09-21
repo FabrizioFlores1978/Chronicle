@@ -1,8 +1,9 @@
 import { isTauri } from '../cloud/webdavClient';
 
-export const CURRENT_VERSION = '1.3.0';
+export const CURRENT_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '1.3.0';
 export const GUMROAD_DOWNLOAD_URL = 'https://pazvanti.gumroad.com/l/Chronicle';
 export const GITHUB_API_LATEST_RELEASE_URL = 'https://api.github.com/repos/pazvanti/Chronicle/releases/latest';
+
 
 export interface ReleaseAsset {
   name: string;

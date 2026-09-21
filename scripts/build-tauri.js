@@ -14,12 +14,17 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { spawnSync } from 'child_process';
+import { syncVersion } from './sync-version.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, '..');
 
+// Sync Cargo.toml version with package.json
+syncVersion();
+
 const isDebug = process.argv.includes('--debug');
+
 const shouldCopyToDocs = process.argv.includes('--copy-to-docs');
 const targetMode = isDebug ? 'debug' : 'release';
 

@@ -13,7 +13,9 @@
     "node": ">=18.0.0"
   },
   "scripts": {
+    "predev": "node scripts/sync-version.js",
     "dev": "vite",
+    "prebuild": "node scripts/sync-version.js",
     "build": "tsc -b && vite build",
     "build:docs": "node scripts/build-docs.js",
     "build:docs:all": "node scripts/build-docs-all.js",
@@ -22,8 +24,11 @@
     "preview": "vite preview",
     "tauri": "tauri",
     "tauri:dev": "node scripts/dev-tauri.js",
-    "tauri:build": "node scripts/build-tauri.js"
+    "tauri:build": "node scripts/build-tauri.js",
+    "version": "node scripts/sync-version.js && git add src-tauri/Cargo.toml",
+    "set-version": "node scripts/sync-version.js"
   },
+
   "dependencies": {
     "@tauri-apps/api": "^2.0.0",
     "@tauri-apps/plugin-http": "^2.6.0",
