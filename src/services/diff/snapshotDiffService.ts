@@ -17,6 +17,22 @@ export interface WordDiffChunk {
   text: string;
 }
 
+export interface IntraParagraphChange {
+  id: string;
+  type: 'replacement' | 'added' | 'removed';
+  removedText: string;
+  addedText: string;
+  displayText: string;
+}
+
+export interface ParagraphSegment {
+  isChange: boolean;
+  equalText?: string;
+  removedText?: string;
+  addedText?: string;
+  change?: IntraParagraphChange;
+}
+
 export interface DiffRow {
   id: string;
   type: 'equal' | 'modified' | 'added' | 'removed';
@@ -486,3 +502,148 @@ function countWords(str: string): number {
   if (!str) return 0;
   return str.trim().split(/\s+/).filter(Boolean).length;
 }
+
+/**
+ * Groups raw word diff chunks into coherent change hunks / segments for UI display and cherry-picking
+ */
+export function buildParagraphSegments(wordDiff: WordDiffChunk[], rowId: string): ParagraphSegment[] {
+  const segments: ParagraphSegment[] = [];
+  let changeCounter = 0;
+  let idx = 0;
+
+  while (idx < wordDiff.length) {
+    const current = wordDiff[idx];
+
+    if (current.type === 'equal') {
+      segments.push({
+        isChange: false,
+        equalText: current.text,
+      });
+      idx++;
+      continue;
+    }
+
+    // It's a non-equal chunk (added or removed)
+    let removedText = '';
+    let addedText = '';
+
+    if (current.type === 'removed') {
+      removedText = current.text;
+      idx++;
+      if (idx < wordDiff.length && wordDiff[idx].type === 'added') {
+        addedText = wordDiff[idx].text;
+        idx++;
+      }
+    } else if (current.type === 'added') {
+      addedText = current.text;
+      idx++;
+      if (idx < wordDiff.length && wordDiff[idx].type === 'removed') {
+        removedText = wordDiff[idx].text;
+        idx++;
+      }
+    }
+
+    const changeId = `${rowId}-change-${changeCounter++}`;
+    let changeType: 'replacement' | 'added' | 'removed' = 'replacement';
+    if (removedText && !addedText) changeType = 'removed';
+    else if (!removedText && addedText) changeType = 'added';
+
+    const rawDisplay = (addedText || removedText).trim();
+    const displayText = rawDisplay.length > 25 ? rawDisplay.slice(0, 22) + '...' : rawDisplay;
+
+    segments.push({
+      isChange: true,
+      removedText,
+      addedText,
+      change: {
+        id: changeId,
+        type: changeType,
+        removedText,
+        addedText,
+        displayText,
+      },
+    });
+  }
+
+  return segments;
+}
+
+/**
+ * Updates a block's inner text while preserving its tag and attributes.
+ */
+export function updateBlockText(blockHtml: string, newText: string, tag: string): string {
+  if (typeof document !== 'undefined') {
+    const temp = document.createElement('div');
+    temp.innerHTML = blockHtml;
+    const el = temp.firstElementChild;
+    if (el) {
+      el.textContent = newText;
+      return el.outerHTML;
+    }
+  }
+
+  const openTagMatch = blockHtml.match(/^<([a-z0-9]+)[^>]*>/i);
+  if (openTagMatch) {
+    const openTag = openTagMatch[0];
+    const tagName = openTagMatch[1];
+    return `${openTag}${escapeHtml(newText)}</${tagName}>`;
+  }
+  return `<${tag}>${escapeHtml(newText)}</${tag}>`;
+}
+
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+/**
+ * 1-Click Move for a single intra-paragraph change (word or group of words):
+ * Applies only this specific change hunk from the snapshot into the current block HTML.
+ */
+export function applyIntraParagraphChangeToCurrentHtml(
+  currentHtml: string,
+  diffRows: DiffRow[],
+  targetRowId: string,
+  targetChangeId: string
+): string {
+  const targetRow = diffRows.find(r => r.id === targetRowId);
+  if (!targetRow || !targetRow.leftBlock || !targetRow.rightBlock || !targetRow.wordDiff) {
+    return currentHtml;
+  }
+
+  const segments = buildParagraphSegments(targetRow.wordDiff, targetRow.id);
+  const targetSegment = segments.find(s => s.isChange && s.change?.id === targetChangeId);
+  if (!targetSegment || !targetSegment.change) return currentHtml;
+
+  const updatedParagraphText = segments
+    .map(seg => {
+      if (!seg.isChange) {
+        return seg.equalText || '';
+      }
+      if (seg.change?.id === targetChangeId) {
+        // Apply snapshot version of this change hunk
+        return seg.change.addedText || '';
+      }
+      // Keep current version for all other segments
+      return seg.change?.removedText || '';
+    })
+    .join('');
+
+  const currentBlocks = extractChapterBlocks(currentHtml);
+  const updatedBlocks = currentBlocks.map(b => {
+    if (b.id === targetRow.leftBlock!.id || b.text === targetRow.leftBlock!.text) {
+      const updatedHtml = updateBlockText(b.html, updatedParagraphText, b.tag);
+      return {
+        ...b,
+        text: updatedParagraphText,
+        html: updatedHtml,
+      };
+    }
+    return b;
+  });
+
+  return reconstructChapterHtml(updatedBlocks);
+}
+

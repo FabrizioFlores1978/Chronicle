@@ -86,6 +86,7 @@ export interface NotificationState {
 interface EpubContextType {
   book: EpubBook | null;
   bookSessionId: string;
+  refreshBookSession: () => void;
   isLoading: boolean;
   isSaving: boolean;
   activeChapterId: string | null;
@@ -2974,6 +2975,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       value={{
         book,
         bookSessionId,
+        refreshBookSession,
         isLoading,
         isSaving,
         activeChapterId,

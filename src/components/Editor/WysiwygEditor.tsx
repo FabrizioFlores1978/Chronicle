@@ -159,6 +159,8 @@ export const WysiwygEditor: React.FC = () => {
     updateStoredSettings({ editorWidth: width });
   };
 
+  const lastSelfUpdatedHtmlRef = useRef<string>('');
+
   // Sync content into editor and scroll to top when active chapter or book session changes
   useEffect(() => {
     deselectImage();
@@ -167,12 +169,31 @@ export const WysiwygEditor: React.FC = () => {
       if (editorRef.current.innerHTML !== cleanContent) {
         editorRef.current.innerHTML = cleanContent;
       }
+      lastSelfUpdatedHtmlRef.current = cleanContent;
     }
     if (workspaceRef.current) {
       workspaceRef.current.scrollTop = 0;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only sync when chapter ID or book session changes, not on keystroke updates
   }, [activeChapter?.id, bookSessionId, deselectImage]);
+
+  // Sync content from activeChapter when content changes externally (e.g. from Snapshot Diff, Typography Modal, Restore Snapshot)
+  useEffect(() => {
+    if (!editorRef.current || !activeChapter) return;
+    const cleanContent = cleanTransientEditorMarkup(activeChapter.content);
+
+    // If this content update was triggered by the user's own typing in handleInput, skip re-injecting
+    if (cleanContent === lastSelfUpdatedHtmlRef.current) {
+      return;
+    }
+
+    // External change detected! Update editor innerHTML to match activeChapter.content
+    if (editorRef.current.innerHTML !== cleanContent) {
+      deselectImage();
+      editorRef.current.innerHTML = cleanContent;
+      lastSelfUpdatedHtmlRef.current = cleanContent;
+    }
+  }, [activeChapter?.content, deselectImage]);
 
   // 1. Zen Mode - Typewriter Scrolling (locks cursor vertically centered)
   const performTypewriterScroll = useCallback(() => {
@@ -259,6 +280,7 @@ export const WysiwygEditor: React.FC = () => {
       const rawHtml = editorRef.current.innerHTML;
       const cleanedHtml = cleanTransientEditorMarkup(rawHtml);
       if (cleanedHtml !== activeChapter.content) {
+        lastSelfUpdatedHtmlRef.current = cleanedHtml;
         updateChapterContent(activeChapter.id, cleanedHtml);
       }
     }

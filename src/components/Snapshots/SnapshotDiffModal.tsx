@@ -12,6 +12,10 @@ import {
   Undo2,
   CheckCheck,
   Plus,
+  BookOpen,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Search,
 } from 'lucide-react';
 import { useEpub } from '../../context/EpubContext';
 import { useEscapeKey } from '../../hooks/useEscapeKey';
@@ -19,9 +23,11 @@ import { StorySnapshot } from '../../types/project';
 import {
   computeChapterDiffSummary,
   applyDiffRowToCurrentHtml,
+  applyIntraParagraphChangeToCurrentHtml,
+  buildParagraphSegments,
   DiffRow,
   ChapterDiffSummary,
-  WordDiffChunk,
+  IntraParagraphChange,
 } from '../../services/diff/snapshotDiffService';
 
 interface SnapshotDiffModalProps {
@@ -41,7 +47,15 @@ export const SnapshotDiffModal: React.FC<SnapshotDiffModalProps> = ({
   onClose,
   initialChapterId,
 }) => {
-  const { book, updateChapterContent, restoreSnapshot, showNotification } = useEpub();
+  const {
+    book,
+    updateChapterContent,
+    restoreSnapshot,
+    showNotification,
+    setActiveChapterId,
+    activeChapterId,
+    refreshBookSession,
+  } = useEpub();
 
   // Combine and order all chapters from current book and snapshot
   const currentChapters = book?.chapters || [];
@@ -73,6 +87,9 @@ export const SnapshotDiffModal: React.FC<SnapshotDiffModalProps> = ({
     return allChapterIds[0] || '';
   });
 
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
+  const [sidebarSearch, setSidebarSearch] = useState<string>('');
+  const [sidebarFilter, setSidebarFilter] = useState<'all' | 'changed'>('all');
   const [filterOnlyDiffs, setFilterOnlyDiffs] = useState<boolean>(false);
   const [undoStack, setUndoStack] = useState<UndoEntry[]>([]);
 
@@ -121,6 +138,37 @@ export const SnapshotDiffModal: React.FC<SnapshotDiffModalProps> = ({
     return count;
   }, [chapterSummariesMap]);
 
+  // Number of changed chapters
+  const changedChapterCount = useMemo(() => {
+    let count = 0;
+    chapterSummariesMap.forEach(val => {
+      if (val.status !== 'identical') count++;
+    });
+    return count;
+  }, [chapterSummariesMap]);
+
+  // Filtered sidebar chapter IDs based on search and filter tab
+  const filteredSidebarChapterIds = useMemo(() => {
+    return allChapterIds.filter(id => {
+      const meta = chapterSummariesMap.get(id);
+      const isChanged = meta ? meta.status !== 'identical' : false;
+
+      if (sidebarFilter === 'changed' && !isChanged) {
+        return false;
+      }
+
+      if (sidebarSearch.trim()) {
+        const cur = currentChapters.find(c => c.id === id);
+        const snap = snapshotChapters.find(c => c.id === id);
+        const title = (cur?.title || snap?.title || '').toLowerCase();
+        const q = sidebarSearch.toLowerCase().trim();
+        return title.includes(q);
+      }
+
+      return true;
+    });
+  }, [allChapterIds, currentChapters, snapshotChapters, chapterSummariesMap, sidebarFilter, sidebarSearch]);
+
   // Navigation handlers
   const currentIndex = allChapterIds.indexOf(selectedChapterId);
   const hasPrev = currentIndex > 0;
@@ -161,7 +209,50 @@ export const SnapshotDiffModal: React.FC<SnapshotDiffModalProps> = ({
     ]);
 
     updateChapterContent(selectedChapterId, updatedHtml);
+    refreshBookSession();
+    if (activeChapterId !== selectedChapterId) {
+      setActiveChapterId(selectedChapterId);
+    }
     showNotification('success', `Moved change from snapshot to current chapter`);
+  };
+
+  // 1-Click Move single word or small change within a paragraph
+  const handleMoveIntraParagraphChange = (row: DiffRow, change: IntraParagraphChange) => {
+    if (!activeCurrentChapter) {
+      showNotification('error', 'Chapter does not exist in current manuscript');
+      return;
+    }
+
+    const previousHtml = activeCurrentChapter.content;
+    const updatedHtml = applyIntraParagraphChangeToCurrentHtml(
+      previousHtml,
+      currentSummary.diffRows,
+      row.id,
+      change.id
+    );
+
+    if (updatedHtml === previousHtml) return;
+
+    const actionVerb =
+      change.type === 'added' ? 'Inserted' : change.type === 'removed' ? 'Deleted' : 'Moved';
+    const label = `${actionVerb} "${change.displayText}"`;
+
+    // Push to undo stack
+    setUndoStack(prev => [
+      {
+        chapterId: selectedChapterId,
+        previousHtml,
+        label,
+      },
+      ...prev.slice(0, 19),
+    ]);
+
+    updateChapterContent(selectedChapterId, updatedHtml);
+    refreshBookSession();
+    if (activeChapterId !== selectedChapterId) {
+      setActiveChapterId(selectedChapterId);
+    }
+    showNotification('success', `${label} into current chapter`);
   };
 
   // 1-Click Apply all changes in this chapter
@@ -181,6 +272,10 @@ export const SnapshotDiffModal: React.FC<SnapshotDiffModalProps> = ({
     ]);
 
     updateChapterContent(selectedChapterId, newHtml);
+    refreshBookSession();
+    if (activeChapterId !== selectedChapterId) {
+      setActiveChapterId(selectedChapterId);
+    }
     showNotification('success', `Applied all snapshot changes to "${chapterTitle}"`);
   };
 
@@ -199,6 +294,10 @@ export const SnapshotDiffModal: React.FC<SnapshotDiffModalProps> = ({
     const [lastAction, ...rest] = undoStack;
     updateChapterContent(lastAction.chapterId, lastAction.previousHtml);
     setUndoStack(rest);
+    refreshBookSession();
+    if (activeChapterId !== lastAction.chapterId) {
+      setActiveChapterId(lastAction.chapterId);
+    }
     showNotification('info', `Undid: ${lastAction.label}`);
   };
 
@@ -239,7 +338,7 @@ export const SnapshotDiffModal: React.FC<SnapshotDiffModalProps> = ({
               <div className="snapshot-diff-title-row">
                 <h3 className="snapshot-diff-modal-title">Time Machine Chapter Diff & Merge</h3>
                 <span className="snapshot-diff-pill">
-                  Comparing with: <strong>"{snapshot.name}"</strong> ({totalManuscriptChanges} changes across manuscript)
+                  Comparing with: <strong>"{snapshot.name}"</strong> ({totalManuscriptChanges} {totalManuscriptChanges === 1 ? 'change' : 'changes'} across manuscript)
                 </span>
                 <span className="snapshot-diff-date">
                   <Clock size={12} />
@@ -276,113 +375,219 @@ export const SnapshotDiffModal: React.FC<SnapshotDiffModalProps> = ({
           </div>
         </div>
 
-        {/* Chapter Selection Strip */}
-        <div className="snapshot-diff-nav-bar">
-          <div className="snapshot-diff-nav-controls">
-            <button
-              type="button"
-              className="btn-icon btn-sm snapshot-diff-nav-arrow"
-              onClick={handlePrevChapter}
-              disabled={!hasPrev}
-              title="Previous chapter"
-            >
-              <ChevronLeft size={16} />
-            </button>
-            <span className="snapshot-diff-nav-counter">
-              Chapter {currentIndex + 1} of {allChapterIds.length}
-            </span>
-            <button
-              type="button"
-              className="btn-icon btn-sm snapshot-diff-nav-arrow"
-              onClick={handleNextChapter}
-              disabled={!hasNext}
-              title="Next chapter"
-            >
-              <ChevronRight size={16} />
-            </button>
-          </div>
+        {/* 2-Column Main Layout: Left Sidebar + Right Side-by-Side Diff */}
+        <div className="snapshot-diff-main-layout">
+          {/* Left Vertical Sidebar */}
+          {isSidebarOpen && (
+            <aside className="snapshot-diff-sidebar">
+              <div className="snapshot-diff-sidebar-header">
+                <div className="snapshot-diff-sidebar-title-row">
+                  <div className="snapshot-diff-sidebar-title-group">
+                    <BookOpen size={15} />
+                    <span>Chapters</span>
+                    <span className="snapshot-diff-sidebar-count">{allChapterIds.length}</span>
+                  </div>
+                  <button
+                    type="button"
+                    className="btn-icon btn-sm"
+                    onClick={() => setIsSidebarOpen(false)}
+                    title="Collapse chapters sidebar"
+                  >
+                    <PanelLeftClose size={15} />
+                  </button>
+                </div>
 
-          {/* Chapter Tabs Scrollable Row */}
-          <div className="snapshot-diff-tabs-scroll">
-            {allChapterIds.map((id, idx) => {
-              const cur = currentChapters.find(c => c.id === id);
-              const snap = snapshotChapters.find(c => c.id === id);
-              const title = cur?.title || snap?.title || `Chapter ${idx + 1}`;
-              const isSelected = id === selectedChapterId;
-              const meta = chapterSummariesMap.get(id);
-              const status = meta?.status || 'identical';
-              const changeCount = meta?.totalChanges || 0;
-
-              return (
-                <button
-                  key={id}
-                  type="button"
-                  className={`snapshot-diff-tab ${isSelected ? 'active' : ''} ${status}`}
-                  onClick={() => setSelectedChapterId(id)}
-                >
-                  <span className="snapshot-diff-tab-order">{idx + 1}.</span>
-                  <span className="snapshot-diff-tab-title" title={title}>
-                    {title}
-                  </span>
-                  {status === 'identical' ? (
-                    <span className="snapshot-diff-tab-badge identical" title="Identical in both versions">
-                      <Check size={10} />
-                    </span>
-                  ) : status === 'added_in_snapshot' ? (
-                    <span className="snapshot-diff-tab-badge added" title="Only in Snapshot">
-                      +Snapshot
-                    </span>
-                  ) : status === 'deleted_in_snapshot' ? (
-                    <span className="snapshot-diff-tab-badge removed" title="Only in Current">
-                      +Current
-                    </span>
-                  ) : (
-                    <span className="snapshot-diff-tab-badge modified" title={`${changeCount} paragraph changes`}>
-                      {changeCount}
-                    </span>
+                {/* Quick Search */}
+                <div className="snapshot-diff-sidebar-search">
+                  <Search size={13} className="snapshot-diff-sidebar-search-icon" />
+                  <input
+                    type="text"
+                    placeholder="Search chapters..."
+                    value={sidebarSearch}
+                    onChange={e => setSidebarSearch(e.target.value)}
+                    className="snapshot-diff-sidebar-search-input"
+                  />
+                  {sidebarSearch && (
+                    <button
+                      type="button"
+                      className="snapshot-diff-sidebar-search-clear"
+                      onClick={() => setSidebarSearch('')}
+                      title="Clear search"
+                    >
+                      <X size={12} />
+                    </button>
                   )}
+                </div>
+
+                {/* Filter Tabs: All vs Changed */}
+                <div className="snapshot-diff-sidebar-filter-tabs">
+                  <button
+                    type="button"
+                    className={`snapshot-diff-sidebar-filter-tab ${sidebarFilter === 'all' ? 'active' : ''}`}
+                    onClick={() => setSidebarFilter('all')}
+                  >
+                    All ({allChapterIds.length})
+                  </button>
+                  <button
+                    type="button"
+                    className={`snapshot-diff-sidebar-filter-tab ${sidebarFilter === 'changed' ? 'active' : ''}`}
+                    onClick={() => setSidebarFilter('changed')}
+                  >
+                    Changed ({changedChapterCount})
+                  </button>
+                </div>
+              </div>
+
+              {/* Scrollable Chapter List */}
+              <div className="snapshot-diff-sidebar-list">
+                {filteredSidebarChapterIds.length === 0 ? (
+                  <div className="snapshot-diff-sidebar-empty">
+                    <span>No chapters match this filter</span>
+                  </div>
+                ) : (
+                  filteredSidebarChapterIds.map(id => {
+                    const globalIndex = allChapterIds.indexOf(id);
+                    const cur = currentChapters.find(c => c.id === id);
+                    const snap = snapshotChapters.find(c => c.id === id);
+                    const title = cur?.title || snap?.title || `Chapter ${globalIndex + 1}`;
+                    const isSelected = id === selectedChapterId;
+                    const meta = chapterSummariesMap.get(id);
+                    const status = meta?.status || 'identical';
+                    const changeCount = meta?.totalChanges || 0;
+
+                    return (
+                      <button
+                        key={id}
+                        type="button"
+                        className={`snapshot-diff-sidebar-item ${isSelected ? 'active' : ''} ${status}`}
+                        onClick={() => setSelectedChapterId(id)}
+                      >
+                        <div className="snapshot-diff-sidebar-item-top">
+                          <span className="snapshot-diff-sidebar-item-order">{globalIndex + 1}.</span>
+                          <span className="snapshot-diff-sidebar-item-title" title={title}>
+                            {title}
+                          </span>
+                        </div>
+
+                        <div className="snapshot-diff-sidebar-item-bottom">
+                          {status === 'identical' ? (
+                            <span className="snapshot-diff-sidebar-badge identical" title="Identical in both versions">
+                              <Check size={11} />
+                              <span>Identical</span>
+                            </span>
+                          ) : status === 'added_in_snapshot' ? (
+                            <span className="snapshot-diff-sidebar-badge added" title="Only present in snapshot">
+                              <Plus size={11} />
+                              <span>In Snapshot Only</span>
+                            </span>
+                          ) : status === 'deleted_in_snapshot' ? (
+                            <span className="snapshot-diff-sidebar-badge removed" title="Only present in current draft">
+                              <span>In Current Only</span>
+                            </span>
+                          ) : (
+                            <span className="snapshot-diff-sidebar-badge modified" title={`${changeCount} paragraph changes`}>
+                              <span className="snapshot-diff-badge-dot" />
+                              <span>{changeCount} {changeCount === 1 ? 'change' : 'changes'}</span>
+                            </span>
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })
+                )}
+              </div>
+
+              {/* Sidebar Footer */}
+              <div className="snapshot-diff-sidebar-footer">
+                <span>{changedChapterCount} changed</span>
+                <span>{allChapterIds.length - changedChapterCount} identical</span>
+              </div>
+            </aside>
+          )}
+
+          {/* Right Main Content Area */}
+          <div className="snapshot-diff-content-area">
+            {/* Action Toolbar for current Chapter */}
+            <div className="snapshot-diff-content-toolbar">
+              <div className="snapshot-diff-toolbar-left">
+                {!isSidebarOpen && (
+                  <button
+                    type="button"
+                    className="btn btn-ghost btn-sm snapshot-diff-open-sidebar-btn"
+                    onClick={() => setIsSidebarOpen(true)}
+                    title="Show chapters sidebar"
+                  >
+                    <PanelLeftOpen size={16} />
+                    <span>Chapters ({allChapterIds.length})</span>
+                  </button>
+                )}
+
+                <div className="snapshot-diff-nav-controls">
+                  <button
+                    type="button"
+                    className="btn-icon btn-sm snapshot-diff-nav-arrow"
+                    onClick={handlePrevChapter}
+                    disabled={!hasPrev}
+                    title="Previous chapter"
+                  >
+                    <ChevronLeft size={16} />
+                  </button>
+                  <span className="snapshot-diff-nav-counter">
+                    Chapter {currentIndex + 1} of {allChapterIds.length}
+                  </span>
+                  <button
+                    type="button"
+                    className="btn-icon btn-sm snapshot-diff-nav-arrow"
+                    onClick={handleNextChapter}
+                    disabled={!hasNext}
+                    title="Next chapter"
+                  >
+                    <ChevronRight size={16} />
+                  </button>
+                </div>
+
+                <h4 className="snapshot-diff-toolbar-chapter-title" title={chapterTitle}>
+                  {chapterTitle}
+                </h4>
+              </div>
+
+              {/* Filter & Batch Actions */}
+              <div className="snapshot-diff-toolbar-actions">
+                <button
+                  type="button"
+                  className={`snapshot-diff-filter-btn ${filterOnlyDiffs ? 'active' : ''}`}
+                  onClick={() => setFilterOnlyDiffs(!filterOnlyDiffs)}
+                  title={filterOnlyDiffs ? 'Show all paragraphs including unchanged' : 'Show only changed paragraphs'}
+                >
+                  <Filter size={13} />
+                  <span>{filterOnlyDiffs ? 'Showing Changes Only' : 'Show Only Changes'}</span>
                 </button>
-              );
-            })}
-          </div>
 
-          {/* Filter & Batch Actions */}
-          <div className="snapshot-diff-toolbar-actions">
-            <button
-              type="button"
-              className={`snapshot-diff-filter-btn ${filterOnlyDiffs ? 'active' : ''}`}
-              onClick={() => setFilterOnlyDiffs(!filterOnlyDiffs)}
-              title={filterOnlyDiffs ? 'Show all paragraphs including unchanged' : 'Show only changed paragraphs'}
-            >
-              <Filter size={13} />
-              <span>{filterOnlyDiffs ? 'Showing Changes Only' : 'Show Only Changes'}</span>
-            </button>
+                {currentSummary.status === 'modified' && (
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-primary snapshot-diff-apply-all-btn"
+                    onClick={handleApplyAllChapterChanges}
+                    title="Replace current chapter with entire snapshot version"
+                  >
+                    <ArrowLeft size={14} />
+                    <span>Apply All Snapshot Changes</span>
+                  </button>
+                )}
 
-            {currentSummary.status === 'modified' && (
-              <button
-                type="button"
-                className="btn btn-sm btn-primary snapshot-diff-apply-all-btn"
-                onClick={handleApplyAllChapterChanges}
-                title="Replace current chapter with entire snapshot version"
-              >
-                <ArrowLeft size={14} />
-                <span>Apply All Snapshot Changes</span>
-              </button>
-            )}
-
-            {currentSummary.status === 'added_in_snapshot' && (
-              <button
-                type="button"
-                className="btn btn-sm btn-primary snapshot-diff-apply-all-btn"
-                onClick={handleRestoreDeletedChapter}
-                title="Restore this entire chapter from snapshot into current manuscript"
-              >
-                <Plus size={14} />
-                <span>Restore Chapter to Current</span>
-              </button>
-            )}
-          </div>
-        </div>
+                {currentSummary.status === 'added_in_snapshot' && (
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-primary snapshot-diff-apply-all-btn"
+                    onClick={handleRestoreDeletedChapter}
+                    title="Restore this entire chapter from snapshot into current manuscript"
+                  >
+                    <Plus size={14} />
+                    <span>Restore Chapter to Current</span>
+                  </button>
+                )}
+              </div>
+            </div>
 
         {/* Comparison Header Bar (Left = Current, Right = Snapshot) */}
         <div className="snapshot-diff-pane-headers">
@@ -533,24 +738,52 @@ export const SnapshotDiffModal: React.FC<SnapshotDiffModalProps> = ({
                         {row.rightBlock ? (
                           <div className="snapshot-diff-text">
                             {isModified && row.wordDiff ? (
-                              // Word-level diff display
-                              row.wordDiff.map((chunk: WordDiffChunk, cIdx: number) => {
-                                if (chunk.type === 'added') {
+                              (() => {
+                                const segments = buildParagraphSegments(row.wordDiff, row.id);
+                                return segments.map((seg, sIdx) => {
+                                  if (!seg.isChange || !seg.change) {
+                                    return <span key={sIdx}>{seg.equalText}</span>;
+                                  }
+
+                                  const change = seg.change;
                                   return (
-                                    <span key={cIdx} className="diff-word-added">
-                                      {chunk.text}
+                                    <span
+                                      key={change.id}
+                                      className={`diff-word-change-group ${change.type}`}
+                                      title={`Click to move this change: "${change.displayText}"`}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleMoveIntraParagraphChange(row, change);
+                                      }}
+                                    >
+                                      {seg.removedText && (
+                                        <span className="diff-word-removed" title={`Deleted in snapshot: "${seg.removedText}"`}>
+                                          {seg.removedText}
+                                        </span>
+                                      )}
+                                      {seg.addedText && (
+                                        <span className="diff-word-added" title={`Added in snapshot: "${seg.addedText}"`}>
+                                          {seg.addedText}
+                                        </span>
+                                      )}
+
+                                      {/* Floating Hover "Move" Action Pill */}
+                                      <button
+                                        type="button"
+                                        className="diff-word-move-pill"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleMoveIntraParagraphChange(row, change);
+                                        }}
+                                        title={`Move "${change.displayText}" into current draft`}
+                                      >
+                                        <ArrowLeft size={10} />
+                                        <span>Move</span>
+                                      </button>
                                     </span>
                                   );
-                                }
-                                if (chunk.type === 'removed') {
-                                  return (
-                                    <span key={cIdx} className="diff-word-removed">
-                                      {chunk.text}
-                                    </span>
-                                  );
-                                }
-                                return <span key={cIdx}>{chunk.text}</span>;
-                              })
+                                });
+                              })()
                             ) : (
                               row.rightBlock.text
                             )}
@@ -568,6 +801,8 @@ export const SnapshotDiffModal: React.FC<SnapshotDiffModalProps> = ({
             </div>
           )}
         </div>
+      </div>
+    </div>
 
         {/* Modal Footer */}
         <div className="snapshot-diff-modal-footer">
@@ -582,7 +817,7 @@ export const SnapshotDiffModal: React.FC<SnapshotDiffModalProps> = ({
               <strong>-{currentSummary.removedCount}</strong> Only in Current
             </span>
             <span className="snapshot-diff-footer-tip">
-              Tip: Click any <strong>← Move</strong> button to instantly adopt a paragraph from the snapshot into your working draft.
+              Tip: Hover over any changed word or phrase to <strong>Move</strong> just that change, or click <strong>← Move</strong> in the center gutter to adopt the whole paragraph.
             </span>
           </div>
 
