@@ -18,8 +18,7 @@ import {
   Sparkles,
   Globe,
   FileEdit,
-  Check,
-  Layers,
+  GitCompare,
 } from 'lucide-react';
 import { useEpub } from '../../context/EpubContext';
 import { useEscapeKey } from '../../hooks/useEscapeKey';
@@ -33,17 +32,20 @@ import {
   WorldbuildingNote,
   AuthorComment,
 } from '../../types/project';
+import { SnapshotDiffModal } from './SnapshotDiffModal';
 
 interface SelectiveRestoreDialogProps {
   snapshot: StorySnapshot;
   onClose: () => void;
   onRestore: (options: SnapshotRestoreOptions) => void;
+  onCompare?: () => void;
 }
 
 const SelectiveRestoreDialog: React.FC<SelectiveRestoreDialogProps> = ({
   snapshot,
   onClose,
   onRestore,
+  onCompare,
 }) => {
   const data = snapshot.data;
   const chapters = data.chapters || [];
@@ -384,6 +386,18 @@ const SelectiveRestoreDialog: React.FC<SelectiveRestoreDialogProps> = ({
               >
                 World & Cast
               </button>
+              {onCompare && (
+                <button
+                  type="button"
+                  className="snapshot-restore-preset-btn"
+                  style={{ color: 'var(--accent-primary)', borderColor: 'rgba(99, 102, 241, 0.35)' }}
+                  onClick={onCompare}
+                  title="Open Git-like side-by-side chapter diff comparison"
+                >
+                  <GitCompare size={11} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
+                  <span>Compare Diff</span>
+                </button>
+              )}
             </div>
           </div>
 
@@ -1013,10 +1027,13 @@ export const SnapshotsModal: React.FC = () => {
   const [expandedSnapshotId, setExpandedSnapshotId] = useState<string | null>(null);
   const [confirmRestoreId, setConfirmRestoreId] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [compareSnapshot, setCompareSnapshot] = useState<StorySnapshot | null>(null);
   const [isCreating, setIsCreating] = useState(false);
 
   useEscapeKey(() => {
-    if (confirmRestoreId) {
+    if (compareSnapshot) {
+      setCompareSnapshot(null);
+    } else if (confirmRestoreId) {
       setConfirmRestoreId(null);
     } else if (confirmDeleteId) {
       setConfirmDeleteId(null);
@@ -1279,6 +1296,17 @@ export const SnapshotsModal: React.FC = () => {
 
                           <button
                             type="button"
+                            className="btn btn-sm btn-ghost snapshot-compare-btn"
+                            style={{ color: 'var(--accent-primary)', gap: '0.35rem' }}
+                            onClick={() => setCompareSnapshot(snapshot)}
+                            title="Side-by-side Git-like chapter diff viewer and cherry-picking"
+                          >
+                            <GitCompare size={13} />
+                            <span>Compare</span>
+                          </button>
+
+                          <button
+                            type="button"
                             className="btn btn-sm btn-outline snapshot-restore-btn"
                             onClick={() => setConfirmRestoreId(snapshot.id)}
                             title="Restore active manuscript or selective items from this snapshot"
@@ -1350,6 +1378,18 @@ export const SnapshotsModal: React.FC = () => {
           snapshot={snapshotToRestore}
           onClose={() => setConfirmRestoreId(null)}
           onRestore={handleExecuteRestore}
+          onCompare={() => {
+            setCompareSnapshot(snapshotToRestore);
+            setConfirmRestoreId(null);
+          }}
+        />
+      )}
+
+      {/* Snapshot Chapter Comparison & Git Diff Modal */}
+      {compareSnapshot && (
+        <SnapshotDiffModal
+          snapshot={compareSnapshot}
+          onClose={() => setCompareSnapshot(null)}
         />
       )}
 

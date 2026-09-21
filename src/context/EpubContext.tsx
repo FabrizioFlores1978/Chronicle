@@ -2738,16 +2738,17 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
           nextChapters = updatedList;
           nextSpine = nextChapters.map(c => ({ idref: c.id }));
-          nextToc = nextChapters.map((c, idx) => {
+          nextToc = nextChapters.map(c => {
             const existingToc = currentBook.toc.find(t => t.href === c.href || t.id === c.id);
             const snapshotToc = target.data.toc?.find(t => t.href === c.href || t.id === c.id);
             return (
               snapshotToc ||
               existingToc || {
                 id: c.id,
-                label: c.title,
+                title: c.title,
                 href: c.href,
-                order: idx + 1,
+                chapterId: c.id,
+                level: 1,
               }
             );
           });
