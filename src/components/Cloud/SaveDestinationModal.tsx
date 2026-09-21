@@ -122,7 +122,7 @@ export const SaveDestinationModal: React.FC<SaveDestinationModalProps> = ({ onCl
                   Local Computer
                 </div>
                 <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', lineHeight: 1.35 }}>
-                  Download standalone <code>.chronicle</code> project file to your disk.
+                  Save standalone <code>.chronicle</code> project file to your computer.
                 </div>
               </div>
               <button

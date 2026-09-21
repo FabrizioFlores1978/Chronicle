@@ -38,6 +38,7 @@ export const Header: React.FC = () => {
   const {
     book,
     loadAnyFile,
+    openLocalDocument,
     createNewBook,
     isLoading,
     isSaving,
@@ -46,6 +47,7 @@ export const Header: React.FC = () => {
     sidebarCollapsed,
     toggleSidebar,
     storageTarget,
+    localFilePath,
     cloudFileName,
     isWebDavConnected,
     setIsCloudBrowserOpen,
@@ -83,6 +85,14 @@ export const Header: React.FC = () => {
       loadAnyFile(file);
     }
     if (e.target) e.target.value = '';
+  };
+
+  const handleOpenClick = () => {
+    if (isTauri()) {
+      openLocalDocument();
+    } else {
+      fileInputRef.current?.click();
+    }
   };
 
   const primaryModes: { id: PrimaryAppMode; label: string; icon: React.ReactNode; tooltip: string }[] = [
@@ -313,7 +323,7 @@ export const Header: React.FC = () => {
 
             <button
               className="btn btn-ghost btn-sm header-btn-collapsible"
-              onClick={() => fileInputRef.current?.click()}
+              onClick={handleOpenClick}
               title="Open Chronicle, EPUB, or Markdown from computer (Ctrl+O)"
               disabled={isLoading}
             >
@@ -490,7 +500,9 @@ export const Header: React.FC = () => {
                     : storageTarget === 'cloud'
                       ? `Save and replace in WebDAV cloud (${cloudFileName || 'document'}) (Ctrl+S)`
                       : storageTarget === 'local'
-                        ? 'Save project locally (.chronicle) (Ctrl+S)'
+                        ? localFilePath
+                          ? `Save and overwrite locally (${localFilePath.split(/[\\/]/).pop()}) (Ctrl+S)`
+                          : 'Save project locally (.chronicle) (Ctrl+S)'
                         : 'Save project (Ctrl+S)'
                 }
                 disabled={isSaving || !book}
@@ -756,7 +768,7 @@ export const Header: React.FC = () => {
                       className="dropdown-item"
                       onClick={() => {
                         setIsMoreMenuOpen(false);
-                        fileInputRef.current?.click();
+                        handleOpenClick();
                       }}
                       disabled={isLoading}
                       style={{

@@ -52,7 +52,14 @@ import {
   ZenModeSettings,
   DEFAULT_ZEN_SETTINGS,
 } from '../services/storage/indexedDbSettings';
-import { uploadFile, downloadFile, isTauri } from '../services/cloud/webdavClient';
+import { uploadFile, downloadFile } from '../services/cloud/webdavClient';
+import {
+  isTauri,
+  pickFileToOpen,
+  pickFileToSave,
+  readLocalBinaryFile,
+  writeLocalBinaryFile,
+} from '../services/native/tauriFs';
 import {
   UpdateCheckResult,
   checkForUpdates,
@@ -123,9 +130,10 @@ interface EpubContextType {
 
   loadEpubFile: (file: File, force?: boolean) => Promise<void>;
   loadAnyFile: (file: File, force?: boolean) => Promise<void>;
+  openLocalDocument: (targetPath?: string, force?: boolean) => Promise<void>;
   loadSampleBook: (force?: boolean) => Promise<void>;
   createNewBook: (title?: string, author?: string, force?: boolean) => Promise<void>;
-  saveProject: (overrideTarget?: StorageTarget, customFilename?: string, targetSubPath?: string) => Promise<void>;
+  saveProject: (overrideTarget?: StorageTarget, customFilename?: string, targetSubPath?: string, forceSaveAs?: boolean) => Promise<void>;
   saveAs: (target: StorageTarget, filename?: string, targetSubPath?: string) => Promise<void>;
   loadFromCloud: (href: string, filename: string, force?: boolean, relativePath?: string) => Promise<void>;
   updateChapterContent: (chapterId: string, newContent: string) => void;
@@ -152,6 +160,8 @@ interface EpubContextType {
 
   storageTarget: StorageTarget | null;
   setStorageTarget: (target: StorageTarget | null) => void;
+  localFilePath: string | null;
+  setLocalFilePath: (path: string | null) => void;
   cloudFileName: string | null;
   setCloudFileName: (name: string | null) => void;
   webdavConfig: WebDavConfig | null;
@@ -304,6 +314,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const bookRef = useRef<EpubBook | null>(null);
 
   const [storageTarget, setStorageTarget] = useState<StorageTarget | null>(null);
+  const [localFilePath, setLocalFilePath] = useState<string | null>(null);
   const [cloudFileName, setCloudFileName] = useState<string | null>(null);
   const [webdavConfig, setWebdavConfig] = useState<WebDavConfig | null>(null);
   const [isWebDavConnected, setIsWebDavConnected] = useState<boolean>(false);
@@ -839,6 +850,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setActiveChapterId(sample.chapters[0].id);
       }
       setStorageTarget(null);
+      setLocalFilePath(null);
       setCloudFileName(null);
       setCastPresenceData(null);
       setIsPresenceCacheValid(false);
@@ -878,6 +890,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           setActiveChapterId(newBook.chapters[0].id);
         }
         setStorageTarget(null);
+        setLocalFilePath(null);
         setCloudFileName(null);
         setCastPresenceData(null);
         setIsPresenceCacheValid(false);
@@ -912,6 +925,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       try {
         setIsLoading(true);
         const buffer = await file.arrayBuffer();
+        const nativePath = (file as any).path as string | undefined;
 
         if (isChronicleProjectFile(file)) {
           const projectBook = await parseChronicleProject(buffer, file.name);
@@ -923,6 +937,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             setActiveChapterId(projectBook.chapters[0].id);
           }
           setStorageTarget('local');
+          setLocalFilePath(nativePath || null);
           setCloudFileName(null);
           setCastPresenceData(null);
           setIsPresenceCacheValid(false);
@@ -939,6 +954,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             setActiveChapterId(mdBook.chapters[0].id);
           }
           setStorageTarget('local');
+          setLocalFilePath(nativePath ? nativePath.replace(/\.(md|markdown|mdown|mkd)$/i, '.chronicle') : null);
           setCloudFileName(null);
           setCastPresenceData(null);
           setIsPresenceCacheValid(false);
@@ -959,6 +975,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             setActiveChapterId(parsed.chapters[0].id);
           }
           setStorageTarget('local');
+          setLocalFilePath(nativePath ? nativePath.replace(/\.epub$/i, '.chronicle') : null);
           setCloudFileName(null);
           setCastPresenceData(null);
           setIsPresenceCacheValid(false);
@@ -973,6 +990,116 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
     },
     [setIsDirty, showNotification, refreshBookSession]
+  );
+
+  const openLocalDocument = useCallback(
+    async (targetPath?: string, force: boolean = false) => {
+      if (isDirtyRef.current && !force) {
+        const targetDisplayName = targetPath
+          ? targetPath.split(/[\\/]/).pop() || 'Manuscript'
+          : 'Selected Manuscript';
+        setPendingUnsavedAction({
+          actionType: 'open',
+          title: 'Open Manuscript',
+          description: `Opening "${targetDisplayName}" will replace your current workspace. Any unsaved edits in your current manuscript will be permanently lost.`,
+          targetName: targetDisplayName,
+          onProceed: () => openLocalDocument(targetPath, true),
+        });
+        return;
+      }
+
+      let filePath = targetPath;
+      if (!filePath) {
+        if (isTauri()) {
+          const picked = await pickFileToOpen();
+          if (!picked) return;
+          filePath = picked;
+        } else {
+          return;
+        }
+      }
+
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('epub-file-opening'));
+      }
+
+      try {
+        setIsLoading(true);
+        const uint8 = await readLocalBinaryFile(filePath);
+        const fileName = filePath.split(/[\\/]/).pop() || 'manuscript';
+        const lower = fileName.toLowerCase();
+
+        if (lower.endsWith('.chronicle')) {
+          const projectBook = await parseChronicleProject(uint8.buffer as ArrayBuffer, fileName);
+          bookRef.current = projectBook;
+          setBook(projectBook);
+          refreshBookSession();
+          extractCssFromBook(projectBook);
+          if (projectBook.chapters.length > 0) {
+            setActiveChapterId(projectBook.chapters[0].id);
+          }
+          setStorageTarget('local');
+          setLocalFilePath(filePath);
+          setCloudFileName(null);
+          setCastPresenceData(null);
+          setIsPresenceCacheValid(false);
+          setIsDirtyState(false);
+          showNotification('success', `Opened Chronicle "${projectBook.metadata.title}" successfully!`);
+        } else if (
+          lower.endsWith('.md') ||
+          lower.endsWith('.markdown') ||
+          lower.endsWith('.mdown') ||
+          lower.endsWith('.mkd')
+        ) {
+          const text = new TextDecoder().decode(uint8);
+          const mdBook = await parseMarkdownToBook(text, fileName);
+          bookRef.current = mdBook;
+          setBook(mdBook);
+          refreshBookSession();
+          extractCssFromBook(mdBook);
+          if (mdBook.chapters.length > 0) {
+            setActiveChapterId(mdBook.chapters[0].id);
+          }
+          setStorageTarget('local');
+          const chroniclePath = filePath.replace(/\.(md|markdown|mdown|mkd)$/i, '.chronicle');
+          setLocalFilePath(chroniclePath);
+          setCloudFileName(null);
+          setCastPresenceData(null);
+          setIsPresenceCacheValid(false);
+          setIsDirtyState(true);
+          setViewModeState('editor');
+          showNotification(
+            'success',
+            `Imported Markdown "${mdBook.metadata.title}" (${mdBook.chapters.length} chapter${
+              mdBook.chapters.length === 1 ? '' : 's'
+            })! Ready to edit and save as .chronicle`
+          );
+        } else {
+          const parsed = await parseEpub(uint8.buffer as ArrayBuffer, fileName);
+          bookRef.current = parsed;
+          setBook(parsed);
+          refreshBookSession();
+          extractCssFromBook(parsed);
+          if (parsed.chapters.length > 0) {
+            setActiveChapterId(parsed.chapters[0].id);
+          }
+          setStorageTarget('local');
+          const chroniclePath = filePath.replace(/\.epub$/i, '.chronicle');
+          setLocalFilePath(chroniclePath);
+          setCloudFileName(null);
+          setCastPresenceData(null);
+          setIsPresenceCacheValid(false);
+          setIsDirtyState(false);
+          showNotification('success', `Imported EPUB "${parsed.metadata.title}" successfully!`);
+        }
+      } catch (err: any) {
+        console.error(err);
+        showNotification('error', `Failed to open file: ${err?.message || 'Unknown error'}`);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [showNotification, refreshBookSession, extractCssFromBook]
   );
 
   const loadEpubFile = loadAnyFile;
@@ -1405,6 +1532,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             setActiveChapterId(projectBook.chapters[0].id);
           }
           setStorageTarget('cloud');
+          setLocalFilePath(null);
           setCloudFileName(storedPath);
           setCastPresenceData(null);
           setIsPresenceCacheValid(false);
@@ -1421,6 +1549,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             setActiveChapterId(mdBook.chapters[0].id);
           }
           setStorageTarget('cloud');
+          setLocalFilePath(null);
           setCloudFileName(storedPath.replace(/\.(md|markdown|mdown|mkd)$/i, '.chronicle'));
           setCastPresenceData(null);
           setIsPresenceCacheValid(false);
@@ -1441,6 +1570,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             setActiveChapterId(parsed.chapters[0].id);
           }
           setStorageTarget('cloud');
+          setLocalFilePath(null);
           setCloudFileName(storedPath.replace(/\.epub$/i, '.chronicle'));
           setCastPresenceData(null);
           setIsPresenceCacheValid(false);
@@ -1458,7 +1588,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   );
 
   const saveProject = useCallback(
-    async (overrideTarget?: StorageTarget, customFilename?: string, targetSubPath?: string) => {
+    async (overrideTarget?: StorageTarget, customFilename?: string, targetSubPath?: string, forceSaveAs: boolean = false) => {
       isSavingRef.current = true;
       let currentBook = bookRef.current || book;
       if (!currentBook) {
@@ -1514,21 +1644,54 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const blob = await saveChronicleProject(currentBook);
 
         if (target === 'local') {
-          const downloadName = customFilename || `${cleanTitle}.chronicle`;
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = downloadName;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          URL.revokeObjectURL(url);
+          if (isTauri()) {
+            let destinationPath = localFilePath;
 
-          setStorageTarget('local');
-          if (bookRef.current === saveSnapshot) {
-            setIsDirtyState(false);
+            // If forced Save As, or no path known yet, prompt user with native Save File Dialog
+            if (forceSaveAs || !destinationPath) {
+              let defaultName = customFilename || (destinationPath ? destinationPath.split(/[\\/]/).pop() : `${cleanTitle}.chronicle`);
+              if (!defaultName) defaultName = `${cleanTitle}.chronicle`;
+              if (!defaultName.endsWith('.chronicle')) defaultName += '.chronicle';
+
+              const pickedPath = await pickFileToSave(defaultName);
+              if (!pickedPath) {
+                // User cancelled native save dialog
+                return;
+              }
+              destinationPath = pickedPath;
+              if (!destinationPath.endsWith('.chronicle')) {
+                destinationPath += '.chronicle';
+              }
+            }
+
+            // Directly overwrite local file on disk
+            await writeLocalBinaryFile(destinationPath, blob);
+
+            setStorageTarget('local');
+            setLocalFilePath(destinationPath);
+            const savedFileName = destinationPath.split(/[\\/]/).pop() || `${cleanTitle}.chronicle`;
+
+            if (bookRef.current === saveSnapshot) {
+              setIsDirtyState(false);
+            }
+            showNotification('success', `Saved project "${savedFileName}" locally!`);
+          } else {
+            const downloadName = customFilename || `${cleanTitle}.chronicle`;
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = downloadName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            setStorageTarget('local');
+            if (bookRef.current === saveSnapshot) {
+              setIsDirtyState(false);
+            }
+            showNotification('success', `Saved project "${downloadName}" locally!`);
           }
-          showNotification('success', `Saved project "${downloadName}" locally!`);
         } else if (target === 'cloud') {
           if (!webdavConfig) {
             setIsWebDavConfigOpen(true);
@@ -1579,12 +1742,16 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }, 500);
       }
     },
-    [book, activeChapterId, storageTarget, cloudFileName, webdavConfig, showNotification]
+    [book, activeChapterId, storageTarget, localFilePath, cloudFileName, webdavConfig, showNotification]
   );
 
   const saveAs = useCallback(
     async (target: StorageTarget, filename?: string, targetSubPath?: string) => {
-      await saveProject(target, filename, targetSubPath);
+      if (target === 'local' && isTauri()) {
+        await saveProject('local', filename, undefined, true);
+      } else {
+        await saveProject(target, filename, targetSubPath);
+      }
     },
     [saveProject]
   );
@@ -2437,6 +2604,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         activeChapter,
         loadEpubFile,
         loadAnyFile,
+        openLocalDocument,
         loadSampleBook,
         createNewBook,
         saveProject,
@@ -2468,6 +2636,8 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         notification,
         storageTarget,
         setStorageTarget,
+        localFilePath,
+        setLocalFilePath,
         cloudFileName,
         setCloudFileName,
         webdavConfig,

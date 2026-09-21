@@ -37,6 +37,7 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
 }) => {
   const {
     loadAnyFile,
+    openLocalDocument,
     loadSampleBook,
     createNewBook,
     setIsCloudDesktopNoticeOpen,
@@ -73,6 +74,15 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
     if (file) {
       loadAnyFile(file);
       onClose();
+    }
+  };
+
+  const handleOpenClick = () => {
+    onClose();
+    if (isTauri()) {
+      openLocalDocument();
+    } else {
+      fileInputRef.current?.click();
     }
   };
 
@@ -208,10 +218,10 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
               {/* Card 3: Open Project or EPUB */}
               <div
                 className="intro-action-card tertiary"
-                onClick={() => fileInputRef.current?.click()}
+                onClick={handleOpenClick}
                 role="button"
                 tabIndex={0}
-                onKeyDown={e => e.key === 'Enter' && fileInputRef.current?.click()}
+                onKeyDown={e => e.key === 'Enter' && handleOpenClick()}
               >
                 <div className="intro-card-icon-bubble bubble-cyan">
                   <FolderOpen size={22} />

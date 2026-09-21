@@ -31,6 +31,7 @@ import { UnsavedChangesModal } from './components/Common/UnsavedChangesModal';
 import { SettingsModal } from './components/Settings/SettingsModal';
 import { MobileNoticeModal } from './components/Mobile/MobileNoticeModal';
 import { useSmallScreenDetector } from './hooks/useSmallScreenDetector';
+import { isTauri } from './services/cloud/webdavClient';
 import { Upload, Loader2 } from 'lucide-react';
 
 const AppContent: React.FC = () => {
@@ -40,6 +41,7 @@ const AppContent: React.FC = () => {
     isLoading,
     isSaving,
     loadAnyFile,
+    openLocalDocument,
     saveProject,
     toggleSidebar,
     sidebarCollapsed,
@@ -98,7 +100,11 @@ const AppContent: React.FC = () => {
       if ((e.ctrlKey || e.metaKey) && (e.key === 'o' || e.key === 'O')) {
         e.preventDefault();
         e.stopPropagation();
-        globalFileInputRef.current?.click();
+        if (isTauri()) {
+          openLocalDocument();
+        } else {
+          globalFileInputRef.current?.click();
+        }
         return;
       }
 
