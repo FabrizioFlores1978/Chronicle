@@ -1,13 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Chronicle",
-<<<<<<< HEAD
   "version": "../package.json",
-=======
-  "version": "1.3.1",
->>>>>>> 3d95288d26b7b6ca8bbdc2e67c4e6d15d2bc8c48
   "identifier": "com.chronicle.authoring",
-
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://localhost:5175",
