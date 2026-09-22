@@ -1937,8 +1937,12 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return;
       }
 
-      // 1. Determine target: override, current state, or prompt if unsaved
-      const target = overrideTarget || storageTarget;
+      // 1. Determine target: override, current state, or default to local in desktop environment
+      let target = overrideTarget || storageTarget;
+      if (!target && isTauri()) {
+        target = 'local';
+      }
+
       if (!target) {
         if (!isAutoSave) {
           setIsSaveDestinationOpen(true);
@@ -2114,20 +2118,22 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     [saveProject]
   );
 
-  // Auto-save timer effect: persists manuscript changes in background according to interval
+  // Auto-save timer effect: persists manuscript changes in background exclusively on desktop with an existing file
   useEffect(() => {
-    if (!autoSaveEnabled || !book || autoSaveInterval <= 0) {
+    // Web environment does not perform background filesystem auto-save to prevent unwanted download prompts
+    if (!isTauri() || !autoSaveEnabled || !book || autoSaveInterval <= 0) {
       return;
     }
 
     const timer = setInterval(() => {
-      if (isDirtyRef.current && !isSavingRef.current && bookRef.current) {
-        saveProject(undefined, undefined, undefined, true);
+      // Only auto-save if project already has an established file path on disk to avoid interrupting typing with a save dialog
+      if (isDirtyRef.current && !isSavingRef.current && bookRef.current && localFilePath) {
+        saveProject(undefined, undefined, undefined, false, true);
       }
     }, autoSaveInterval * 1000);
 
     return () => clearInterval(timer);
-  }, [autoSaveEnabled, autoSaveInterval, book, saveProject]);
+  }, [autoSaveEnabled, autoSaveInterval, book, localFilePath, saveProject]);
 
   const exportAndDownload = useCallback(async () => {
     if (!book) return;

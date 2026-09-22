@@ -89,8 +89,8 @@ export const ptBR: TranslationDictionary = {
     english: 'English (US)',
 
     // Auto-save
-    autoSaveTitle: 'Salvamento Automático',
-    autoSaveDesc: 'Salva automaticamente as alterações do manuscrito em segundo plano sem interromper seu fluxo de escrita.',
+    autoSaveTitle: 'Salvamento Automático (Desktop)',
+    autoSaveDesc: 'Salva automaticamente as alterações no seu arquivo local em segundo plano sem interromper seu fluxo de escrita.',
     autoSaveInterval: 'Intervalo de Salvamento Automático:',
     autoSaveIntervalDesc: 'Frequência de salvamento quando alterações forem detectadas',
     interval30s: '30 segundos',

@@ -89,8 +89,8 @@ export const en: TranslationDictionary = {
     english: 'English (US)',
 
     // Auto-save
-    autoSaveTitle: 'Auto-save',
-    autoSaveDesc: 'Automatically save manuscript changes in the background without interrupting your writing flow.',
+    autoSaveTitle: 'Auto-save (Desktop)',
+    autoSaveDesc: 'Automatically saves manuscript changes to your local file in the background without interrupting your writing flow.',
     autoSaveInterval: 'Auto-save Interval:',
     autoSaveIntervalDesc: 'Save frequency when changes are detected',
     interval30s: '30 seconds',
