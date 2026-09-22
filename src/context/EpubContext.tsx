@@ -76,6 +76,7 @@ import {
   checkForUpdates,
   getCachedUpdate,
 } from '../services/update/updateChecker';
+import { useTranslation } from '../i18n/I18nContext';
 
 export interface PendingUnsavedAction {
   actionType: 'new' | 'open' | 'sample' | 'cloud';
@@ -306,6 +307,7 @@ interface EpubContextType {
 const EpubContext = createContext<EpubContextType | undefined>(undefined);
 
 export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const { t } = useTranslation();
   const initialSettings = getStoredSettings();
   const [book, setBook] = useState<EpubBook | null>(null);
   const [bookSessionId, setBookSessionId] = useState<string>(() => `book_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`);
@@ -353,7 +355,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [isCloudDesktopNoticeOpen, setIsCloudDesktopNoticeOpen] = useState<boolean>(false);
 
   const [autoSaveEnabled, setAutoSaveEnabledState] = useState<boolean>(
-    initialSettings.autoSaveEnabled ?? true
+    initialSettings.autoSaveEnabled ?? isTauri()
   );
   const [autoSaveInterval, setAutoSaveIntervalState] = useState<number>(
     initialSettings.autoSaveInterval ?? 60
@@ -1001,32 +1003,29 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setCastPresenceData(null);
       setIsPresenceCacheValid(false);
       setIsDirty(false);
-      showNotification('success', activeLang.startsWith('pt') ? 'Manuscrito de exemplo carregado: Alice no País das Maravilhas' : 'Loaded sample book: Alice’s Adventures in Wonderland');
+      showNotification('success', t('notifications.loadedSampleBook'));
     } catch (err) {
       console.error(err);
-      showNotification('error', 'Failed to load sample book');
+      showNotification('error', t('notifications.failedLoadSampleBook'));
     } finally {
       setIsLoading(false);
     }
-  }, [setIsDirty, showNotification, refreshBookSession]);
+  }, [setIsDirty, showNotification, refreshBookSession, t]);
 
   const createNewBook = useCallback(
     async (title?: string, author?: string, force: boolean = false) => {
       const settings = await loadAllSettings();
       const activeLang = settings.language || (typeof navigator !== 'undefined' && navigator.language?.toLowerCase().startsWith('pt') ? 'pt-BR' : 'en');
-      const isPt = activeLang.startsWith('pt');
-      const defaultTitle = isPt ? 'Manuscrito Sem Título' : 'Untitled Manuscript';
-      const defaultAuthor = isPt ? 'Nome do Autor' : 'Author Name';
+      const defaultTitle = t('welcome.defaultTitle');
+      const defaultAuthor = t('welcome.defaultAuthor');
       const finalTitle = title || defaultTitle;
       const finalAuthor = author || defaultAuthor;
 
       if (isDirtyRef.current && !force) {
         setPendingUnsavedAction({
           actionType: 'new',
-          title: isPt ? 'Criar Novo Manuscrito' : 'Create New Manuscript',
-          description: isPt
-            ? `Criar "${finalTitle}" substituirá o manuscrito atual. As alterações não salvas serão perdidas.`
-            : `Creating "${finalTitle}" will replace your current workspace. Any unsaved edits in your current manuscript will be permanently lost.`,
+          title: t('header.newManuscript'),
+          description: t('unsavedModal.newManuscriptDesc', { title: finalTitle }),
           targetName: finalTitle,
           onProceed: () => createNewBook(finalTitle, finalAuthor, true),
         });
@@ -1055,15 +1054,15 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setIsPresenceCacheValid(false);
         setIsDirty(true);
         setViewModeState('editor');
-        showNotification('success', isPt ? `Novo manuscrito criado: "${finalTitle}"` : `Created new blank manuscript: "${finalTitle}"`);
+        showNotification('success', t('notifications.createdNewManuscript', { title: finalTitle }));
       } catch (err: any) {
         console.error(err);
-        showNotification('error', `Failed to create new manuscript: ${err?.message || 'Error'}`);
+        showNotification('error', t('notifications.failedCreateManuscript', { error: err?.message || 'Error' }));
       } finally {
         setIsLoading(false);
       }
     },
-    [setIsDirty, showNotification, refreshBookSession]
+    [setIsDirty, showNotification, refreshBookSession, t]
   );
 
   const loadAnyFile = useCallback(

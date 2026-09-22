@@ -254,7 +254,7 @@ export const TimelineStudio: React.FC = () => {
             >
               {timelines.map(tOption => (
                 <option key={tOption.id} value={tOption.id}>
-                  {tOption.title} ({tOption.segments.length} {tOption.segments.length === 1 ? 'segment' : 'segments'})
+                  {tOption.title} ({tOption.segments.length} {tOption.segments.length === 1 ? t('timeline.segmentSingle') : t('timeline.segmentPlural')})
                 </option>
               ))}
             </select>
@@ -376,7 +376,7 @@ export const TimelineStudio: React.FC = () => {
                       )}
 
                       <span className="timeline-event-count-pill">
-                        {seg.events.length} {seg.events.length === 1 ? 'event' : 'events'}
+                        {seg.events.length} {seg.events.length === 1 ? t('timeline.eventSingle') : t('timeline.eventPlural')}
                       </span>
                     </div>
 

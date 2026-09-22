@@ -32,8 +32,9 @@ interface I18nProviderProps {
 
 export const I18nProvider: React.FC<I18nProviderProps> = ({ children }) => {
   const [language, setLanguageState] = useState<SupportedLanguage>(() => {
-    if (typeof navigator !== 'undefined' && navigator.language?.toLowerCase().startsWith('pt')) {
-      return 'pt-BR';
+    if (typeof navigator !== 'undefined') {
+      const navLang = navigator.language?.toLowerCase() || '';
+      if (navLang.startsWith('pt')) return 'pt-BR';
     }
     return 'en';
   });
@@ -42,7 +43,7 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({ children }) => {
     async function initLanguage() {
       try {
         const settings = await loadAllSettings();
-        if (settings.language === 'en' || settings.language === 'pt-BR') {
+        if (settings.language === 'en' || settings.language === 'pt-BR' || settings.language === 'es') {
           setLanguageState(settings.language);
         }
       } catch (err) {
@@ -106,6 +107,48 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({ children }) => {
   );
 };
 
+export function getTranslation(
+  key: TranslationKey,
+  lang?: SupportedLanguage,
+  params?: Record<string, string | number>
+): string {
+  const selectedLang = lang || 'en';
+  const dict = DICTIONARIES[selectedLang] || DICTIONARIES['en'];
+  const keys = (key as string).split('.');
+  let current: any = dict;
+
+  for (const k of keys) {
+    if (current && typeof current === 'object' && k in current) {
+      current = current[k];
+    } else {
+      let fallback: any = DICTIONARIES['en'];
+      for (const fbK of keys) {
+        if (fallback && typeof fallback === 'object' && fbK in fallback) {
+          fallback = fallback[fbK];
+        } else {
+          fallback = null;
+          break;
+        }
+      }
+      current = fallback || key;
+      break;
+    }
+  }
+
+  if (typeof current !== 'string') {
+    return key;
+  }
+
+  let result = current;
+  if (params) {
+    Object.entries(params).forEach(([paramKey, paramVal]) => {
+      result = result.replace(new RegExp(`{${paramKey}}`, 'g'), String(paramVal));
+    });
+  }
+
+  return result;
+}
+
 export function useTranslation() {
   const context = useContext(I18nContext);
   if (!context) {
@@ -117,3 +160,4 @@ export function useTranslation() {
 export function useI18n() {
   return useTranslation();
 }
+

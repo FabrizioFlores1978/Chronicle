@@ -48,7 +48,7 @@ export const UnsavedChangesModal: React.FC = () => {
         // Unsaved new project without storage destination
         setPendingUnsavedAction(null);
         setIsSaveDestinationOpen(true);
-        showNotification('info', t('unsavedModal.noteDesc') ? 'Please choose a destination to save your current manuscript first.' : 'Please choose a destination to save your current manuscript first.');
+        showNotification('info', t('unsavedModal.chooseDestinationFirst'));
         return;
       }
 

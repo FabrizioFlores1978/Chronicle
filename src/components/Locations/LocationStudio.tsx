@@ -208,7 +208,7 @@ export const LocationStudio: React.FC = () => {
             <div>
               <h2 className="entity-studio-title">{t('locations.title')}</h2>
               <span className="entity-studio-count">
-                {locations.length} {locations.length === 1 ? 'local' : 'locais'}
+                {locations.length} {locations.length === 1 ? t('locations.countSingle') : t('locations.countPlural')}
               </span>
             </div>
           </div>

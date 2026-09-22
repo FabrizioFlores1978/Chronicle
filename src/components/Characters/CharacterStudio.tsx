@@ -167,7 +167,7 @@ export const CharacterStudio: React.FC = () => {
             <div>
               <h2 className="entity-studio-title">{t('characters.title')}</h2>
               <span className="entity-studio-count">
-                {characters.length} {characters.length === 1 ? 'personagem' : 'personagens'}
+                {characters.length} {characters.length === 1 ? t('characters.countSingle') : t('characters.countPlural')}
               </span>
             </div>
           </div>

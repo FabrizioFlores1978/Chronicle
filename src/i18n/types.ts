@@ -213,6 +213,8 @@ export interface TranslationDictionary {
     sampleTitle: string;
     sampleDesc: string;
     sampleAction: string;
+    defaultTitle: string;
+    defaultAuthor: string;
     featureSplit: string;
     featureCover: string;
     featureShortcuts: string;
@@ -402,6 +404,9 @@ export interface TranslationDictionary {
     cancel: string;
     note: string;
     noteDesc: string;
+    newManuscriptDesc: string;
+    openManuscriptDesc: string;
+    chooseDestinationFirst: string;
     discardAnd: string;
     saveFirst: string;
   };
@@ -414,6 +419,8 @@ export interface TranslationDictionary {
   characters: {
     title: string;
     subtitle: string;
+    countSingle: string;
+    countPlural: string;
     addCharacter: string;
     searchPlaceholder: string;
     filterAllRoles: string;
@@ -469,6 +476,8 @@ export interface TranslationDictionary {
   locations: {
     title: string;
     subtitle: string;
+    countSingle: string;
+    countPlural: string;
     addLocation: string;
     searchPlaceholder: string;
     tabCodex: string;
@@ -496,6 +505,10 @@ export interface TranslationDictionary {
   timeline: {
     title: string;
     subtitle: string;
+    segmentSingle: string;
+    segmentPlural: string;
+    eventSingle: string;
+    eventPlural: string;
     addTimeline: string;
     addSegment: string;
     addEvent: string;
@@ -816,5 +829,37 @@ export interface TranslationDictionary {
     noticeTitle: string;
     noticeSubtitle: string;
     continueAnyway: string;
+  };
+  notifications: {
+    loadedSampleBook: string;
+    createdNewManuscript: string;
+    openedProjectSuccess: string;
+    importedEpubSuccess: string;
+    renamedChapter: string;
+    createdNewChapter: string;
+    splitIntoNewChapter: string;
+    createdChapterAtHeading: string;
+    splitChapterAtSelectedText: string;
+    updatedBookMetadata: string;
+    coverImageUpdated: string;
+    openedProjectFromWebDav: string;
+    importedEpubFromWebDav: string;
+    savedProjectLocally: string;
+    savedProjectWebDav: string;
+    exportedEpubSuccess: string;
+    appliedStylesheetSuccess: string;
+    commentAdded: string;
+    failedLoadSampleBook: string;
+    failedCreateManuscript: string;
+    languageChanged: string;
+    welcomeGuideEnabled: string;
+    welcomeGuideDisabled: string;
+    autoSaveEnabledNotify: string;
+    autoSaveDisabledNotify: string;
+    autoSaveIntervalUpdated: string;
+    checkUpdatesEnabled: string;
+    checkUpdatesDisabled: string;
+    chronicleUpToDate: string;
+    newVersionAvailable: string;
   };
 }

@@ -135,11 +135,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       const res = await checkForUpdatesManually(true);
       setUpdateResult(res);
       if (res.hasUpdate) {
-        showNotification('success', `New version ${res.latestVersion} available!`);
+        showNotification('success', t('notifications.newVersionAvailable', { version: res.latestVersion }));
       } else if (res.error) {
         showNotification('error', `Update check failed: ${res.error}`);
       } else {
-        showNotification('info', `Chronicle is up to date (${res.currentVersion}).`);
+        showNotification('info', t('notifications.chronicleUpToDate', { version: res.currentVersion }));
       }
     } catch (err: any) {
       showNotification('error', `Failed to check for updates: ${err?.message || 'Error'}`);
@@ -150,7 +150,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
   const handleToggleCheckUpdates = async (checked: boolean) => {
     await setCheckUpdatesOnStartup(checked);
-    showNotification('info', checked ? 'Automatic update checks enabled on startup.' : 'Automatic update checks disabled.');
+    showNotification('info', checked ? t('notifications.checkUpdatesEnabled') : t('notifications.checkUpdatesDisabled'));
   };
 
   useEffect(() => {
@@ -184,20 +184,27 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
   const handleToggleWelcome = async (checked: boolean) => {
     await setShowWelcomeOnStartup(checked);
-    showNotification('info', checked ? 'Welcome guide will show on startup.' : 'Welcome guide disabled on startup.');
+    await saveSetting('showWelcomeOnStartup', checked);
+    try {
+      localStorage.setItem('chronicle_show_welcome_on_startup', String(checked));
+    } catch {
+      // ignore
+    }
+    showNotification('info', checked ? t('notifications.welcomeGuideEnabled') : t('notifications.welcomeGuideDisabled'));
   };
 
   const handleToggleAutoSave = async (checked: boolean) => {
     await setAutoSaveEnabled(checked);
     await saveSetting('autoSaveEnabled', checked);
-    showNotification('info', checked ? 'Auto-save enabled.' : 'Auto-save disabled.');
+    showNotification('info', checked ? t('notifications.autoSaveEnabledNotify') : t('notifications.autoSaveDisabledNotify'));
   };
 
   const handleChangeAutoSaveInterval = async (val: number) => {
     await setAutoSaveInterval(val);
     await saveSetting('autoSaveInterval', val);
-    const label = val < 60 ? `${val} seconds` : `${val / 60} minute${val / 60 > 1 ? 's' : ''}`;
-    showNotification('info', `Auto-save interval updated to ${label}.`);
+    const labelKey = val === 30 ? 'interval30s' : val === 60 ? 'interval1m' : val === 120 ? 'interval2m' : 'interval5m';
+    const label = t(`settings.${labelKey}` as any);
+    showNotification('info', t('notifications.autoSaveIntervalUpdated', { interval: label }));
   };
 
   const handleTestCloudConnection = async () => {
@@ -1548,7 +1555,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       onChange={e => {
                         const newLang = e.target.value as 'en' | 'pt-BR';
                         setLanguage(newLang);
-                        showNotification('info', newLang === 'pt-BR' ? 'Idioma alterado para Português (Brasil).' : 'Language changed to English (US).');
+                        const langLabel =
+                          newLang === 'pt-BR'
+                            ? t('settings.portuguese')
+                            : t('settings.english');
+                        showNotification('info', t('notifications.languageChanged', { lang: langLabel }));
                       }}
                       style={{
                         width: '180px',
@@ -1557,8 +1568,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         cursor: 'pointer',
                       }}
                     >
-                      <option value="pt-BR">{t('settings.portuguese')}</option>
                       <option value="en">{t('settings.english')}</option>
+                      <option value="pt-BR">{t('settings.portuguese')}</option>
                     </select>
                   </div>
                 </div>
