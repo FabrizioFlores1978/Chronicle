@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import { useEpub } from '../../context/EpubContext';
+import { isTauri } from '../../services/cloud/webdavClient';
 import { ChronicleLogo } from '../Common/ChronicleLogo';
 import {
   PlusCircle,
@@ -12,8 +13,16 @@ import {
 } from 'lucide-react';
 
 export const WelcomeScreen: React.FC = () => {
-  const { loadAnyFile, loadSampleBook, createNewBook } = useEpub();
+  const { loadAnyFile, openLocalDocument, loadSampleBook, createNewBook } = useEpub();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleOpenClick = () => {
+    if (isTauri()) {
+      openLocalDocument();
+    } else {
+      fileInputRef.current?.click();
+    }
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -100,7 +109,7 @@ export const WelcomeScreen: React.FC = () => {
         {/* Action 2: Open Chronicle, EPUB, or Markdown */}
         <div
           className="welcome-card welcome-card-secondary"
-          onClick={() => fileInputRef.current?.click()}
+          onClick={handleOpenClick}
           role="button"
           tabIndex={0}
         >

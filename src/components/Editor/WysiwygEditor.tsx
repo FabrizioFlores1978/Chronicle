@@ -5,6 +5,8 @@ import {
   Italic,
   Underline,
   Strikethrough,
+  Undo,
+  Redo,
   AlignLeft,
   AlignCenter,
   AlignRight,
@@ -29,6 +31,7 @@ import {
   EyeOff,
 } from 'lucide-react';
 import { SplitChapterModal } from './SplitChapterModal';
+import { TextColorPicker } from './TextColorPicker';
 import { scopeCssForContainer } from '../../services/epub/cssPresets';
 import { getStoredSettings, updateStoredSettings } from '../../services/epub/settingsStorage';
 import { useEscapeKey } from '../../hooks/useEscapeKey';
@@ -76,6 +79,52 @@ function getMovableUnit(img: HTMLImageElement, editorContainer: HTMLElement | nu
   return current;
 }
 
+function saveCaretPosition(el: HTMLElement | null): number | null {
+  if (!el) return null;
+  const sel = window.getSelection();
+  if (!sel || sel.rangeCount === 0 || !el.contains(sel.anchorNode)) return null;
+  const range = sel.getRangeAt(0);
+  const preRange = range.cloneRange();
+  preRange.selectNodeContents(el);
+  preRange.setEnd(range.startContainer, range.startOffset);
+  return preRange.toString().length;
+}
+
+function restoreCaretPosition(el: HTMLElement | null, offset: number | null | undefined) {
+  if (!el || offset === null || offset === undefined) return;
+  const sel = window.getSelection();
+  if (!sel) return;
+
+  let current = 0;
+  let targetNode: Node | null = null;
+  let targetOffset = 0;
+
+  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+  let textNode = walker.nextNode();
+  while (textNode) {
+    const len = textNode.textContent?.length || 0;
+    if (current + len >= offset) {
+      targetNode = textNode;
+      targetOffset = offset - current;
+      break;
+    }
+    current += len;
+    textNode = walker.nextNode();
+  }
+
+  if (targetNode) {
+    try {
+      const range = document.createRange();
+      range.setStart(targetNode, Math.min(targetOffset, targetNode.textContent?.length || 0));
+      range.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(range);
+    } catch {
+      // ignore
+    }
+  }
+}
+
 export const WysiwygEditor: React.FC = () => {
   const {
     activeChapter,
@@ -113,6 +162,23 @@ export const WysiwygEditor: React.FC = () => {
   const [editorLayout, setEditorLayoutState] = useState<'page' | 'widescreen'>(initialSettings.editorLayout);
   const [editorWidth, setEditorWidthState] = useState<number>(initialSettings.editorWidth);
   const [showWidthMenu, setShowWidthMenu] = useState<boolean>(false);
+  const [showColorPicker, setShowColorPicker] = useState<boolean>(false);
+  const [activeTextColor, setActiveTextColor] = useState<string>('auto');
+  const [canUndo, setCanUndo] = useState<boolean>(false);
+  const [canRedo, setCanRedo] = useState<boolean>(false);
+
+  const historyRef = useRef<{
+    entries: { html: string; caret: number | null }[];
+    index: number;
+    lastInputTime: number;
+    timer: ReturnType<typeof setTimeout> | null;
+  }>({
+    entries: [],
+    index: -1,
+    lastInputTime: 0,
+    timer: null,
+  });
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Author Comments State
@@ -131,6 +197,7 @@ export const WysiwygEditor: React.FC = () => {
 
   useEscapeKey(() => setShowImageDialog(false), showImageDialog);
   useEscapeKey(() => setShowWidthMenu(false), showWidthMenu);
+  useEscapeKey(() => setShowColorPicker(false), showColorPicker);
 
   const deselectImage = useCallback(() => {
     if (editorRef.current) {
@@ -169,7 +236,21 @@ export const WysiwygEditor: React.FC = () => {
       if (editorRef.current.innerHTML !== cleanContent) {
         editorRef.current.innerHTML = cleanContent;
       }
+<<<<<<< HEAD
       lastSelfUpdatedHtmlRef.current = cleanContent;
+=======
+      if (historyRef.current.timer) {
+        clearTimeout(historyRef.current.timer);
+      }
+      historyRef.current = {
+        entries: [{ html: cleanContent, caret: null }],
+        index: 0,
+        lastInputTime: 0,
+        timer: null,
+      };
+      setCanUndo(false);
+      setCanRedo(false);
+>>>>>>> 3d95288d26b7b6ca8bbdc2e67c4e6d15d2bc8c48
     }
     if (workspaceRef.current) {
       workspaceRef.current.scrollTop = 0;
@@ -275,6 +356,96 @@ export const WysiwygEditor: React.FC = () => {
     }
   }, [isZenMode, zenSettings.focusDimming, zenSettings.typewriterScrolling, updateParagraphFocusDimming, performTypewriterScroll]);
 
+  const recordImmediateSnapshot = useCallback(() => {
+    if (!editorRef.current) return;
+    const h = historyRef.current;
+    if (h.timer) {
+      clearTimeout(h.timer);
+      h.timer = null;
+    }
+
+    const html = cleanTransientEditorMarkup(editorRef.current.innerHTML);
+    if (h.entries.length === 0) {
+      h.entries = [{ html, caret: saveCaretPosition(editorRef.current) }];
+      h.index = 0;
+      setCanUndo(false);
+      setCanRedo(false);
+      return;
+    }
+
+    if (h.entries[h.index] && h.entries[h.index].html === html) {
+      return;
+    }
+
+    if (h.index < h.entries.length - 1) {
+      h.entries = h.entries.slice(0, h.index + 1);
+    }
+
+    h.entries.push({ html, caret: saveCaretPosition(editorRef.current) });
+    if (h.entries.length > 80) {
+      h.entries.shift();
+    }
+    h.index = h.entries.length - 1;
+    h.lastInputTime = Date.now();
+    setCanUndo(h.index > 0);
+    setCanRedo(false);
+  }, []);
+
+  const recordTypingSnapshot = useCallback((html: string) => {
+    const h = historyRef.current;
+    if (h.entries.length === 0) {
+      h.entries = [{ html, caret: saveCaretPosition(editorRef.current) }];
+      h.index = 0;
+      setCanUndo(false);
+      setCanRedo(false);
+      return;
+    }
+
+    const currentEntry = h.entries[h.index];
+    if (currentEntry && currentEntry.html === html) {
+      return;
+    }
+
+    const now = Date.now();
+    const timeSinceLast = now - h.lastInputTime;
+    h.lastInputTime = now;
+
+    if (h.index < h.entries.length - 1) {
+      h.entries = h.entries.slice(0, h.index + 1);
+      setCanRedo(false);
+    }
+
+    if (timeSinceLast > 600) {
+      h.entries.push({ html, caret: saveCaretPosition(editorRef.current) });
+      if (h.entries.length > 80) {
+        h.entries.shift();
+      }
+      h.index = h.entries.length - 1;
+      setCanUndo(h.index > 0);
+    } else {
+      if (h.index === 0 && h.entries.length === 1) {
+        h.entries.push({ html, caret: saveCaretPosition(editorRef.current) });
+        h.index = 1;
+      } else {
+        h.entries[h.index] = { html, caret: saveCaretPosition(editorRef.current) };
+      }
+      setCanUndo(h.index > 0);
+
+      if (h.timer) clearTimeout(h.timer);
+      h.timer = setTimeout(() => {
+        if (editorRef.current) {
+          const freshHtml = cleanTransientEditorMarkup(editorRef.current.innerHTML);
+          if (h.entries[h.index] && h.entries[h.index].html !== freshHtml) {
+            h.entries.push({ html: freshHtml, caret: saveCaretPosition(editorRef.current) });
+            if (h.entries.length > 80) h.entries.shift();
+            h.index = h.entries.length - 1;
+            setCanUndo(h.index > 0);
+          }
+        }
+      }, 700);
+    }
+  }, []);
+
   const handleInput = useCallback(() => {
     if (editorRef.current && activeChapter) {
       const rawHtml = editorRef.current.innerHTML;
@@ -283,18 +454,178 @@ export const WysiwygEditor: React.FC = () => {
         lastSelfUpdatedHtmlRef.current = cleanedHtml;
         updateChapterContent(activeChapter.id, cleanedHtml);
       }
+      recordTypingSnapshot(cleanedHtml);
     }
     requestAnimationFrame(() => {
       updateParagraphFocusDimming();
       performTypewriterScroll();
     });
-  }, [activeChapter, updateChapterContent, updateParagraphFocusDimming, performTypewriterScroll]);
+  }, [activeChapter, updateChapterContent, updateParagraphFocusDimming, performTypewriterScroll, recordTypingSnapshot]);
 
   const execCommand = useCallback((command: string, value: string | undefined = undefined) => {
     document.execCommand(command, false, value);
-    handleInput();
+    if (editorRef.current && activeChapter) {
+      const cleanedHtml = cleanTransientEditorMarkup(editorRef.current.innerHTML);
+      updateChapterContent(activeChapter.id, cleanedHtml);
+    }
+    recordImmediateSnapshot();
     editorRef.current?.focus();
-  }, [handleInput]);
+  }, [activeChapter, updateChapterContent, recordImmediateSnapshot]);
+
+  const handleUndo = useCallback(() => {
+    const h = historyRef.current;
+    if (h.timer) {
+      clearTimeout(h.timer);
+      h.timer = null;
+    }
+    if (h.index <= 0 || !editorRef.current || !activeChapter) return;
+
+    h.index -= 1;
+    const entry = h.entries[h.index];
+    if (entry) {
+      editorRef.current.innerHTML = entry.html;
+      updateChapterContent(activeChapter.id, entry.html);
+      restoreCaretPosition(editorRef.current, entry.caret);
+    }
+    setCanUndo(h.index > 0);
+    setCanRedo(h.index < h.entries.length - 1);
+  }, [activeChapter, updateChapterContent]);
+
+  const handleRedo = useCallback(() => {
+    const h = historyRef.current;
+    if (h.timer) {
+      clearTimeout(h.timer);
+      h.timer = null;
+    }
+    if (h.index >= h.entries.length - 1 || !editorRef.current || !activeChapter) return;
+
+    h.index += 1;
+    const entry = h.entries[h.index];
+    if (entry) {
+      editorRef.current.innerHTML = entry.html;
+      updateChapterContent(activeChapter.id, entry.html);
+      restoreCaretPosition(editorRef.current, entry.caret);
+    }
+    setCanUndo(h.index > 0);
+    setCanRedo(h.index < h.entries.length - 1);
+  }, [activeChapter, updateChapterContent]);
+
+  // Inspect selection/caret to detect explicit text color
+  const updateActiveTextColor = useCallback(() => {
+    const sel = window.getSelection();
+    if (!sel || !sel.anchorNode || !editorRef.current || !editorRef.current.contains(sel.anchorNode)) {
+      return;
+    }
+    let el: HTMLElement | null =
+      sel.anchorNode.nodeType === Node.ELEMENT_NODE
+        ? (sel.anchorNode as HTMLElement)
+        : sel.anchorNode.parentElement;
+
+    while (el && el !== editorRef.current) {
+      if (el.tagName.toLowerCase() === 'font' && el.getAttribute('color')) {
+        setActiveTextColor(el.getAttribute('color') || 'auto');
+        return;
+      }
+      if (el.style && el.style.color && el.style.color !== 'inherit') {
+        setActiveTextColor(el.style.color);
+        return;
+      }
+      el = el.parentElement;
+    }
+    setActiveTextColor('auto');
+  }, []);
+
+  const handleSelectColor = useCallback((colorHex: string) => {
+    if (!editorRef.current) return;
+    editorRef.current.focus();
+    if (selectedRangeRef.current) {
+      const sel = window.getSelection();
+      if (sel) {
+        sel.removeAllRanges();
+        sel.addRange(selectedRangeRef.current);
+      }
+    }
+
+    try {
+      document.execCommand('styleWithCSS', false, 'true');
+    } catch {
+      // styleWithCSS may not be supported in some environments
+    }
+    document.execCommand('foreColor', false, colorHex);
+    setActiveTextColor(colorHex);
+    if (editorRef.current && activeChapter) {
+      const cleanedHtml = cleanTransientEditorMarkup(editorRef.current.innerHTML);
+      updateChapterContent(activeChapter.id, cleanedHtml);
+    }
+    recordImmediateSnapshot();
+  }, [activeChapter, updateChapterContent, recordImmediateSnapshot]);
+
+  const handleSetColorAuto = useCallback(() => {
+    if (!editorRef.current) return;
+    editorRef.current.focus();
+    if (selectedRangeRef.current) {
+      const sel = window.getSelection();
+      if (sel) {
+        sel.removeAllRanges();
+        sel.addRange(selectedRangeRef.current);
+      }
+    }
+
+    const sel = window.getSelection();
+    if (sel && sel.rangeCount > 0) {
+      const range = sel.getRangeAt(0);
+      let container: Node | null = range.commonAncestorContainer;
+      if (container.nodeType === Node.TEXT_NODE) {
+        container = container.parentElement;
+      }
+
+      if (container && editorRef.current.contains(container)) {
+        // Strip color from ancestors if selection is inside
+        let current = container as HTMLElement | null;
+        while (current && current !== editorRef.current) {
+          if (current.tagName.toLowerCase() === 'font' && current.hasAttribute('color')) {
+            current.removeAttribute('color');
+          }
+          if (current.style && current.style.color) {
+            current.style.color = '';
+            if (!current.getAttribute('style')?.trim()) {
+              current.removeAttribute('style');
+            }
+          }
+          current = current.parentElement;
+        }
+
+        // Strip color from descendants intersecting the range
+        editorRef.current.querySelectorAll('[style*="color"], font[color]').forEach(el => {
+          if (range.intersectsNode(el)) {
+            if (el.tagName.toLowerCase() === 'font') {
+              el.removeAttribute('color');
+            }
+            if (el instanceof HTMLElement && el.style.color) {
+              el.style.color = '';
+              if (!el.getAttribute('style')?.trim()) {
+                el.removeAttribute('style');
+              }
+            }
+          }
+        });
+      }
+    }
+
+    try {
+      document.execCommand('styleWithCSS', false, 'true');
+      document.execCommand('foreColor', false, 'inherit');
+    } catch {
+      // ignore if command fails in detached context
+    }
+
+    setActiveTextColor('auto');
+    if (editorRef.current && activeChapter) {
+      const cleanedHtml = cleanTransientEditorMarkup(editorRef.current.innerHTML);
+      updateChapterContent(activeChapter.id, cleanedHtml);
+    }
+    recordImmediateSnapshot();
+  }, [activeChapter, updateChapterContent, recordImmediateSnapshot]);
 
   // Inspect selection/caret to detect active block alignment
   const updateActiveAlignment = useCallback(() => {
@@ -555,28 +886,28 @@ export const WysiwygEditor: React.FC = () => {
     };
   }, [selectedImage, updateToolbarPosForImage]);
 
-  // Global Undo / Redo listener to ensure Ctrl+Z works seamlessly across workspace
+  // Global Undo / Redo listener to ensure Ctrl+Z and Ctrl+Y / Ctrl+Shift+Z work seamlessly across workspace
   useEffect(() => {
     const handleGlobalUndoRedo = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
-        const activeTag = document.activeElement?.tagName;
-        if (activeTag === 'INPUT' || activeTag === 'TEXTAREA') {
-          return;
-        }
-        if (editorRef.current && !editorRef.current.contains(document.activeElement)) {
-          editorRef.current.focus();
-          if (e.shiftKey) {
-            document.execCommand('redo');
-          } else {
-            document.execCommand('undo');
+      if (e.ctrlKey || e.metaKey) {
+        const key = e.key.toLowerCase();
+        if (key === 'z' || key === 'y') {
+          const activeTag = document.activeElement?.tagName;
+          if (activeTag === 'INPUT' || activeTag === 'TEXTAREA') {
+            return;
           }
-          handleInput();
+          e.preventDefault();
+          if (key === 'y' || e.shiftKey) {
+            handleRedo();
+          } else {
+            handleUndo();
+          }
         }
       }
     };
     window.addEventListener('keydown', handleGlobalUndoRedo);
     return () => window.removeEventListener('keydown', handleGlobalUndoRedo);
-  }, [handleInput]);
+  }, [handleUndo, handleRedo]);
 
   const handleSelectionChange = useCallback(() => {
     const activeSel = getSelectionFloatingPosition(editorRef.current);
@@ -595,15 +926,17 @@ export const WysiwygEditor: React.FC = () => {
       }
     }
     updateActiveAlignment();
+    updateActiveTextColor();
     updateParagraphFocusDimming();
     if (isZenMode && zenSettings.typewriterScrolling) {
       requestAnimationFrame(performTypewriterScroll);
     }
-  }, [updateActiveAlignment, isCommentModalOpen, updateParagraphFocusDimming, isZenMode, zenSettings.typewriterScrolling, zenSettings.hideComments, performTypewriterScroll]);
+  }, [updateActiveAlignment, updateActiveTextColor, isCommentModalOpen, updateParagraphFocusDimming, isZenMode, zenSettings.typewriterScrolling, zenSettings.hideComments, performTypewriterScroll]);
 
   // Handle clicking inside editor: detects if clicked on image or existing comment highlight
   const handleEditorClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     setShowWidthMenu(false);
+    setShowColorPicker(false);
     const target = e.target as HTMLElement;
 
     if (target instanceof HTMLImageElement || target.tagName === 'IMG') {
@@ -756,7 +1089,10 @@ export const WysiwygEditor: React.FC = () => {
 
     if (e.ctrlKey || e.metaKey) {
       const key = e.key.toLowerCase();
-      if (key === 'l') {
+      if (key === 'y') {
+        e.preventDefault();
+        handleRedo();
+      } else if (key === 'l') {
         e.preventDefault();
         handleAlign('left');
       } else if (key === 'e') {
@@ -841,6 +1177,30 @@ export const WysiwygEditor: React.FC = () => {
       {/* Editor Sub-toolbar */}
       <div className={`sub-toolbar ${minimalistMode ? 'minimalist-sub-toolbar' : ''}`}>
         <div className="toolbar-group toolbar-group-scrollable">
+          {/* Undo / Redo */}
+          <button
+            type="button"
+            className="tool-btn"
+            disabled={!canUndo}
+            onMouseDown={e => e.preventDefault()}
+            onClick={handleUndo}
+            title={canUndo ? "Undo (Ctrl+Z)" : "Undo"}
+          >
+            <Undo size={16} />
+          </button>
+          <button
+            type="button"
+            className="tool-btn"
+            disabled={!canRedo}
+            onMouseDown={e => e.preventDefault()}
+            onClick={handleRedo}
+            title={canRedo ? "Redo (Ctrl+Y / Ctrl+Shift+Z)" : "Redo"}
+          >
+            <Redo size={16} />
+          </button>
+
+          <div className="toolbar-separator" />
+
           <button
             className="tool-btn"
             onClick={() => insertHeading('p')}
@@ -900,6 +1260,29 @@ export const WysiwygEditor: React.FC = () => {
           >
             <Strikethrough size={16} />
           </button>
+
+          {/* Text Color Picker */}
+          <TextColorPicker
+            isOpen={showColorPicker}
+            onToggle={() => {
+              const sel = window.getSelection();
+              if (sel && sel.rangeCount > 0) {
+                selectedRangeRef.current = sel.getRangeAt(0).cloneRange();
+              }
+              setShowColorPicker(prev => !prev);
+            }}
+            onClose={() => setShowColorPicker(false)}
+            activeTextColor={activeTextColor}
+            readerTheme={readerTheme}
+            onSelectColor={handleSelectColor}
+            onSetAuto={handleSetColorAuto}
+            onTriggerMouseDown={() => {
+              const sel = window.getSelection();
+              if (sel && sel.rangeCount > 0) {
+                selectedRangeRef.current = sel.getRangeAt(0).cloneRange();
+              }
+            }}
+          />
 
           <div className="toolbar-separator" />
 

@@ -170,9 +170,22 @@ export async function loadAllSettings(): Promise<ChronicleSettings> {
     });
 
     if (stored) {
+      let welcomePref = stored.showWelcomeOnStartup;
+      try {
+        if (typeof window !== 'undefined' && window.localStorage) {
+          const savedWelcome = localStorage.getItem('chronicle_show_welcome_on_startup');
+          if (savedWelcome !== null) {
+            welcomePref = savedWelcome === 'true';
+          }
+        }
+      } catch {
+        /* ignore */
+      }
+
       const merged: ChronicleSettings = {
         ...DEFAULT_CHRONICLE_SETTINGS,
         ...stored,
+        showWelcomeOnStartup: welcomePref,
         zenSettings: {
           ...DEFAULT_ZEN_SETTINGS,
           ...(stored.zenSettings || {}),
@@ -192,7 +205,21 @@ export async function loadAllSettings(): Promise<ChronicleSettings> {
     return initialSettings;
   } catch (err) {
     console.error('Failed to load settings from IndexedDB, using defaults:', err);
-    return DEFAULT_CHRONICLE_SETTINGS;
+    let fallbackWelcome = DEFAULT_CHRONICLE_SETTINGS.showWelcomeOnStartup;
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const savedWelcome = localStorage.getItem('chronicle_show_welcome_on_startup');
+        if (savedWelcome !== null) {
+          fallbackWelcome = savedWelcome === 'true';
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+    return {
+      ...DEFAULT_CHRONICLE_SETTINGS,
+      showWelcomeOnStartup: fallbackWelcome,
+    };
   }
 }
 

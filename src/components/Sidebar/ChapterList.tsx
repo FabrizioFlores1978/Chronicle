@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useEpub } from '../../context/EpubContext';
 import {
@@ -41,6 +41,14 @@ export const ChapterList: React.FC = () => {
   const [isSplitModalOpen, setIsSplitModalOpen] = useState<boolean>(false);
   const [menuChapterId, setMenuChapterId] = useState<string | null>(null);
   const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
+  const activeItemRef = useRef<HTMLDivElement>(null);
+
+  // Smoothly scroll active chapter into view when chapter changes or on restore
+  useEffect(() => {
+    if (activeItemRef.current) {
+      activeItemRef.current.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
+  }, [activeChapterId]);
 
   // Close context menu on click outside, scroll, or Escape key
   useEffect(() => {
@@ -252,6 +260,7 @@ export const ChapterList: React.FC = () => {
             return (
               <div
                 key={chapter.id}
+                ref={isActive ? activeItemRef : undefined}
                 className={`chapter-item ${isActive ? 'active' : ''} ${isMenuOpen ? 'menu-open' : ''}`}
                 onClick={() => setActiveChapterId(chapter.id)}
                 onDoubleClick={e => !isEditing && startRenaming(chapter.id, chapter.title, e)}

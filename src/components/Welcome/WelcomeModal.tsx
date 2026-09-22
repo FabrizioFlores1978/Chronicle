@@ -37,25 +37,22 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
 }) => {
   const {
     loadAnyFile,
+    openLocalDocument,
     loadSampleBook,
     createNewBook,
     setIsCloudDesktopNoticeOpen,
+    showWelcomeOnStartup,
+    setShowWelcomeOnStartup,
   } = useEpub();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [activeTab, setActiveTab] = useState<TabType>('quickstart');
-
-  const [showOnStartup, setShowOnStartup] = useState<boolean>(() => {
-    const saved = localStorage.getItem('chronicle_show_welcome_on_startup');
-    return saved === null ? true : saved === 'true';
-  });
 
   useEscapeKey(onClose, isOpen);
 
   if (!isOpen) return null;
 
   const handleStartupToggle = (checked: boolean) => {
-    setShowOnStartup(checked);
-    localStorage.setItem('chronicle_show_welcome_on_startup', String(checked));
+    setShowWelcomeOnStartup(checked);
   };
 
   const handleCreateNew = () => {
@@ -73,6 +70,15 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
     if (file) {
       loadAnyFile(file);
       onClose();
+    }
+  };
+
+  const handleOpenClick = () => {
+    onClose();
+    if (isTauri()) {
+      openLocalDocument();
+    } else {
+      fileInputRef.current?.click();
     }
   };
 
@@ -208,10 +214,10 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
               {/* Card 3: Open Project or EPUB */}
               <div
                 className="intro-action-card tertiary"
-                onClick={() => fileInputRef.current?.click()}
+                onClick={handleOpenClick}
                 role="button"
                 tabIndex={0}
-                onKeyDown={e => e.key === 'Enter' && fileInputRef.current?.click()}
+                onKeyDown={e => e.key === 'Enter' && handleOpenClick()}
               >
                 <div className="intro-card-icon-bubble bubble-cyan">
                   <FolderOpen size={22} />
@@ -382,11 +388,11 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
           <label className="intro-startup-toggle">
             <input
               type="checkbox"
-              checked={showOnStartup}
+              checked={showWelcomeOnStartup}
               onChange={e => handleStartupToggle(e.target.checked)}
             />
             <span className="intro-checkbox-custom">
-              {showOnStartup && <Check size={12} strokeWidth={3} />}
+              {showWelcomeOnStartup && <Check size={12} strokeWidth={3} />}
             </span>
             <span className="intro-toggle-label">Show this welcome guide on startup</span>
           </label>

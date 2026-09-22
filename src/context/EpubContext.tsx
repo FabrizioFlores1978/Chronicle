@@ -56,7 +56,21 @@ import {
   ZenModeSettings,
   DEFAULT_ZEN_SETTINGS,
 } from '../services/storage/indexedDbSettings';
-import { uploadFile, downloadFile, isTauri } from '../services/cloud/webdavClient';
+import { uploadFile, downloadFile } from '../services/cloud/webdavClient';
+import {
+  isTauri,
+  pickFileToOpen,
+  pickFileToSave,
+  readLocalBinaryFile,
+  writeLocalBinaryFile,
+  checkLocalFileExists,
+} from '../services/native/tauriFs';
+import {
+  saveDesktopSession,
+  getDesktopSession,
+  updateDesktopSessionChapter,
+  clearDesktopSession,
+} from '../services/native/desktopSession';
 import {
   UpdateCheckResult,
   checkForUpdates,
@@ -128,9 +142,10 @@ interface EpubContextType {
 
   loadEpubFile: (file: File, force?: boolean) => Promise<void>;
   loadAnyFile: (file: File, force?: boolean) => Promise<void>;
+  openLocalDocument: (targetPath?: string, force?: boolean, initialChapterId?: string | null, isRestore?: boolean) => Promise<void>;
   loadSampleBook: (force?: boolean) => Promise<void>;
   createNewBook: (title?: string, author?: string, force?: boolean) => Promise<void>;
-  saveProject: (overrideTarget?: StorageTarget, customFilename?: string, targetSubPath?: string) => Promise<void>;
+  saveProject: (overrideTarget?: StorageTarget, customFilename?: string, targetSubPath?: string, forceSaveAs?: boolean) => Promise<void>;
   saveAs: (target: StorageTarget, filename?: string, targetSubPath?: string) => Promise<void>;
   loadFromCloud: (href: string, filename: string, force?: boolean, relativePath?: string) => Promise<void>;
   updateChapterContent: (chapterId: string, newContent: string) => void;
@@ -157,6 +172,8 @@ interface EpubContextType {
 
   storageTarget: StorageTarget | null;
   setStorageTarget: (target: StorageTarget | null) => void;
+  localFilePath: string | null;
+  setLocalFilePath: (path: string | null) => void;
   cloudFileName: string | null;
   setCloudFileName: (name: string | null) => void;
   webdavConfig: WebDavConfig | null;
@@ -176,6 +193,8 @@ interface EpubContextType {
 
   isWelcomeModalOpen: boolean;
   setIsWelcomeModalOpen: (open: boolean) => void;
+  showWelcomeOnStartup: boolean;
+  setShowWelcomeOnStartup: (enabled: boolean) => Promise<void>;
 
   isExportModalOpen: boolean;
   setIsExportModalOpen: (open: boolean) => void;
@@ -317,6 +336,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const bookRef = useRef<EpubBook | null>(null);
 
   const [storageTarget, setStorageTarget] = useState<StorageTarget | null>(null);
+  const [localFilePath, setLocalFilePath] = useState<string | null>(null);
   const [cloudFileName, setCloudFileName] = useState<string | null>(null);
   const [webdavConfig, setWebdavConfig] = useState<WebDavConfig | null>(null);
   const [isWebDavConnected, setIsWebDavConnected] = useState<boolean>(false);
@@ -392,7 +412,51 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     saveSetting('uiTheme', theme);
   }, []);
 
-  const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState<boolean>(true);
+  const [showWelcomeOnStartup, setShowWelcomeOnStartupState] = useState<boolean>(() => {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const saved = localStorage.getItem('chronicle_show_welcome_on_startup');
+        if (saved !== null) {
+          return saved === 'true';
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+    return true;
+  });
+
+  const showWelcomeOnStartupRef = useRef<boolean>(showWelcomeOnStartup);
+  useEffect(() => {
+    showWelcomeOnStartupRef.current = showWelcomeOnStartup;
+  }, [showWelcomeOnStartup]);
+
+  const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState<boolean>(() => {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const saved = localStorage.getItem('chronicle_show_welcome_on_startup');
+        if (saved !== null) {
+          return saved === 'true';
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+    return true;
+  });
+
+  const setShowWelcomeOnStartup = useCallback(async (enabled: boolean) => {
+    setShowWelcomeOnStartupState(enabled);
+    showWelcomeOnStartupRef.current = enabled;
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        localStorage.setItem('chronicle_show_welcome_on_startup', String(enabled));
+      }
+    } catch {
+      /* ignore */
+    }
+    await saveSetting('showWelcomeOnStartup', enabled);
+  }, []);
   const [isExportModalOpen, setIsExportModalOpen] = useState<boolean>(false);
   const [isCharacterSidebarOpen, setIsCharacterSidebarOpen] = useState<boolean>(false);
   const [isLocationSidebarOpen, setIsLocationSidebarOpen] = useState<boolean>(false);
@@ -406,9 +470,29 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     isDirtyRef.current = isDirty;
   }, [isDirty]);
 
+  const activeChapterIdRef = useRef<string | null>(activeChapterId);
+  useEffect(() => {
+    activeChapterIdRef.current = activeChapterId;
+  }, [activeChapterId]);
+
+  const localFilePathRef = useRef<string | null>(localFilePath);
+  useEffect(() => {
+    localFilePathRef.current = localFilePath;
+  }, [localFilePath]);
+
+  // Keep stored desktop session chapter in sync whenever active chapter changes
+  useEffect(() => {
+    if (isTauri() && localFilePath && activeChapterId) {
+      updateDesktopSessionChapter(activeChapterId);
+    }
+  }, [activeChapterId, localFilePath]);
+
   // Window beforeunload protection: prompt before leaving/reloading if changes are unsaved
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isTauri() && localFilePathRef.current) {
+        updateDesktopSessionChapter(activeChapterIdRef.current);
+      }
       if (isDirtyRef.current) {
         e.preventDefault();
         e.returnValue = '';
@@ -456,6 +540,8 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           setIsWebDavConnected(settings.webdavConfig.connected ?? true);
         }
 
+        setShowWelcomeOnStartupState(settings.showWelcomeOnStartup);
+        showWelcomeOnStartupRef.current = settings.showWelcomeOnStartup;
         setIsWelcomeModalOpen(settings.showWelcomeOnStartup);
 
         setReaderThemeState(settings.readerTheme);
@@ -822,6 +908,10 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // Load sample book on initial startup
   useEffect(() => {
     async function init() {
+      // On desktop, if a previous session file exists, do not load sample book
+      if (isTauri() && getDesktopSession()?.filePath) {
+        return;
+      }
       try {
         setIsLoading(true);
         const sample = await createSampleEpubBook();
@@ -864,7 +954,11 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (sample.chapters.length > 0) {
         setActiveChapterId(sample.chapters[0].id);
       }
+      if (isTauri()) {
+        clearDesktopSession();
+      }
       setStorageTarget(null);
+      setLocalFilePath(null);
       setCloudFileName(null);
       setCastPresenceData(null);
       setIsPresenceCacheValid(false);
@@ -903,7 +997,11 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (newBook.chapters.length > 0) {
           setActiveChapterId(newBook.chapters[0].id);
         }
+        if (isTauri()) {
+          clearDesktopSession();
+        }
         setStorageTarget(null);
+        setLocalFilePath(null);
         setCloudFileName(null);
         setCastPresenceData(null);
         setIsPresenceCacheValid(false);
@@ -938,6 +1036,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       try {
         setIsLoading(true);
         const buffer = await file.arrayBuffer();
+        const nativePath = (file as any).path as string | undefined;
 
         if (isChronicleProjectFile(file)) {
           const projectBook = await parseChronicleProject(buffer, file.name);
@@ -949,6 +1048,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             setActiveChapterId(projectBook.chapters[0].id);
           }
           setStorageTarget('local');
+          setLocalFilePath(nativePath || null);
           setCloudFileName(null);
           setCastPresenceData(null);
           setIsPresenceCacheValid(false);
@@ -965,6 +1065,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             setActiveChapterId(mdBook.chapters[0].id);
           }
           setStorageTarget('local');
+          setLocalFilePath(nativePath ? nativePath.replace(/\.(md|markdown|mdown|mkd)$/i, '.chronicle') : null);
           setCloudFileName(null);
           setCastPresenceData(null);
           setIsPresenceCacheValid(false);
@@ -985,6 +1086,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             setActiveChapterId(parsed.chapters[0].id);
           }
           setStorageTarget('local');
+          setLocalFilePath(nativePath ? nativePath.replace(/\.epub$/i, '.chronicle') : null);
           setCloudFileName(null);
           setCastPresenceData(null);
           setIsPresenceCacheValid(false);
@@ -1000,6 +1102,203 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     },
     [setIsDirty, showNotification, refreshBookSession]
   );
+
+  const openLocalDocument = useCallback(
+    async (
+      targetPath?: string,
+      force: boolean = false,
+      initialChapterId?: string | null,
+      isRestore: boolean = false
+    ) => {
+      if (isDirtyRef.current && !force) {
+        const targetDisplayName = targetPath
+          ? targetPath.split(/[\\/]/).pop() || 'Manuscript'
+          : 'Selected Manuscript';
+        setPendingUnsavedAction({
+          actionType: 'open',
+          title: 'Open Manuscript',
+          description: `Opening "${targetDisplayName}" will replace your current workspace. Any unsaved edits in your current manuscript will be permanently lost.`,
+          targetName: targetDisplayName,
+          onProceed: () => openLocalDocument(targetPath, true, initialChapterId, isRestore),
+        });
+        return;
+      }
+
+      let filePath = targetPath;
+      if (!filePath) {
+        if (isTauri()) {
+          const picked = await pickFileToOpen();
+          if (!picked) return;
+          filePath = picked;
+        } else {
+          return;
+        }
+      }
+
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('epub-file-opening'));
+      }
+
+      try {
+        setIsLoading(true);
+        const uint8 = await readLocalBinaryFile(filePath);
+        const fileName = filePath.split(/[\\/]/).pop() || 'manuscript';
+        const lower = fileName.toLowerCase();
+
+        if (lower.endsWith('.chronicle')) {
+          const projectBook = await parseChronicleProject(uint8.buffer as ArrayBuffer, fileName);
+          bookRef.current = projectBook;
+          setBook(projectBook);
+          refreshBookSession();
+          extractCssFromBook(projectBook);
+          const targetChapterId = (initialChapterId && projectBook.chapters.some(c => c.id === initialChapterId))
+            ? initialChapterId
+            : (projectBook.chapters[0]?.id || null);
+          if (targetChapterId) {
+            setActiveChapterId(targetChapterId);
+          }
+          setStorageTarget('local');
+          setLocalFilePath(filePath);
+          setCloudFileName(null);
+          setCastPresenceData(null);
+          setIsPresenceCacheValid(false);
+          setIsDirtyState(false);
+          if (isTauri()) {
+            saveDesktopSession(filePath, targetChapterId);
+          }
+          if (isRestore) {
+            setViewModeState('editor');
+            const ch = projectBook.chapters.find(c => c.id === targetChapterId);
+            const chTitle = ch?.title ? ` at "${ch.title}"` : '';
+            showNotification('info', `Resumed "${projectBook.metadata.title}"${chTitle}`);
+          } else {
+            showNotification('success', `Opened Chronicle "${projectBook.metadata.title}" successfully!`);
+          }
+        } else if (
+          lower.endsWith('.md') ||
+          lower.endsWith('.markdown') ||
+          lower.endsWith('.mdown') ||
+          lower.endsWith('.mkd')
+        ) {
+          const text = new TextDecoder().decode(uint8);
+          const mdBook = await parseMarkdownToBook(text, fileName);
+          bookRef.current = mdBook;
+          setBook(mdBook);
+          refreshBookSession();
+          extractCssFromBook(mdBook);
+          const targetChapterId = (initialChapterId && mdBook.chapters.some(c => c.id === initialChapterId))
+            ? initialChapterId
+            : (mdBook.chapters[0]?.id || null);
+          if (targetChapterId) {
+            setActiveChapterId(targetChapterId);
+          }
+          setStorageTarget('local');
+          const chroniclePath = filePath.replace(/\.(md|markdown|mdown|mkd)$/i, '.chronicle');
+          setLocalFilePath(chroniclePath);
+          setCloudFileName(null);
+          setCastPresenceData(null);
+          setIsPresenceCacheValid(false);
+          setIsDirtyState(true);
+          setViewModeState('editor');
+          if (isTauri()) {
+            saveDesktopSession(filePath, targetChapterId);
+          }
+          if (isRestore) {
+            const ch = mdBook.chapters.find(c => c.id === targetChapterId);
+            const chTitle = ch?.title ? ` at "${ch.title}"` : '';
+            showNotification('info', `Resumed "${mdBook.metadata.title}"${chTitle}`);
+          } else {
+            showNotification(
+              'success',
+              `Imported Markdown "${mdBook.metadata.title}" (${mdBook.chapters.length} chapter${
+                mdBook.chapters.length === 1 ? '' : 's'
+              })! Ready to edit and save as .chronicle`
+            );
+          }
+        } else {
+          const parsed = await parseEpub(uint8.buffer as ArrayBuffer, fileName);
+          bookRef.current = parsed;
+          setBook(parsed);
+          refreshBookSession();
+          extractCssFromBook(parsed);
+          const targetChapterId = (initialChapterId && parsed.chapters.some(c => c.id === initialChapterId))
+            ? initialChapterId
+            : (parsed.chapters[0]?.id || null);
+          if (targetChapterId) {
+            setActiveChapterId(targetChapterId);
+          }
+          setStorageTarget('local');
+          const chroniclePath = filePath.replace(/\.epub$/i, '.chronicle');
+          setLocalFilePath(chroniclePath);
+          setCloudFileName(null);
+          setCastPresenceData(null);
+          setIsPresenceCacheValid(false);
+          setIsDirtyState(false);
+          if (isTauri()) {
+            saveDesktopSession(filePath, targetChapterId);
+          }
+          if (isRestore) {
+            setViewModeState('editor');
+            const ch = parsed.chapters.find(c => c.id === targetChapterId);
+            const chTitle = ch?.title ? ` at "${ch.title}"` : '';
+            showNotification('info', `Resumed "${parsed.metadata.title}"${chTitle}`);
+          } else {
+            showNotification('success', `Imported EPUB "${parsed.metadata.title}" successfully!`);
+          }
+        }
+      } catch (err: any) {
+        console.error(err);
+        if (isRestore) {
+          clearDesktopSession();
+          if (showWelcomeOnStartupRef.current) {
+            setIsWelcomeModalOpen(true);
+          }
+        }
+        showNotification('error', `Failed to open file: ${err?.message || 'Unknown error'}`);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [showNotification, refreshBookSession, extractCssFromBook]
+  );
+
+  // Auto-restore previous desktop session on app launch (Tauri desktop only)
+  const hasAttemptedDesktopRestoreRef = useRef<boolean>(false);
+  useEffect(() => {
+    if (!isTauri()) return;
+    if (hasAttemptedDesktopRestoreRef.current) return;
+    hasAttemptedDesktopRestoreRef.current = true;
+
+    let isMounted = true;
+
+    async function restorePreviousSession() {
+      try {
+        const session = getDesktopSession();
+        if (!session || !session.filePath) return;
+
+        const fileExists = await checkLocalFileExists(session.filePath);
+        if (!isMounted) return;
+
+        if (!fileExists) {
+          console.info('[Chronicle Desktop] Previous session file no longer exists on disk:', session.filePath);
+          clearDesktopSession();
+          return;
+        }
+
+        // Restore previous document & chapter
+        await openLocalDocument(session.filePath, true, session.activeChapterId, true);
+      } catch (err) {
+        console.warn('[Chronicle Desktop] Could not restore previous session:', err);
+        clearDesktopSession();
+      }
+    }
+
+    restorePreviousSession();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [openLocalDocument]);
 
   const loadEpubFile = loadAnyFile;
 
@@ -1518,6 +1817,10 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             setActiveChapterId(projectBook.chapters[0].id);
           }
           setStorageTarget('cloud');
+          setLocalFilePath(null);
+          if (isTauri()) {
+            clearDesktopSession();
+          }
           setCloudFileName(storedPath);
           setCastPresenceData(null);
           setIsPresenceCacheValid(false);
@@ -1534,6 +1837,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             setActiveChapterId(mdBook.chapters[0].id);
           }
           setStorageTarget('cloud');
+          setLocalFilePath(null);
           setCloudFileName(storedPath.replace(/\.(md|markdown|mdown|mkd)$/i, '.chronicle'));
           setCastPresenceData(null);
           setIsPresenceCacheValid(false);
@@ -1554,6 +1858,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             setActiveChapterId(parsed.chapters[0].id);
           }
           setStorageTarget('cloud');
+          setLocalFilePath(null);
           setCloudFileName(storedPath.replace(/\.epub$/i, '.chronicle'));
           setCastPresenceData(null);
           setIsPresenceCacheValid(false);
@@ -1571,7 +1876,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   );
 
   const saveProject = useCallback(
-    async (overrideTarget?: StorageTarget, customFilename?: string, targetSubPath?: string) => {
+    async (overrideTarget?: StorageTarget, customFilename?: string, targetSubPath?: string, forceSaveAs: boolean = false) => {
       isSavingRef.current = true;
       let currentBook = bookRef.current || book;
       if (!currentBook) {
@@ -1627,21 +1932,55 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const blob = await saveChronicleProject(currentBook);
 
         if (target === 'local') {
-          const downloadName = customFilename || `${cleanTitle}.chronicle`;
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = downloadName;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          URL.revokeObjectURL(url);
+          if (isTauri()) {
+            let destinationPath = localFilePath;
 
-          setStorageTarget('local');
-          if (bookRef.current === saveSnapshot) {
-            setIsDirtyState(false);
+            // If forced Save As, or no path known yet, prompt user with native Save File Dialog
+            if (forceSaveAs || !destinationPath) {
+              let defaultName = customFilename || (destinationPath ? destinationPath.split(/[\\/]/).pop() : `${cleanTitle}.chronicle`);
+              if (!defaultName) defaultName = `${cleanTitle}.chronicle`;
+              if (!defaultName.endsWith('.chronicle')) defaultName += '.chronicle';
+
+              const pickedPath = await pickFileToSave(defaultName);
+              if (!pickedPath) {
+                // User cancelled native save dialog
+                return;
+              }
+              destinationPath = pickedPath;
+              if (!destinationPath.endsWith('.chronicle')) {
+                destinationPath += '.chronicle';
+              }
+            }
+
+            // Directly overwrite local file on disk
+            await writeLocalBinaryFile(destinationPath, blob);
+
+            setStorageTarget('local');
+            setLocalFilePath(destinationPath);
+            saveDesktopSession(destinationPath, activeChapterId);
+            const savedFileName = destinationPath.split(/[\\/]/).pop() || `${cleanTitle}.chronicle`;
+
+            if (bookRef.current === saveSnapshot) {
+              setIsDirtyState(false);
+            }
+            showNotification('success', `Saved project "${savedFileName}" locally!`);
+          } else {
+            const downloadName = customFilename || `${cleanTitle}.chronicle`;
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = downloadName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            setStorageTarget('local');
+            if (bookRef.current === saveSnapshot) {
+              setIsDirtyState(false);
+            }
+            showNotification('success', `Saved project "${downloadName}" locally!`);
           }
-          showNotification('success', `Saved project "${downloadName}" locally!`);
         } else if (target === 'cloud') {
           if (!webdavConfig) {
             setIsWebDavConfigOpen(true);
@@ -1692,12 +2031,16 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }, 500);
       }
     },
-    [book, activeChapterId, storageTarget, cloudFileName, webdavConfig, showNotification]
+    [book, activeChapterId, storageTarget, localFilePath, cloudFileName, webdavConfig, showNotification]
   );
 
   const saveAs = useCallback(
     async (target: StorageTarget, filename?: string, targetSubPath?: string) => {
-      await saveProject(target, filename, targetSubPath);
+      if (target === 'local' && isTauri()) {
+        await saveProject('local', filename, undefined, true);
+      } else {
+        await saveProject(target, filename, targetSubPath);
+      }
     },
     [saveProject]
   );
@@ -2983,6 +3326,7 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         activeChapter,
         loadEpubFile,
         loadAnyFile,
+        openLocalDocument,
         loadSampleBook,
         createNewBook,
         saveProject,
@@ -3014,6 +3358,8 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         notification,
         storageTarget,
         setStorageTarget,
+        localFilePath,
+        setLocalFilePath,
         cloudFileName,
         setCloudFileName,
         webdavConfig,
@@ -3031,6 +3377,8 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setIsCloudDesktopNoticeOpen,
         isWelcomeModalOpen,
         setIsWelcomeModalOpen,
+        showWelcomeOnStartup,
+        setShowWelcomeOnStartup,
         isExportModalOpen,
         setIsExportModalOpen,
         isCharacterSidebarOpen,
