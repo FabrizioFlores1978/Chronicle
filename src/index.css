@@ -1261,6 +1261,236 @@ html, body, #root {
   background: var(--accent-primary);
   color: white;
 }
+.tool-btn:disabled,
+.tool-btn[disabled] {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Text Color Picker Popover */
+.text-color-picker-popover {
+  position: fixed;
+  z-index: 9999;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-xl), 0 10px 30px rgba(0, 0, 0, 0.6);
+  padding: 0.75rem;
+  width: 236px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  user-select: none;
+}
+
+.text-color-popover-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 0.25rem;
+}
+
+.text-color-popover-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.text-color-popover-subtitle {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.text-color-auto-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 0.6rem;
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+  width: 100%;
+}
+
+.text-color-auto-btn:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-medium);
+}
+
+.text-color-auto-btn.active {
+  border-color: var(--accent-primary);
+  background: var(--accent-primary-glow, rgba(99, 102, 241, 0.12));
+}
+
+.text-color-auto-icon-badge {
+  position: relative;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.text-color-auto-split-circle {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffffff 50%, #18181b 50%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.text-color-auto-reset-icon {
+  position: absolute;
+  color: var(--accent-primary);
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.8));
+}
+
+.text-color-auto-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.text-color-auto-name {
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+
+.text-color-auto-desc {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.text-color-auto-check {
+  color: var(--accent-primary);
+  flex-shrink: 0;
+}
+
+.text-color-section-divider {
+  height: 1px;
+  background: var(--border-subtle);
+  margin: 0.1rem 0;
+}
+
+.text-color-palette-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 0.2rem;
+}
+
+.text-color-swatch-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+.text-color-swatch-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 5px;
+}
+
+.text-color-swatch-btn {
+  width: 100%;
+  aspect-ratio: 1;
+  max-width: 38px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  position: relative;
+}
+
+.text-color-swatch-btn:hover {
+  transform: scale(1.15);
+  z-index: 2;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+}
+
+.text-color-swatch-btn.swatch-dark {
+  border: 1.5px solid rgba(255, 255, 255, 0.45);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.6);
+}
+
+.text-color-swatch-btn.swatch-light {
+  border: 1.5px solid rgba(0, 0, 0, 0.25);
+}
+
+.text-color-swatch-btn.selected {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 1px;
+}
+
+.text-color-custom-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.text-color-custom-input-wrap {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  gap: 0.35rem;
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 2px 5px;
+}
+
+.text-color-native-input {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border: none;
+  cursor: pointer;
+  background: transparent;
+  padding: 0;
+  border-radius: 3px;
+}
+.text-color-native-input::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+.text-color-native-input::-webkit-color-swatch {
+  border: 1px solid var(--border-medium);
+  border-radius: 3px;
+}
+
+.text-color-hex-text-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-family: var(--font-mono, monospace);
+  font-size: 0.75rem;
+  outline: none;
+  width: 60px;
+}
 
 /* Reader Container & Themes */
 .reader-container {
@@ -1569,6 +1799,77 @@ html, body, #root {
 .editor-theme-obsidian .wysiwyg-content pre code {
   background-color: transparent;
   color: inherit;
+}
+
+/* ==========================================================================
+   Text Color Theme Contrast & Readability Safeguards
+   Prevents hardcoded black text on dark themes and white text on light themes
+   ========================================================================== */
+
+/* Dark themes: ensure black / dark colored text remains clearly legible */
+.editor-theme-dark .wysiwyg-content [style*="color: rgb(0, 0, 0)"],
+.editor-theme-dark .wysiwyg-content [style*="color: rgb(0,0,0)"],
+.editor-theme-dark .wysiwyg-content [style*="color: #000000"],
+.editor-theme-dark .wysiwyg-content [style*="color: #000;"],
+.editor-theme-dark .wysiwyg-content [style*="color: #000 "],
+.editor-theme-dark .wysiwyg-content [style*="color:#000000"],
+.editor-theme-dark .wysiwyg-content [style*="color:#000;"],
+.editor-theme-dark .wysiwyg-content [style*="color: black"],
+.editor-theme-dark .wysiwyg-content [style*="color:black"],
+.editor-theme-dark .wysiwyg-content font[color="#000000"],
+.editor-theme-dark .wysiwyg-content font[color="#000"],
+.editor-theme-dark .wysiwyg-content font[color="black"],
+.editor-theme-obsidian .wysiwyg-content [style*="color: rgb(0, 0, 0)"],
+.editor-theme-obsidian .wysiwyg-content [style*="color: rgb(0,0,0)"],
+.editor-theme-obsidian .wysiwyg-content [style*="color: #000000"],
+.editor-theme-obsidian .wysiwyg-content [style*="color: #000;"],
+.editor-theme-obsidian .wysiwyg-content [style*="color: #000 "],
+.editor-theme-obsidian .wysiwyg-content [style*="color:#000000"],
+.editor-theme-obsidian .wysiwyg-content [style*="color:#000;"],
+.editor-theme-obsidian .wysiwyg-content [style*="color: black"],
+.editor-theme-obsidian .wysiwyg-content [style*="color:black"],
+.editor-theme-obsidian .wysiwyg-content font[color="#000000"],
+.editor-theme-obsidian .wysiwyg-content font[color="#000"],
+.editor-theme-obsidian .wysiwyg-content font[color="black"] {
+  background-color: rgba(255, 255, 255, 0.92);
+  color: #000000 !important;
+  padding: 0.05em 0.28em;
+  border-radius: 3px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+/* Light & Sepia themes: ensure white / light colored text remains clearly legible */
+.editor-theme-light .wysiwyg-content [style*="color: rgb(255, 255, 255)"],
+.editor-theme-light .wysiwyg-content [style*="color: rgb(255,255,255)"],
+.editor-theme-light .wysiwyg-content [style*="color: #ffffff"],
+.editor-theme-light .wysiwyg-content [style*="color: #fff;"],
+.editor-theme-light .wysiwyg-content [style*="color: #fff "],
+.editor-theme-light .wysiwyg-content [style*="color:#ffffff"],
+.editor-theme-light .wysiwyg-content [style*="color:#fff;"],
+.editor-theme-light .wysiwyg-content [style*="color: white"],
+.editor-theme-light .wysiwyg-content [style*="color:white"],
+.editor-theme-light .wysiwyg-content font[color="#ffffff"],
+.editor-theme-light .wysiwyg-content font[color="#fff"],
+.editor-theme-light .wysiwyg-content font[color="white"],
+.editor-theme-sepia .wysiwyg-content [style*="color: rgb(255, 255, 255)"],
+.editor-theme-sepia .wysiwyg-content [style*="color: rgb(255,255,255)"],
+.editor-theme-sepia .wysiwyg-content [style*="color: #ffffff"],
+.editor-theme-sepia .wysiwyg-content [style*="color: #fff;"],
+.editor-theme-sepia .wysiwyg-content [style*="color: #fff "],
+.editor-theme-sepia .wysiwyg-content [style*="color:#ffffff"],
+.editor-theme-sepia .wysiwyg-content [style*="color:#fff;"],
+.editor-theme-sepia .wysiwyg-content [style*="color: white"],
+.editor-theme-sepia .wysiwyg-content [style*="color:white"],
+.editor-theme-sepia .wysiwyg-content font[color="#ffffff"],
+.editor-theme-sepia .wysiwyg-content font[color="#fff"],
+.editor-theme-sepia .wysiwyg-content font[color="white"] {
+  background-color: rgba(24, 24, 27, 0.9);
+  color: #ffffff !important;
+  padding: 0.05em 0.28em;
+  border-radius: 3px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
 }
 
 .wysiwyg-content {
