@@ -41,22 +41,18 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
     loadSampleBook,
     createNewBook,
     setIsCloudDesktopNoticeOpen,
+    showWelcomeOnStartup,
+    setShowWelcomeOnStartup,
   } = useEpub();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [activeTab, setActiveTab] = useState<TabType>('quickstart');
-
-  const [showOnStartup, setShowOnStartup] = useState<boolean>(() => {
-    const saved = localStorage.getItem('chronicle_show_welcome_on_startup');
-    return saved === null ? true : saved === 'true';
-  });
 
   useEscapeKey(onClose, isOpen);
 
   if (!isOpen) return null;
 
   const handleStartupToggle = (checked: boolean) => {
-    setShowOnStartup(checked);
-    localStorage.setItem('chronicle_show_welcome_on_startup', String(checked));
+    setShowWelcomeOnStartup(checked);
   };
 
   const handleCreateNew = () => {
@@ -392,11 +388,11 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
           <label className="intro-startup-toggle">
             <input
               type="checkbox"
-              checked={showOnStartup}
+              checked={showWelcomeOnStartup}
               onChange={e => handleStartupToggle(e.target.checked)}
             />
             <span className="intro-checkbox-custom">
-              {showOnStartup && <Check size={12} strokeWidth={3} />}
+              {showWelcomeOnStartup && <Check size={12} strokeWidth={3} />}
             </span>
             <span className="intro-toggle-label">Show this welcome guide on startup</span>
           </label>

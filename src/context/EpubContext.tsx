@@ -188,6 +188,8 @@ interface EpubContextType {
 
   isWelcomeModalOpen: boolean;
   setIsWelcomeModalOpen: (open: boolean) => void;
+  showWelcomeOnStartup: boolean;
+  setShowWelcomeOnStartup: (enabled: boolean) => Promise<void>;
 
   isExportModalOpen: boolean;
   setIsExportModalOpen: (open: boolean) => void;
@@ -397,13 +399,51 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     saveSetting('uiTheme', theme);
   }, []);
 
-  const showWelcomeOnStartupRef = useRef<boolean>(true);
-  const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState<boolean>(() => {
-    if (isTauri() && getDesktopSession()?.filePath) {
-      return false;
+  const [showWelcomeOnStartup, setShowWelcomeOnStartupState] = useState<boolean>(() => {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const saved = localStorage.getItem('chronicle_show_welcome_on_startup');
+        if (saved !== null) {
+          return saved === 'true';
+        }
+      }
+    } catch {
+      /* ignore */
     }
     return true;
   });
+
+  const showWelcomeOnStartupRef = useRef<boolean>(showWelcomeOnStartup);
+  useEffect(() => {
+    showWelcomeOnStartupRef.current = showWelcomeOnStartup;
+  }, [showWelcomeOnStartup]);
+
+  const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState<boolean>(() => {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const saved = localStorage.getItem('chronicle_show_welcome_on_startup');
+        if (saved !== null) {
+          return saved === 'true';
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+    return true;
+  });
+
+  const setShowWelcomeOnStartup = useCallback(async (enabled: boolean) => {
+    setShowWelcomeOnStartupState(enabled);
+    showWelcomeOnStartupRef.current = enabled;
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        localStorage.setItem('chronicle_show_welcome_on_startup', String(enabled));
+      }
+    } catch {
+      /* ignore */
+    }
+    await saveSetting('showWelcomeOnStartup', enabled);
+  }, []);
   const [isExportModalOpen, setIsExportModalOpen] = useState<boolean>(false);
   const [isCharacterSidebarOpen, setIsCharacterSidebarOpen] = useState<boolean>(false);
   const [isLocationSidebarOpen, setIsLocationSidebarOpen] = useState<boolean>(false);
@@ -484,11 +524,9 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           setIsWebDavConnected(settings.webdavConfig.connected ?? true);
         }
 
+        setShowWelcomeOnStartupState(settings.showWelcomeOnStartup);
         showWelcomeOnStartupRef.current = settings.showWelcomeOnStartup;
-        const hasActiveDesktopSession = isTauri() && Boolean(getDesktopSession()?.filePath);
-        if (!hasActiveDesktopSession) {
-          setIsWelcomeModalOpen(settings.showWelcomeOnStartup);
-        }
+        setIsWelcomeModalOpen(settings.showWelcomeOnStartup);
 
         setReaderThemeState(settings.readerTheme);
         setReaderFontState(settings.readerFont);
@@ -1218,21 +1256,14 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (!fileExists) {
           console.info('[Chronicle Desktop] Previous session file no longer exists on disk:', session.filePath);
           clearDesktopSession();
-          if (showWelcomeOnStartupRef.current) {
-            setIsWelcomeModalOpen(true);
-          }
           return;
         }
 
-        // Close welcome modal and restore previous document & chapter
-        setIsWelcomeModalOpen(false);
+        // Restore previous document & chapter
         await openLocalDocument(session.filePath, true, session.activeChapterId, true);
       } catch (err) {
         console.warn('[Chronicle Desktop] Could not restore previous session:', err);
         clearDesktopSession();
-        if (showWelcomeOnStartupRef.current) {
-          setIsWelcomeModalOpen(true);
-        }
       }
     }
 
@@ -2800,6 +2831,8 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setIsCloudDesktopNoticeOpen,
         isWelcomeModalOpen,
         setIsWelcomeModalOpen,
+        showWelcomeOnStartup,
+        setShowWelcomeOnStartup,
         isExportModalOpen,
         setIsExportModalOpen,
         isCharacterSidebarOpen,

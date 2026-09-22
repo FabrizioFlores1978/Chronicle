@@ -4,7 +4,6 @@ import { useEscapeKey } from '../../hooks/useEscapeKey';
 import { UI_THEMES } from '../../types/theme';
 import { testConnection, isTauri } from '../../services/cloud/webdavClient';
 import { WebDavConfig } from '../../types/cloud';
-import { saveSetting } from '../../services/storage/indexedDbSettings';
 import {
   Settings,
   X,
@@ -82,6 +81,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     isUpdateAvailable,
     latestRelease,
     checkForUpdatesManually,
+    showWelcomeOnStartup,
+    setShowWelcomeOnStartup,
   } = useEpub();
 
   useEscapeKey(onClose);
@@ -147,10 +148,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [isSavingCloud, setIsSavingCloud] = useState<boolean>(false);
   const [showCloudHelp, setShowCloudHelp] = useState<boolean>(false);
 
-  // General Preferences State
-  const [showWelcomeOnStartup, setShowWelcomeOnStartup] = useState<boolean>(true);
-
-  // Initialize WebDAV and general states
+  // Initialize WebDAV states
   useEffect(() => {
     if (webdavConfig) {
       setServerUrl(webdavConfig.serverUrl || '');
@@ -160,25 +158,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     }
   }, [webdavConfig]);
 
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('chronicle_show_welcome_on_startup');
-      if (saved !== null) {
-        setShowWelcomeOnStartup(saved === 'true');
-      }
-    } catch {
-      // ignore
-    }
-  }, []);
-
   const handleToggleWelcome = async (checked: boolean) => {
-    setShowWelcomeOnStartup(checked);
-    await saveSetting('showWelcomeOnStartup', checked);
-    try {
-      localStorage.setItem('chronicle_show_welcome_on_startup', String(checked));
-    } catch {
-      // ignore
-    }
+    await setShowWelcomeOnStartup(checked);
     showNotification('info', checked ? 'Welcome guide will show on startup.' : 'Welcome guide disabled on startup.');
   };
 
