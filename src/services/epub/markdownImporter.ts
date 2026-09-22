@@ -166,7 +166,7 @@ export function parseInlineMarkdown(text: string): string {
   processed = processed.replace(/__(.+?)__/g, '<strong>$1</strong>');
 
   // 6. Italic: *text* or _text_
-  processed = processed.replace(/\*([^\*\s][^\*]*?)\*/g, '<em>$1</em>');
+  processed = processed.replace(/\*([^*\s][^*]*?)\*/g, '<em>$1</em>');
   processed = processed.replace(/\b_([^_\s][^_]*?)_\b/g, '<em>$1</em>');
 
   // 7. Strikethrough: ~~text~~
@@ -347,7 +347,7 @@ export function markdownToHtml(markdown: string): string {
           : curLine.match(/^\s*[-*+]\s+(.+)$/);
 
         if (match) {
-          let itemText = match[1].trim();
+          const itemText = match[1].trim();
 
           // Check for task list checkboxes: [ ] or [x]
           if (/^\[\s\]\s+(.*)$/.test(itemText)) {
