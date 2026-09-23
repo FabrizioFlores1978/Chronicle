@@ -184,24 +184,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
   const handleToggleWelcome = async (checked: boolean) => {
     await setShowWelcomeOnStartup(checked);
-    await saveSetting('showWelcomeOnStartup', checked);
-    try {
-      localStorage.setItem('chronicle_show_welcome_on_startup', String(checked));
-    } catch {
-      // ignore
-    }
     showNotification('info', checked ? t('notifications.welcomeGuideEnabled') : t('notifications.welcomeGuideDisabled'));
   };
 
   const handleToggleAutoSave = async (checked: boolean) => {
     await setAutoSaveEnabled(checked);
-    await saveSetting('autoSaveEnabled', checked);
     showNotification('info', checked ? t('notifications.autoSaveEnabledNotify') : t('notifications.autoSaveDisabledNotify'));
   };
 
   const handleChangeAutoSaveInterval = async (val: number) => {
     await setAutoSaveInterval(val);
-    await saveSetting('autoSaveInterval', val);
     const labelKey = val === 30 ? 'interval30s' : val === 60 ? 'interval1m' : val === 120 ? 'interval2m' : 'interval5m';
     const label = t(`settings.${labelKey}` as any);
     showNotification('info', t('notifications.autoSaveIntervalUpdated', { interval: label }));
