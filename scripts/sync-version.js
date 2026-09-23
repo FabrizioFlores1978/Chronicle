@@ -15,9 +15,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, '..');
 
-export function syncVersion() {
+export function syncVersion(explicitVersion) {
   const pkgPath = path.join(projectRoot, 'package.json');
   const cargoPath = path.join(projectRoot, 'src-tauri', 'Cargo.toml');
+  const updateCheckerPath = path.join(projectRoot, 'src', 'services', 'update', 'updateChecker.ts');
 
   if (!fs.existsSync(pkgPath)) {
     console.error('❌ [sync-version] package.json not found at:', pkgPath);
@@ -25,6 +26,17 @@ export function syncVersion() {
   }
 
   const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+
+  // If a new version was explicitly provided, update package.json first
+  if (explicitVersion) {
+    const cleanVersion = explicitVersion.trim().replace(/^v/, '');
+    if (cleanVersion) {
+      pkg.version = cleanVersion;
+      fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n', 'utf8');
+      console.log(`[Version Sync] Updated package.json version to v${cleanVersion}`);
+    }
+  }
+
   const version = pkg.version;
 
   if (!version) {
@@ -32,9 +44,9 @@ export function syncVersion() {
     return false;
   }
 
+  // 1. Sync src-tauri/Cargo.toml
   if (fs.existsSync(cargoPath)) {
     const cargoContent = fs.readFileSync(cargoPath, 'utf8');
-    // Replace the package version inside [package]
     const updatedContent = cargoContent.replace(
       /^(\s*version\s*=\s*)"[^"]+"/m,
       `$1"${version}"`
@@ -48,10 +60,24 @@ export function syncVersion() {
     }
   }
 
+  // 2. Sync in src/services/update/updateChecker.ts
+  if (fs.existsSync(updateCheckerPath)) {
+    const checkerContent = fs.readFileSync(updateCheckerPath, 'utf8');
+    const updatedChecker = checkerContent.replace(
+      /^export const CURRENT_VERSION = .*;$/m,
+      `export const CURRENT_VERSION = '${version}';`
+    );
+    if (checkerContent !== updatedChecker) {
+      fs.writeFileSync(updateCheckerPath, updatedChecker, 'utf8');
+      console.log(`[Version Sync] Synced updateChecker.ts version to v${version}`);
+    }
+  }
+
   return true;
 }
 
 // If executed directly from command line
 if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
-  syncVersion();
+  const targetVersion = process.argv[2];
+  syncVersion(targetVersion);
 }

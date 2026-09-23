@@ -90,10 +90,25 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const isDesktop = isTauri();
   const effectiveInitialTab = (!isDesktop && initialTab === 'cloud') ? 'appearance' : initialTab;
   const [activeTab, setActiveTab] = useState<SettingsTab>(effectiveInitialTab);
+  const [appVersion, setAppVersion] = useState<string>(CURRENT_VERSION);
 
   useEffect(() => {
     setActiveTab(effectiveInitialTab);
   }, [effectiveInitialTab]);
+
+  useEffect(() => {
+    if (isTauri()) {
+      import('@tauri-apps/api/app')
+        .then(({ getVersion }) => {
+          getVersion()
+            .then(v => {
+              if (v) setAppVersion(v);
+            })
+            .catch(() => {});
+        })
+        .catch(() => {});
+    }
+  }, []);
 
   // Updates checking state
   const [isCheckingUpdates, setIsCheckingUpdates] = useState<boolean>(false);
@@ -405,7 +420,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <div style={{ padding: '0 0.5rem', fontSize: '0.72rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
                   <div>Chronicle Studio</div>
-                  <div style={{ opacity: 0.8 }}>v{CURRENT_VERSION}</div>
+                  <div style={{ opacity: 0.8 }}>v{appVersion}</div>
                 </div>
                 {isUpdateAvailable && (
                   <button
@@ -1549,7 +1564,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                             border: '1px solid rgba(230, 190, 117, 0.3)',
                           }}
                         >
-                          v{CURRENT_VERSION}
+                          v{appVersion}
                         </span>
                         <span
                           style={{

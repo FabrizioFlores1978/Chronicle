@@ -512,7 +512,7 @@ export async function parseChronicleProject(
   }
 
   // 8. Read Snapshots (saved separately in snapshots/ folder)
-  let normalizedSnapshots: StorySnapshot[] = [];
+  const normalizedSnapshots: StorySnapshot[] = [];
   const snapshotFiles = Object.keys(zip.files).filter(
     p => p.startsWith('snapshots/') && p.endsWith('.json') && !p.endsWith('index.json')
   );
