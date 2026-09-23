@@ -142,11 +142,11 @@ export const Header: React.FC = () => {
                 >
                   <span
                     className={`document-status-dot ${isDirty ? 'dot-dirty' : 'dot-clean'}`}
-                    title={isDirty ? 'Unsaved changes (Ctrl+S)' : 'All changes saved'}
+                    title={isDirty ? t('header.unsavedChanges') : t('header.allChangesSaved')}
                   />
                   <div className="document-title-content">
                     <span className="document-title-text" style={{ fontSize: '0.82rem' }}>
-                      {book.metadata.title || 'Untitled Manuscript'}
+                      {book.metadata.title || t('header.newManuscript')}
                     </span>
                   </div>
                 </div>
@@ -161,7 +161,7 @@ export const Header: React.FC = () => {
                       textOverflow: 'ellipsis',
                       maxWidth: '220px',
                     }}
-                    title={`Current Chapter: ${activeChapter.title}`}
+                    title={`${t('statusBar.activeChapter')}: ${activeChapter.title}`}
                   >
                     / {activeChapter.title}
                   </span>
@@ -176,11 +176,11 @@ export const Header: React.FC = () => {
               className={`btn btn-sm ${isDirty ? 'btn-primary' : 'btn-ghost'}`}
               onClick={() => saveProject()}
               disabled={isSaving}
-              title={isDirty ? 'Save Project (Ctrl+S)' : 'All changes saved'}
+              title={isDirty ? t('header.saveTooltip') : t('header.allChangesSaved')}
               style={{ padding: '0.3rem 0.65rem', fontSize: '0.78rem', gap: '0.4rem' }}
             >
               {isSaving ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
-              <span>{isSaving ? 'Saving...' : isDirty ? 'Save' : 'Saved'}</span>
+              <span>{isSaving ? t('common.saving') : isDirty ? t('common.save') : t('common.saved')}</span>
             </button>
 
             {/* Reading paper tone cycle */}
@@ -191,7 +191,7 @@ export const Header: React.FC = () => {
                 const nextIdx = (themes.indexOf(readerTheme) + 1) % themes.length;
                 setReaderTheme(themes[nextIdx]);
               }}
-              title={`Tone: ${readerTheme}. Click to cycle.`}
+              title={`${t('statusBar.cycleTheme')}: ${readerTheme}`}
               style={{ padding: '0.3rem 0.6rem', fontSize: '0.78rem', textTransform: 'capitalize' }}
             >
               {readerTheme === 'light' ? (
@@ -207,7 +207,7 @@ export const Header: React.FC = () => {
             <button
               className="btn-icon btn-sm"
               onClick={() => openSettings('appearance')}
-              title="Settings & Preferences (Ctrl+,)"
+              title={t('header.settingsTooltip')}
             >
               <Settings size={15} />
             </button>
@@ -216,7 +216,7 @@ export const Header: React.FC = () => {
             <button
               className="btn btn-sm btn-outline exit-minimalist-btn"
               onClick={() => setMinimalistMode(false)}
-              title="Exit Minimalist Mode and return to Studio (Alt+M)"
+              title={t('headerActions.exitMinimalist')}
               style={{
                 display: 'flex',
                 alignItems: 'center',

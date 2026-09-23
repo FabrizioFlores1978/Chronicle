@@ -46,7 +46,7 @@ export const en: TranslationDictionary = {
     unsavedChanges: 'Unsaved changes (Ctrl+S)',
     allChangesSaved: 'All changes saved',
     exportManuscript: 'Export Manuscript',
-    settingsTooltip: 'Preferences & Settings (Ctrl+,)',
+    settingsTooltip: 'Settings (Ctrl+,)',
     showSidebar: 'Show Chapters Sidebar (Ctrl+\\)',
     hideSidebar: 'Hide Chapters Sidebar (Ctrl+\\)',
   },
@@ -72,7 +72,7 @@ export const en: TranslationDictionary = {
     cycleTheme: 'Active theme',
   },
   settings: {
-    modalTitle: 'Settings & Preferences',
+    modalTitle: 'Settings',
     tabAppearance: 'Appearance & UI',
     tabThemes: 'Theme Gallery',
     tabCloud: 'Cloud WebDAV',
@@ -323,7 +323,7 @@ export const en: TranslationDictionary = {
     welcomeGuideDesc: 'Overview of features and quick start actions',
     exportHub: 'Export & Publish Hub',
     exportHubDesc: 'EPUB, PDF, Shunn manuscript, and web formats',
-    settingsPreferences: 'Settings & Preferences',
+    settingsPreferences: 'Settings',
     settingsPreferencesDesc: 'Themes, typography, cloud WebDAV, and storage',
   },
   editor: {

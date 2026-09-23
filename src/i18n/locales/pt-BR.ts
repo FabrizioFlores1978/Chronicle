@@ -46,7 +46,7 @@ export const ptBR: TranslationDictionary = {
     unsavedChanges: 'Alterações não salvas (Ctrl+S)',
     allChangesSaved: 'Todas as alterações foram salvas',
     exportManuscript: 'Exportar Manuscrito',
-    settingsTooltip: 'Preferências e Configurações (Ctrl+,)',
+    settingsTooltip: 'Configurações (Ctrl+,)',
     showSidebar: 'Mostrar Barra Lateral de Capítulos (Ctrl+\\)',
     hideSidebar: 'Ocultar Barra Lateral de Capítulos (Ctrl+\\)',
   },
@@ -72,7 +72,7 @@ export const ptBR: TranslationDictionary = {
     cycleTheme: 'Tema ativo',
   },
   settings: {
-    modalTitle: 'Configurações e Preferências',
+    modalTitle: 'Configurações',
     tabAppearance: 'Aparência e Interface',
     tabThemes: 'Galeria de Temas',
     tabCloud: 'Nuvem WebDAV',
@@ -323,7 +323,7 @@ export const ptBR: TranslationDictionary = {
     welcomeGuideDesc: 'Visão geral das funcionalidades e ações rápidas',
     exportHub: 'Central de Exportação e Publicação',
     exportHubDesc: 'Formatos EPUB, PDF, manuscrito Shunn e web',
-    settingsPreferences: 'Configurações e Preferências',
+    settingsPreferences: 'Configurações',
     settingsPreferencesDesc: 'Temas, tipografia, nuvem WebDAV e armazenamento',
   },
   editor: {
