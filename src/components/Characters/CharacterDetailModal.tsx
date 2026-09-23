@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useEpub } from '../../context/EpubContext';
-import { CHARACTER_PRESET_COLORS } from '../../types/epub';
+import { CHARACTER_PRESET_COLORS } from '../../types/project';
 import {
   X,
   Trash2,

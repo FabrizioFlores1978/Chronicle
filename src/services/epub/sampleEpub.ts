@@ -1,6 +1,6 @@
 import JSZip from 'jszip';
 import { parseEpub } from './epubParser';
-import { EpubBook } from '../../types/epub';
+import { EpubBook } from '../../types/project';
 
 /**
  * Creates a sample EPUB binary ("Alice's Adventures in Wonderland") and parses it into an EpubBook.

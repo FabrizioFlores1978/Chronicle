@@ -1,6 +1,6 @@
 import { UiTheme } from '../../types/theme';
 import { WebDavConfig } from '../../types/cloud';
-import { AppViewMode, EditorSubMode, ReaderTheme, ReaderFont } from '../../types/epub';
+import { AppViewMode, EditorSubMode, ReaderTheme, ReaderFont } from '../../types/project';
 import { loadWebDavConfig as loadLegacyWebDavConfig } from '../cloud/webdavStorage';
 
 export interface ChronicleSettings {

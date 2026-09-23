@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TimelineEvent, TimelineTimescale, CharacterProfile } from '../../types/epub';
+import { TimelineEvent, TimelineTimescale, CharacterProfile } from '../../types/project';
 import { X, Trash2, Clock, Check, Users } from 'lucide-react';
 
 import { useEscapeKey } from '../../hooks/useEscapeKey';

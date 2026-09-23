@@ -9,7 +9,7 @@ import {
   EntityChapterPresence,
   PresenceOccurrence,
   PresenceEntityType,
-} from '../../types/epub';
+} from '../../types/project';
 
 export interface AnalysisProgress {
   current: number;

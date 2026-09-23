@@ -4,6 +4,8 @@
  * unwrapping highlights when deleted, and stripping comment markers for export.
  */
 
+import { AuthorComment } from '../../types/project';
+
 export interface CommentColorOption {
   id: string;
   name: string;
@@ -281,4 +283,118 @@ export function getSelectionFloatingPosition(
     return null;
   }
 }
+
+export interface ReconciledCommentResult {
+  cleanedHtml: string;
+  survivingCommentIds: Set<string>;
+  removedCommentIds: Set<string>;
+  resurrectedComments: {
+    id: string;
+    selectedText: string;
+    color?: string;
+  }[];
+  updatedSnippets: Record<string, string>;
+}
+
+/**
+ * Reconciles comments for a chapter given its updated HTML content.
+ * Cleans up empty comment mark tags, removes any comments whose highlighted text has been deleted,
+ * updates snippets if text was edited, and detects resurrected comment highlights (e.g. from Ctrl+Z / Undo).
+ */
+export function reconcileChapterComments(
+  html: string,
+  chapterComments: AuthorComment[]
+): ReconciledCommentResult {
+  const currentMap = new Map<string, AuthorComment>(
+    chapterComments.map(c => [c.id, c])
+  );
+
+  if (!html) {
+    return {
+      cleanedHtml: html,
+      survivingCommentIds: new Set<string>(),
+      removedCommentIds: new Set<string>(chapterComments.map(c => c.id)),
+      resurrectedComments: [],
+      updatedSnippets: {},
+    };
+  }
+
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(`<body>${html}</body>`, 'text/html');
+  const marks = doc.body.querySelectorAll<HTMLElement>('mark[data-comment-id], mark.author-comment-highlight');
+
+  const existingMap = new Map<string, { text: string; color?: string }>();
+  let modifiedDom = false;
+
+  marks.forEach(mark => {
+    const id = mark.getAttribute('data-comment-id');
+    if (!id) {
+      // Unlabeled mark without data-comment-id: unwrap to preserve content
+      const parent = mark.parentNode;
+      if (parent) {
+        while (mark.firstChild) {
+          parent.insertBefore(mark.firstChild, mark);
+        }
+        parent.removeChild(mark);
+        modifiedDom = true;
+      }
+      return;
+    }
+
+    const text = (mark.textContent || '').trim();
+    if (!text) {
+      // Mark is completely empty (author deleted/backspaced all text inside highlight)
+      const parent = mark.parentNode;
+      if (parent) {
+        parent.removeChild(mark);
+        modifiedDom = true;
+      }
+    } else {
+      const color = mark.style.backgroundColor || undefined;
+      const prev = existingMap.get(id);
+      existingMap.set(id, {
+        text: prev ? `${prev.text} ${text}` : text,
+        color: color || prev?.color,
+      });
+    }
+  });
+
+  const survivingCommentIds = new Set<string>();
+  const removedCommentIds = new Set<string>();
+  const resurrectedComments: { id: string; selectedText: string; color?: string }[] = [];
+  const updatedSnippets: Record<string, string> = {};
+
+  chapterComments.forEach(c => {
+    if (existingMap.has(c.id)) {
+      survivingCommentIds.add(c.id);
+      const newSnippet = existingMap.get(c.id)!.text;
+      if (newSnippet && newSnippet !== c.selectedText) {
+        updatedSnippets[c.id] = newSnippet;
+      }
+    } else {
+      removedCommentIds.add(c.id);
+    }
+  });
+
+  existingMap.forEach((val, id) => {
+    if (!currentMap.has(id)) {
+      resurrectedComments.push({
+        id,
+        selectedText: val.text,
+        color: val.color,
+      });
+    }
+  });
+
+  const cleanedHtml = modifiedDom ? doc.body.innerHTML : html;
+
+  return {
+    cleanedHtml,
+    survivingCommentIds,
+    removedCommentIds,
+    resurrectedComments,
+    updatedSnippets,
+  };
+}
+
 

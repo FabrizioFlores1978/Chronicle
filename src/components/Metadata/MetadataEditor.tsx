@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useEpub } from '../../context/EpubContext';
 import { Tag, Save, Plus, X, Book, User, Globe, Calendar, Shield, Hash, Layers } from 'lucide-react';
-import { EpubMetadata } from '../../types/epub';
+import { EpubMetadata } from '../../types/project';
 
 export const MetadataEditor: React.FC = () => {
   const { book, updateMetadata } = useEpub();

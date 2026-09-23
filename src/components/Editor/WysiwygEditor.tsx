@@ -35,7 +35,7 @@ import { TextColorPicker } from './TextColorPicker';
 import { scopeCssForContainer } from '../../services/epub/cssPresets';
 import { getStoredSettings, updateStoredSettings } from '../../services/epub/settingsStorage';
 import { useEscapeKey } from '../../hooks/useEscapeKey';
-import { AuthorComment } from '../../types/epub';
+import { AuthorComment } from '../../types/project';
 import {
   wrapSelectionWithComment,
   unwrapCommentHighlight,
@@ -226,6 +226,8 @@ export const WysiwygEditor: React.FC = () => {
     updateStoredSettings({ editorWidth: width });
   };
 
+  const lastSelfUpdatedHtmlRef = useRef<string>('');
+
   // Sync content into editor and scroll to top when active chapter or book session changes
   useEffect(() => {
     deselectImage();
@@ -251,6 +253,24 @@ export const WysiwygEditor: React.FC = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only sync when chapter ID or book session changes, not on keystroke updates
   }, [activeChapter?.id, bookSessionId, deselectImage]);
+
+  // Sync content from activeChapter when content changes externally (e.g. from Snapshot Diff, Typography Modal, Restore Snapshot)
+  useEffect(() => {
+    if (!editorRef.current || !activeChapter) return;
+    const cleanContent = cleanTransientEditorMarkup(activeChapter.content);
+
+    // If this content update was triggered by the user's own typing in handleInput, skip re-injecting
+    if (cleanContent === lastSelfUpdatedHtmlRef.current) {
+      return;
+    }
+
+    // External change detected! Update editor innerHTML to match activeChapter.content
+    if (editorRef.current.innerHTML !== cleanContent) {
+      deselectImage();
+      editorRef.current.innerHTML = cleanContent;
+      lastSelfUpdatedHtmlRef.current = cleanContent;
+    }
+  }, [activeChapter?.content, deselectImage]);
 
   // 1. Zen Mode - Typewriter Scrolling (locks cursor vertically centered)
   const performTypewriterScroll = useCallback(() => {
@@ -427,6 +447,7 @@ export const WysiwygEditor: React.FC = () => {
       const rawHtml = editorRef.current.innerHTML;
       const cleanedHtml = cleanTransientEditorMarkup(rawHtml);
       if (cleanedHtml !== activeChapter.content) {
+        lastSelfUpdatedHtmlRef.current = cleanedHtml;
         updateChapterContent(activeChapter.id, cleanedHtml);
       }
       recordTypingSnapshot(cleanedHtml);
@@ -1354,185 +1375,185 @@ export const WysiwygEditor: React.FC = () => {
         {/* Right side tools: Layout, Width, Theme & Split (Hidden in Minimalist Mode) */}
         {!minimalistMode && (
           <div className="toolbar-group">
-          {/* Layout Mode Switcher */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '2px', background: 'var(--bg-input)', padding: '2px', borderRadius: 'var(--radius-sm)' }}>
-            <button
-              className={`btn-icon btn-sm ${editorLayout === 'page' ? 'active' : ''}`}
-              onClick={() => {
-                setEditorLayout('page');
-                if (editorWidth > 950) setEditorWidth(820);
-              }}
-              title="Page Layout (Centered Sheet)"
-              style={{ padding: '3px 7px', fontSize: '0.75rem', gap: '4px', width: 'auto' }}
-            >
-              <FileText size={13} />
-              <span>Page</span>
-            </button>
-            <button
-              className={`btn-icon btn-sm ${editorLayout === 'widescreen' ? 'active' : ''}`}
-              onClick={() => {
-                setEditorLayout('widescreen');
-                if (editorWidth < 1000) setEditorWidth(1200);
-              }}
-              title="Widescreen Layout (Expanded Canvas)"
-              style={{ padding: '3px 7px', fontSize: '0.75rem', gap: '4px', width: 'auto' }}
-            >
-              <Maximize2 size={13} />
-              <span>Widescreen</span>
-            </button>
-          </div>
-
-          {/* Width Adjuster Popover Trigger */}
-          <div style={{ position: 'relative' }}>
-            <button
-              className={`btn-icon btn-sm ${showWidthMenu ? 'active' : ''}`}
-              onClick={() => setShowWidthMenu(prev => !prev)}
-              title="Adjust Editor Width (Editor only - does not affect book)"
-              style={{ padding: '3px 8px', fontSize: '0.75rem', gap: '4px', width: 'auto', background: 'var(--bg-input)' }}
-            >
-              <SlidersHorizontal size={13} />
-              <span>{editorWidth}px</span>
-            </button>
-
-            {/* Width Slider Dropdown Popover */}
-            {showWidthMenu && (
-              <>
-                <div
-                  style={{
-                    position: 'fixed',
-                    inset: 0,
-                    zIndex: 90,
-                  }}
-                  onClick={() => setShowWidthMenu(false)}
-                />
-                <div
-                  className="popover-menu-card"
-                  style={{
-                    position: 'absolute',
-                    top: 'calc(100% + 8px)',
-                    right: 0,
-                    zIndex: 100,
-                    background: 'var(--bg-surface-elevated)',
-                    border: '1px solid var(--border-medium)',
-                    borderRadius: 'var(--radius-md)',
-                    boxShadow: 'var(--shadow-lg)',
-                    padding: '1rem',
-                    width: '250px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '0.75rem',
-                  }}
-                  onClick={e => e.stopPropagation()}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
-                    Editor Canvas Width
-                  </span>
-                  <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--accent-primary)' }}>
-                    {editorWidth}px
-                  </span>
-                </div>
-
-                <input
-                  type="range"
-                  min="600"
-                  max="1600"
-                  step="20"
-                  value={editorWidth}
-                  onChange={e => setEditorWidth(parseInt(e.target.value, 10))}
-                  style={{ width: '100%', accentColor: 'var(--accent-primary)', cursor: 'pointer' }}
-                />
-
-                {/* Quick Presets */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '4px' }}>
-                  <button
-                    className={`btn btn-sm ${editorWidth === 680 ? 'btn-primary' : 'btn-secondary'}`}
-                    style={{ fontSize: '0.7rem', padding: '0.2rem' }}
-                    onClick={() => setEditorWidth(680)}
-                  >
-                    Compact (680px)
-                  </button>
-                  <button
-                    className={`btn btn-sm ${editorWidth === 820 ? 'btn-primary' : 'btn-secondary'}`}
-                    style={{ fontSize: '0.7rem', padding: '0.2rem' }}
-                    onClick={() => setEditorWidth(820)}
-                  >
-                    Page (820px)
-                  </button>
-                  <button
-                    className={`btn btn-sm ${editorWidth === 1100 ? 'btn-primary' : 'btn-secondary'}`}
-                    style={{ fontSize: '0.7rem', padding: '0.2rem' }}
-                    onClick={() => setEditorWidth(1100)}
-                  >
-                    Wide (1100px)
-                  </button>
-                  <button
-                    className={`btn btn-sm ${editorWidth === 1450 ? 'btn-primary' : 'btn-secondary'}`}
-                    style={{ fontSize: '0.7rem', padding: '0.2rem' }}
-                    onClick={() => setEditorWidth(1450)}
-                  >
-                    Ultra (1450px)
-                  </button>
-                </div>
-
-                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textAlign: 'center', borderTop: '1px solid var(--border-subtle)', paddingTop: '0.4rem' }}>
-                  Authoring view only (doesn't alter EPUB)
-                </div>
-              </div>
-            </>
-          )}
-          </div>
-
-          <div className="toolbar-separator" />
-
-          {/* Comments Sidebar Toggle Button */}
-          <button
-            className={`btn btn-secondary btn-sm ${isCommentsSidebarOpen ? 'active' : ''}`}
-            onClick={() => setIsCommentsSidebarOpen(!isCommentsSidebarOpen)}
-            title="Comments & Highlights"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.4rem',
-              background: isCommentsSidebarOpen ? 'var(--accent-primary-glow)' : undefined,
-              borderColor: isCommentsSidebarOpen ? 'var(--accent-primary)' : undefined,
-            }}
-          >
-            <MessageSquare size={14} />
-            <span>Comments</span>
-            {chapterComments.length > 0 && (
-              <span
-                style={{
-                  background: 'var(--accent-primary)',
-                  color: '#ffffff',
-                  fontSize: '0.68rem',
-                  fontWeight: 700,
-                  padding: '1px 6px',
-                  borderRadius: '10px',
-                  lineHeight: 1.2,
+            {/* Layout Mode Switcher */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '2px', background: 'var(--bg-input)', padding: '2px', borderRadius: 'var(--radius-sm)' }}>
+              <button
+                className={`btn-icon btn-sm ${editorLayout === 'page' ? 'active' : ''}`}
+                onClick={() => {
+                  setEditorLayout('page');
+                  if (editorWidth > 950) setEditorWidth(820);
                 }}
+                title="Page Layout (Centered Sheet)"
+                style={{ padding: '3px 7px', fontSize: '0.75rem', gap: '4px', width: 'auto' }}
               >
-                {chapterComments.length}
-              </span>
-            )}
-          </button>
+                <FileText size={13} />
+                <span>Page</span>
+              </button>
+              <button
+                className={`btn-icon btn-sm ${editorLayout === 'widescreen' ? 'active' : ''}`}
+                onClick={() => {
+                  setEditorLayout('widescreen');
+                  if (editorWidth < 1000) setEditorWidth(1200);
+                }}
+                title="Widescreen Layout (Expanded Canvas)"
+                style={{ padding: '3px 7px', fontSize: '0.75rem', gap: '4px', width: 'auto' }}
+              >
+                <Maximize2 size={13} />
+                <span>Widescreen</span>
+              </button>
+            </div>
 
-          {/* Highlights Show/Hide Toggle */}
-          <button
-            className={`btn btn-secondary btn-sm ${!showCommentHighlights ? 'active' : ''}`}
-            onClick={toggleCommentHighlights}
-            title={showCommentHighlights ? "Hide comment highlights in text" : "Show comment highlights in text"}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.35rem',
-              padding: '0.35rem 0.55rem',
-              color: !showCommentHighlights ? 'var(--accent-warning)' : undefined,
-            }}
-          >
-            {showCommentHighlights ? <Eye size={14} /> : <EyeOff size={14} />}
-          </button>
-        </div>
+            {/* Width Adjuster Popover Trigger */}
+            <div style={{ position: 'relative' }}>
+              <button
+                className={`btn-icon btn-sm ${showWidthMenu ? 'active' : ''}`}
+                onClick={() => setShowWidthMenu(prev => !prev)}
+                title="Adjust Editor Width (Editor only - does not affect book)"
+                style={{ padding: '3px 8px', fontSize: '0.75rem', gap: '4px', width: 'auto', background: 'var(--bg-input)' }}
+              >
+                <SlidersHorizontal size={13} />
+                <span>{editorWidth}px</span>
+              </button>
+
+              {/* Width Slider Dropdown Popover */}
+              {showWidthMenu && (
+                <>
+                  <div
+                    style={{
+                      position: 'fixed',
+                      inset: 0,
+                      zIndex: 90,
+                    }}
+                    onClick={() => setShowWidthMenu(false)}
+                  />
+                  <div
+                    className="popover-menu-card"
+                    style={{
+                      position: 'absolute',
+                      top: 'calc(100% + 8px)',
+                      right: 0,
+                      zIndex: 100,
+                      background: 'var(--bg-surface-elevated)',
+                      border: '1px solid var(--border-medium)',
+                      borderRadius: 'var(--radius-md)',
+                      boxShadow: 'var(--shadow-lg)',
+                      padding: '1rem',
+                      width: '250px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '0.75rem',
+                    }}
+                    onClick={e => e.stopPropagation()}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
+                        Editor Canvas Width
+                      </span>
+                      <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--accent-primary)' }}>
+                        {editorWidth}px
+                      </span>
+                    </div>
+
+                    <input
+                      type="range"
+                      min="600"
+                      max="1600"
+                      step="20"
+                      value={editorWidth}
+                      onChange={e => setEditorWidth(parseInt(e.target.value, 10))}
+                      style={{ width: '100%', accentColor: 'var(--accent-primary)', cursor: 'pointer' }}
+                    />
+
+                    {/* Quick Presets */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '4px' }}>
+                      <button
+                        className={`btn btn-sm ${editorWidth === 680 ? 'btn-primary' : 'btn-secondary'}`}
+                        style={{ fontSize: '0.7rem', padding: '0.2rem' }}
+                        onClick={() => setEditorWidth(680)}
+                      >
+                        Compact (680px)
+                      </button>
+                      <button
+                        className={`btn btn-sm ${editorWidth === 820 ? 'btn-primary' : 'btn-secondary'}`}
+                        style={{ fontSize: '0.7rem', padding: '0.2rem' }}
+                        onClick={() => setEditorWidth(820)}
+                      >
+                        Page (820px)
+                      </button>
+                      <button
+                        className={`btn btn-sm ${editorWidth === 1100 ? 'btn-primary' : 'btn-secondary'}`}
+                        style={{ fontSize: '0.7rem', padding: '0.2rem' }}
+                        onClick={() => setEditorWidth(1100)}
+                      >
+                        Wide (1100px)
+                      </button>
+                      <button
+                        className={`btn btn-sm ${editorWidth === 1450 ? 'btn-primary' : 'btn-secondary'}`}
+                        style={{ fontSize: '0.7rem', padding: '0.2rem' }}
+                        onClick={() => setEditorWidth(1450)}
+                      >
+                        Ultra (1450px)
+                      </button>
+                    </div>
+
+                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textAlign: 'center', borderTop: '1px solid var(--border-subtle)', paddingTop: '0.4rem' }}>
+                      Authoring view only (doesn't alter EPUB)
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="toolbar-separator" />
+
+            {/* Comments Sidebar Toggle Button */}
+            <button
+              className={`btn btn-secondary btn-sm ${isCommentsSidebarOpen ? 'active' : ''}`}
+              onClick={() => setIsCommentsSidebarOpen(!isCommentsSidebarOpen)}
+              title="Comments & Highlights"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                background: isCommentsSidebarOpen ? 'var(--accent-primary-glow)' : undefined,
+                borderColor: isCommentsSidebarOpen ? 'var(--accent-primary)' : undefined,
+              }}
+            >
+              <MessageSquare size={14} />
+              <span>Comments</span>
+              {chapterComments.length > 0 && (
+                <span
+                  style={{
+                    background: 'var(--accent-primary)',
+                    color: '#ffffff',
+                    fontSize: '0.68rem',
+                    fontWeight: 700,
+                    padding: '1px 6px',
+                    borderRadius: '10px',
+                    lineHeight: 1.2,
+                  }}
+                >
+                  {chapterComments.length}
+                </span>
+              )}
+            </button>
+
+            {/* Highlights Show/Hide Toggle */}
+            <button
+              className={`btn btn-secondary btn-sm ${!showCommentHighlights ? 'active' : ''}`}
+              onClick={toggleCommentHighlights}
+              title={showCommentHighlights ? "Hide comment highlights in text" : "Show comment highlights in text"}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                padding: '0.35rem 0.55rem',
+                color: !showCommentHighlights ? 'var(--accent-warning)' : undefined,
+              }}
+            >
+              {showCommentHighlights ? <Eye size={14} /> : <EyeOff size={14} />}
+            </button>
+          </div>
         )}
       </div>
 

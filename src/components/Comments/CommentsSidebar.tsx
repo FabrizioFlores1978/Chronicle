@@ -10,7 +10,7 @@ import {
   Eye,
   EyeOff,
 } from 'lucide-react';
-import { AuthorComment } from '../../types/epub';
+import { AuthorComment } from '../../types/project';
 import { useEpub } from '../../context/EpubContext';
 
 interface CommentsSidebarProps {

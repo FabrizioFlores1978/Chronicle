@@ -15,7 +15,7 @@ import {
   Eye,
   EyeOff,
 } from 'lucide-react';
-import { ReaderFont, AuthorComment } from '../../types/epub';
+import { ReaderFont, AuthorComment } from '../../types/project';
 import { scopeCssForContainer } from '../../services/epub/cssPresets';
 import { useTts } from '../../context/TtsContext';
 import { SpeechChunk } from '../../services/tts/textChunker';

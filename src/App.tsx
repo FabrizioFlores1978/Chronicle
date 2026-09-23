@@ -29,6 +29,7 @@ import { CloudDesktopNoticeModal } from './components/Cloud/CloudDesktopNoticeMo
 import { WelcomeModal } from './components/Welcome/WelcomeModal';
 import { UnsavedChangesModal } from './components/Common/UnsavedChangesModal';
 import { SettingsModal } from './components/Settings/SettingsModal';
+import { SnapshotsModal } from './components/Snapshots/SnapshotsModal';
 import { MobileNoticeModal } from './components/Mobile/MobileNoticeModal';
 import { useSmallScreenDetector } from './hooks/useSmallScreenDetector';
 import { isTauri } from './services/cloud/webdavClient';
@@ -64,6 +65,7 @@ const AppContent: React.FC = () => {
     openSettings,
     pendingUnsavedAction,
     isZenMode,
+    setIsSnapshotsModalOpen,
   } = useEpub();
   const { stopAudio } = useTts();
   const { showNotice: showMobileNotice, dismiss: dismissMobileNotice } = useSmallScreenDetector();
@@ -115,11 +117,22 @@ const AppContent: React.FC = () => {
         openSettings();
         return;
       }
+
+      // 5. Alt+S or Ctrl+Shift+S: Open Story Snapshots (Time Machine)
+      if (
+        (e.altKey && (e.key === 's' || e.key === 'S')) ||
+        ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 's' || e.key === 'S'))
+      ) {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsSnapshotsModalOpen(true);
+        return;
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown, true);
     return () => window.removeEventListener('keydown', handleKeyDown, true);
-  }, [book, saveProject, isSaving, showNotification, toggleSidebar, openSettings]);
+  }, [book, saveProject, isSaving, showNotification, toggleSidebar, openSettings, setIsSnapshotsModalOpen]);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -263,6 +276,9 @@ const AppContent: React.FC = () => {
           onClose={closeSettings}
         />
       )}
+
+      {/* Story Snapshots (Time Machine) Modal */}
+      <SnapshotsModal />
 
       {/* Small Screen / Mobile Device Handheld Notice Modal */}
       {showMobileNotice && (

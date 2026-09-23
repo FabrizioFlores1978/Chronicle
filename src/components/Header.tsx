@@ -25,8 +25,9 @@ import {
   Sun,
   Moon,
   ArrowUpCircle,
+  Camera,
 } from 'lucide-react';
-import { PrimaryAppMode } from '../types/epub';
+import { PrimaryAppMode } from '../types/project';
 import { TypographyModal } from './Typography/TypographyModal';
 import { ExportModal } from './Export/ExportModal';
 import { TitleRenameModal } from './Header/TitleRenameModal';
@@ -68,6 +69,8 @@ export const Header: React.FC = () => {
     setIsExportModalOpen,
     isUpdateAvailable,
     latestRelease,
+    snapshots,
+    setIsSnapshotsModalOpen,
   } = useEpub();
   const { stopAudio } = useTts();
 
@@ -489,6 +492,23 @@ export const Header: React.FC = () => {
               <span>Typography</span>
             </button>
 
+            {/* Story Snapshots (Time Machine) */}
+            <button
+              className="btn btn-ghost btn-sm header-btn-collapsible header-snapshots-btn"
+              onClick={() => setIsSnapshotsModalOpen(true)}
+              title="Story Snapshots (Manuscript Time Machine) — Capture milestones & history (Alt+S)"
+              disabled={isLoading || !book}
+              style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+            >
+              <Camera size={14} style={{ color: 'var(--accent-primary)' }} />
+              <span>Snapshots</span>
+              {snapshots.length > 0 && (
+                <span className="header-snapshots-counter-badge">
+                  {snapshots.length}
+                </span>
+              )}
+            </button>
+
             {/* Split Save Button Group (Save + Dropdown Arrow for Save As) */}
             <div className="btn-split-group" style={{ position: 'relative', display: 'inline-flex', alignItems: 'stretch' }}>
               <button
@@ -564,7 +584,7 @@ export const Header: React.FC = () => {
                       top: 'calc(100% + 4px)',
                       right: 0,
                       zIndex: 101,
-                      minWidth: '230px',
+                      minWidth: '240px',
                       backgroundColor: '#1a1a22',
                       border: '1px solid var(--border-medium)',
                       borderRadius: '8px',
@@ -604,6 +624,37 @@ export const Header: React.FC = () => {
                         </div>
                       </div>
                       <kbd className="kbd-shortcut" style={{ fontSize: '9px', padding: '1px 4px' }}>Ctrl+S</kbd>
+                    </button>
+
+                    <button
+                      className="dropdown-item"
+                      onClick={() => {
+                        setIsSaveMenuOpen(false);
+                        setIsSnapshotsModalOpen(true);
+                      }}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.55rem',
+                        padding: '0.5rem 0.65rem',
+                        borderRadius: '6px',
+                        border: 'none',
+                        background: 'none',
+                        color: 'var(--text-primary)',
+                        fontSize: '0.8rem',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        width: '100%',
+                      }}
+                    >
+                      <Camera size={14} color="var(--accent-primary)" />
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: 600 }}>Story Snapshots...</div>
+                        <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                          {snapshots.length > 0 ? `${snapshots.length} saved in project` : 'Capture manuscript milestones'}
+                        </div>
+                      </div>
+                      <kbd className="kbd-shortcut" style={{ fontSize: '9px', padding: '1px 4px' }}>Alt+S</kbd>
                     </button>
 
                     <div style={{ height: '1px', background: 'var(--border-subtle)', margin: '3px 0' }} />

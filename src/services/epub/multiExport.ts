@@ -1,4 +1,4 @@
-import { EpubBook } from '../../types/epub';
+import { EpubBook } from '../../types/project';
 import { injectAssetUrls } from './htmlUtils';
 
 /**

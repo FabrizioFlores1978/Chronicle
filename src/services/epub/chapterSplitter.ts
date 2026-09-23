@@ -1,4 +1,4 @@
-import { EpubBook, EpubChapter, EpubManifestItem, EpubSpineItem, EpubTocItem } from '../../types/epub';
+import { EpubBook, EpubChapter, EpubManifestItem, EpubSpineItem, EpubTocItem } from '../../types/project';
 import { calculateWordCount, wrapInXhtml, restoreAssetUrls } from './htmlUtils';
 import { getDirectory } from './pathUtils';
 

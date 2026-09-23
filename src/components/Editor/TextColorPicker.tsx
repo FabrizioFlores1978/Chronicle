@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Baseline, Check, RotateCcw } from 'lucide-react';
-import { ReaderTheme } from '../../types/epub';
+import { ReaderTheme } from '../../types/project';
 import { useEscapeKey } from '../../hooks/useEscapeKey';
 
 export interface TextColorPickerProps {
@@ -243,9 +243,8 @@ export const TextColorPicker: React.FC<TextColorPickerProps> = ({
                     <button
                       key={color.hex}
                       type="button"
-                      className={`text-color-swatch-btn ${color.isDark ? 'swatch-dark' : ''} ${
-                        color.isLight ? 'swatch-light' : ''
-                      } ${isSelected ? 'selected' : ''}`}
+                      className={`text-color-swatch-btn ${color.isDark ? 'swatch-dark' : ''} ${color.isLight ? 'swatch-light' : ''
+                        } ${isSelected ? 'selected' : ''}`}
                       style={{ backgroundColor: color.hex }}
                       onMouseDown={e => e.preventDefault()}
                       onClick={() => {

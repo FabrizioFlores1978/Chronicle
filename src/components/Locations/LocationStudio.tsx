@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useEpub } from '../../context/EpubContext';
-import { LOCATION_PRESET_COLORS } from '../../types/epub';
+import { LOCATION_PRESET_COLORS } from '../../types/project';
 import {
   Compass,
   Plus,

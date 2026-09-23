@@ -7,7 +7,7 @@ import {
   EpubTocItem,
   EpubChapter,
   EpubAsset,
-} from '../../types/epub';
+} from '../../types/project';
 import { normalizePath, getDirectory, resolvePath } from './pathUtils';
 import { calculateWordCount, extractChapterTitle, injectAssetUrls } from './htmlUtils';
 

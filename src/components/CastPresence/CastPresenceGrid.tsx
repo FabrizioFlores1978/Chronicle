@@ -4,7 +4,7 @@ import {
   CastPresenceEntity,
   CastPresenceChapterSummary,
   EntityChapterPresence,
-} from '../../types/epub';
+} from '../../types/project';
 import { PresenceExcerptModal } from './PresenceExcerptModal';
 import { CharacterDetailModal } from '../Characters/CharacterDetailModal';
 import { LocationDetailModal } from '../Locations/LocationDetailModal';

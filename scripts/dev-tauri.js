@@ -9,9 +9,13 @@
 import fs from 'fs';
 import path from 'path';
 import { spawn } from 'child_process';
+import { syncVersion } from './sync-version.js';
+
+syncVersion();
 
 const platform = process.platform;
 const isWindows = platform === 'win32';
+
 
 console.log('\n========================================================');
 console.log('   Chronicle • Starting Tauri Desktop Dev Server');

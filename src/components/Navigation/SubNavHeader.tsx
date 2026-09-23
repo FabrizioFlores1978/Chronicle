@@ -1,6 +1,6 @@
 import React from 'react';
 import { useEpub } from '../../context/EpubContext';
-import { AppViewMode } from '../../types/epub';
+import { AppViewMode } from '../../types/project';
 import {
   Edit3,
   BookOpen,
