@@ -1886,6 +1886,8 @@ html, body, #root {
   margin: 0 auto;
   padding: 4rem 4.5rem 8rem;
   word-break: break-word;
+  tab-size: 4;
+  -moz-tab-size: 4;
 }
 
 .wysiwyg-content[contenteditable="true"] {

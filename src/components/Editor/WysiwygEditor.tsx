@@ -1060,6 +1060,137 @@ export const WysiwygEditor: React.FC = () => {
       }
     }
 
+    if (e.key === 'Tab') {
+      e.preventDefault();
+
+      if (zenSettings.autoSwitchOnTyping && !isZenMode) {
+        setZenMode(true);
+      }
+
+      const sel = window.getSelection();
+      if (!sel || sel.rangeCount === 0 || !editorRef.current || !editorRef.current.contains(sel.anchorNode)) {
+        return;
+      }
+
+      // Check if inside a list item (li)
+      let inList = false;
+      let el: HTMLElement | null =
+        sel.anchorNode?.nodeType === Node.ELEMENT_NODE
+          ? (sel.anchorNode as HTMLElement)
+          : sel.anchorNode?.parentElement ?? null;
+
+      while (el && el !== editorRef.current) {
+        if (el.tagName === 'LI') {
+          inList = true;
+          break;
+        }
+        el = el.parentElement;
+      }
+
+      if (inList) {
+        if (e.shiftKey) {
+          execCommand('outdent');
+        } else {
+          execCommand('indent');
+        }
+        return;
+      }
+
+      // Check if multi-block selection
+      if (!sel.isCollapsed && sel.rangeCount > 0) {
+        const range = sel.getRangeAt(0);
+        const commonAncestor = range.commonAncestorContainer;
+        const isMultiBlock =
+          commonAncestor === editorRef.current ||
+          (commonAncestor.nodeType === Node.ELEMENT_NODE &&
+            (commonAncestor as HTMLElement).querySelectorAll('p, div, li, h1, h2, h3, blockquote').length > 1);
+
+        if (isMultiBlock) {
+          if (e.shiftKey) {
+            execCommand('outdent');
+          } else {
+            execCommand('indent');
+          }
+          return;
+        }
+      }
+
+      // Check if inside a <pre> or <code> block
+      let inCode = false;
+      let codeEl: HTMLElement | null =
+        sel.anchorNode?.nodeType === Node.ELEMENT_NODE
+          ? (sel.anchorNode as HTMLElement)
+          : sel.anchorNode?.parentElement ?? null;
+
+      while (codeEl && codeEl !== editorRef.current) {
+        if (codeEl.tagName === 'PRE' || codeEl.tagName === 'CODE') {
+          inCode = true;
+          break;
+        }
+        codeEl = codeEl.parentElement;
+      }
+
+      if (e.shiftKey) {
+        // Shift+Tab: outdent / unindent
+        if (sel.isCollapsed && sel.anchorNode) {
+          const range = sel.getRangeAt(0);
+          const node = range.startContainer;
+          const offset = range.startOffset;
+          if (node.nodeType === Node.TEXT_NODE && node.textContent) {
+            const textBefore = node.textContent.substring(0, offset);
+            const match = textBefore.match(/(?:\u00a0| |\t){1,4}$/);
+            if (match) {
+              const deleteLen = match[0].length;
+              range.setStart(node, offset - deleteLen);
+              range.deleteContents();
+              sel.removeAllRanges();
+              sel.addRange(range);
+              if (editorRef.current && activeChapter) {
+                const cleanedHtml = cleanTransientEditorMarkup(editorRef.current.innerHTML);
+                lastSelfUpdatedHtmlRef.current = cleanedHtml;
+                updateChapterContent(activeChapter.id, cleanedHtml);
+                recordImmediateSnapshot();
+              }
+              requestAnimationFrame(() => {
+                updateParagraphFocusDimming();
+                performTypewriterScroll();
+              });
+              return;
+            }
+          }
+        }
+        execCommand('outdent');
+        return;
+      }
+
+      // Tab: insert tab / indentation into the text
+      const indentText = inCode ? '  ' : '\u00a0\u00a0\u00a0\u00a0';
+      const inserted = document.execCommand('insertText', false, indentText);
+      if (!inserted) {
+        const range = sel.getRangeAt(0);
+        range.deleteContents();
+        const textNode = document.createTextNode(indentText);
+        range.insertNode(textNode);
+        range.setStartAfter(textNode);
+        range.setEndAfter(textNode);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
+
+      if (editorRef.current && activeChapter) {
+        const cleanedHtml = cleanTransientEditorMarkup(editorRef.current.innerHTML);
+        lastSelfUpdatedHtmlRef.current = cleanedHtml;
+        updateChapterContent(activeChapter.id, cleanedHtml);
+        recordImmediateSnapshot();
+      }
+
+      requestAnimationFrame(() => {
+        updateParagraphFocusDimming();
+        performTypewriterScroll();
+      });
+      return;
+    }
+
     // Auto-switch to Zen Mode on typing if enabled
     if (zenSettings.autoSwitchOnTyping && !isZenMode) {
       if (

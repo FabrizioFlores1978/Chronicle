@@ -27,6 +27,70 @@ export const CodeEditor: React.FC = () => {
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const textarea = textareaRef.current;
+      if (!textarea) return;
+
+      const { selectionStart, selectionEnd, value } = textarea;
+
+      if (e.shiftKey) {
+        // Shift+Tab: outdent
+        const startLine = value.lastIndexOf('\n', selectionStart - 1) + 1;
+        const endLine = value.indexOf('\n', selectionEnd);
+        const effectiveEnd = endLine === -1 ? value.length : endLine;
+
+        const lines = value.substring(startLine, effectiveEnd).split('\n');
+        let removedChars = 0;
+        const modifiedLines = lines.map(line => {
+          if (line.startsWith('\t')) {
+            removedChars += 1;
+            return line.substring(1);
+          } else if (line.startsWith('  ')) {
+            removedChars += 2;
+            return line.substring(2);
+          } else if (line.startsWith(' ')) {
+            removedChars += 1;
+            return line.substring(1);
+          }
+          return line;
+        });
+
+        const newText =
+          value.substring(0, startLine) +
+          modifiedLines.join('\n') +
+          value.substring(effectiveEnd);
+
+        setCode(newText);
+        if (activeChapter) {
+          updateChapterContent(activeChapter.id, newText);
+        }
+
+        requestAnimationFrame(() => {
+          textarea.selectionStart = Math.max(startLine, selectionStart - (lines.length > 1 ? 0 : removedChars));
+          textarea.selectionEnd = Math.max(startLine, selectionEnd - removedChars);
+        });
+      } else {
+        // Tab: insert 2 spaces
+        const tabStr = '  ';
+        const newText =
+          value.substring(0, selectionStart) +
+          tabStr +
+          value.substring(selectionEnd);
+
+        setCode(newText);
+        if (activeChapter) {
+          updateChapterContent(activeChapter.id, newText);
+        }
+
+        requestAnimationFrame(() => {
+          textarea.selectionStart = textarea.selectionEnd = selectionStart + tabStr.length;
+        });
+      }
+    }
+  };
+
   const handleFormatCode = () => {
     if (!code) return;
     try {
@@ -82,6 +146,7 @@ export const CodeEditor: React.FC = () => {
           className="code-textarea"
           value={code}
           onChange={handleChange}
+          onKeyDown={handleKeyDown}
           spellCheck={false}
           autoCapitalize="off"
           autoComplete="off"
