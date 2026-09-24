@@ -13,6 +13,9 @@ export interface TextColorPickerProps {
   onSelectColor: (hex: string) => void;
   onSetAuto: () => void;
   onTriggerMouseDown?: (e: React.MouseEvent) => void;
+  popoverZIndex?: number;
+  buttonSize?: number;
+  iconSize?: number;
 }
 
 interface ColorOption {
@@ -77,6 +80,9 @@ export const TextColorPicker: React.FC<TextColorPickerProps> = ({
   onSelectColor,
   onSetAuto,
   onTriggerMouseDown,
+  popoverZIndex = 9999,
+  buttonSize,
+  iconSize = 16,
 }) => {
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [popoverPos, setPopoverPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
@@ -153,14 +159,16 @@ export const TextColorPicker: React.FC<TextColorPickerProps> = ({
           justifyContent: 'center',
           gap: '1px',
           padding: '2px',
+          width: buttonSize ? `${buttonSize}px` : undefined,
+          height: buttonSize ? `${buttonSize}px` : undefined,
         }}
       >
-        <Baseline size={16} />
+        <Baseline size={iconSize} />
         <span
           className="text-color-indicator-bar"
           style={{
-            width: '14px',
-            height: '3px',
+            width: iconSize >= 17 ? '16px' : '14px',
+            height: iconSize >= 17 ? '3.5px' : '3px',
             borderRadius: '1px',
             backgroundColor: previewBarColor,
             boxShadow: '0 0 1px rgba(0,0,0,0.5)',
@@ -177,7 +185,7 @@ export const TextColorPicker: React.FC<TextColorPickerProps> = ({
               style={{
                 position: 'fixed',
                 inset: 0,
-                zIndex: 9998,
+                zIndex: popoverZIndex - 1,
                 background: 'transparent',
               }}
               onClick={onClose}
@@ -189,7 +197,7 @@ export const TextColorPicker: React.FC<TextColorPickerProps> = ({
                 position: 'fixed',
                 top: `${popoverPos.top}px`,
                 left: `${popoverPos.left}px`,
-                zIndex: 9999,
+                zIndex: popoverZIndex,
               }}
               onClick={e => e.stopPropagation()}
               onMouseDown={e => {

@@ -19,6 +19,7 @@
   --font-reader-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-reader-literata: 'Literata', Georgia, serif;
   --font-reader-mono: 'Fira Code', 'Courier New', monospace;
+  --font-reader-opendyslexic: 'OpenDyslexic', -apple-system, sans-serif;
 
   /* Layout Dimensions */
   --header-height: 52px;
@@ -7770,6 +7771,218 @@ html[data-zen-hide-comments="true"] .comment-floating-pill {
   color: rgba(255, 255, 255, 0.35);
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   background: rgba(0, 0, 0, 0.15);
+}
+
+/* ==========================================================================
+   Zen Floating Toolbar (Top Floating Pill - Appears on MouseMove, Vivid on Hover)
+   ========================================================================== */
+
+.zen-floating-toolbar-container {
+  position: fixed;
+  top: 22px;
+  left: 50%;
+  transform: translateX(-50%) translateY(0);
+  z-index: 99997;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+
+.zen-floating-toolbar-container.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%) translateY(-14px);
+}
+
+.zen-floating-toolbar-container.visible.translucent {
+  opacity: 0.5;
+  pointer-events: auto;
+}
+
+.zen-floating-toolbar-container.visible.hovered,
+.zen-floating-toolbar-container.visible:hover {
+  opacity: 1 !important;
+  pointer-events: auto;
+}
+
+.zen-floating-toolbar {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 6px 14px;
+  background: rgba(18, 18, 24, 0.88);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 9999px;
+  box-shadow: 0 14px 42px rgba(0, 0, 0, 0.6), 0 2px 10px rgba(0, 0, 0, 0.35);
+  color: #e2e8f0;
+  pointer-events: auto;
+  max-width: calc(100vw - 32px);
+  overflow-x: auto;
+  scrollbar-width: none;
+  transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.zen-floating-toolbar::-webkit-scrollbar {
+  display: none;
+}
+
+.zen-floating-toolbar-container.visible.hovered .zen-floating-toolbar,
+.zen-floating-toolbar:hover {
+  background: rgba(14, 14, 20, 0.95);
+  border-color: rgba(255, 255, 255, 0.24);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+.zen-toolbar-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.zen-toolbar-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.zen-toolbar-btn:active:not(:disabled) {
+  transform: translateY(0);
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.zen-toolbar-btn.active {
+  background: var(--accent-primary, #8b5cf6) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 10px var(--accent-primary-glow, rgba(139, 92, 246, 0.4));
+}
+
+.zen-toolbar-btn:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+.zen-toolbar-separator {
+  width: 1px;
+  height: 22px;
+  background: rgba(255, 255, 255, 0.15);
+  margin: 0 4px;
+  flex-shrink: 0;
+}
+
+.zen-floating-toolbar .tool-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.zen-floating-toolbar .tool-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.zen-floating-toolbar .tool-btn.active {
+  background: var(--accent-primary, #8b5cf6) !important;
+  color: #ffffff !important;
+}
+
+.zen-toolbar-font-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 4px 11px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.zen-toolbar-font-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.zen-toolbar-font-btn.active {
+  background: var(--accent-primary, #8b5cf6);
+  color: #ffffff;
+  border-color: var(--accent-primary);
+}
+
+.zen-font-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(18, 18, 24, 0.96);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 12px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+  padding: 6px;
+  min-width: 185px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  z-index: 99999;
+}
+
+.zen-font-dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: 7px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  text-align: left;
+  width: 100%;
+}
+
+.zen-font-dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.zen-font-dropdown-item.selected {
+  background: var(--accent-primary, #8b5cf6);
+  color: #ffffff;
+  font-weight: 600;
 }
 
 /* ==========================================================================

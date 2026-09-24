@@ -36,7 +36,8 @@ import { TextColorPicker } from './TextColorPicker';
 import { scopeCssForContainer } from '../../services/epub/cssPresets';
 import { getStoredSettings, updateStoredSettings } from '../../services/epub/settingsStorage';
 import { useEscapeKey } from '../../hooks/useEscapeKey';
-import { AuthorComment } from '../../types/project';
+import { AuthorComment, ReaderFont } from '../../types/project';
+import { ZenFloatingToolbar } from '../Zen/ZenFloatingToolbar';
 import {
   wrapSelectionWithComment,
   unwrapCommentHighlight,
@@ -126,6 +127,23 @@ function restoreCaretPosition(el: HTMLElement | null, offset: number | null | un
   }
 }
 
+function getFontFamily(font: ReaderFont): string {
+  switch (font) {
+    case 'serif':
+      return 'var(--font-reader-serif)';
+    case 'sans':
+      return 'var(--font-reader-sans)';
+    case 'literata':
+      return 'var(--font-reader-literata)';
+    case 'mono':
+      return 'var(--font-reader-mono)';
+    case 'opendyslexic':
+      return 'var(--font-reader-opendyslexic, "OpenDyslexic", "Comic Sans MS", sans-serif)';
+    default:
+      return 'var(--font-reader-serif)';
+  }
+}
+
 export const WysiwygEditor: React.FC = () => {
   const {
     activeChapter,
@@ -150,6 +168,8 @@ export const WysiwygEditor: React.FC = () => {
     setZenMode,
     zenSettings,
     bookSessionId,
+    readerFont,
+    setReaderFont,
   } = useEpub();
 
   const initialSettings = getStoredSettings();
@@ -188,6 +208,13 @@ export const WysiwygEditor: React.FC = () => {
   const [activeModalComment, setActiveModalComment] = useState<AuthorComment | null>(null);
   const [selectedTextForComment, setSelectedTextForComment] = useState<string>('');
   const selectedRangeRef = useRef<Range | null>(null);
+
+  const handlePreserveSelection = useCallback(() => {
+    const sel = window.getSelection();
+    if (sel && sel.rangeCount > 0) {
+      selectedRangeRef.current = sel.getRangeAt(0).cloneRange();
+    }
+  }, []);
 
   // Selected Image Controls State
   const [selectedImage, setSelectedImage] = useState<HTMLImageElement | null>(null);
@@ -1329,6 +1356,27 @@ export const WysiwygEditor: React.FC = () => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative' }}>
+      {/* Zen Mode Floating Formatting Toolbar */}
+      {isZenMode && (
+        <ZenFloatingToolbar
+          canUndo={canUndo}
+          canRedo={canRedo}
+          onUndo={handleUndo}
+          onRedo={handleRedo}
+          onHeading={insertHeading}
+          onExecCommand={execCommand}
+          onAlign={handleAlign}
+          currentAlign={currentAlign}
+          activeTextColor={activeTextColor}
+          onSelectColor={handleSelectColor}
+          onSetAutoColor={handleSetColorAuto}
+          readerTheme={readerTheme}
+          readerFont={readerFont}
+          onSetFont={setReaderFont}
+          onPreserveSelection={handlePreserveSelection}
+        />
+      )}
+
       {/* Editor Sub-toolbar */}
       <div className={`sub-toolbar ${minimalistMode ? 'minimalist-sub-toolbar' : ''}`}>
         <div className="toolbar-group toolbar-group-scrollable">
@@ -1788,6 +1836,7 @@ export const WysiwygEditor: React.FC = () => {
             style={{
               maxWidth: `${editorWidth}px`,
               width: '100%',
+              fontFamily: getFontFamily(readerFont),
             }}
           />
         </div>
