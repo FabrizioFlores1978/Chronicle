@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { useEpub } from '../../context/EpubContext';
 import {
   Bold,
@@ -194,6 +195,33 @@ export const WysiwygEditor: React.FC = () => {
   const [canMoveImageUp, setCanMoveImageUp] = useState<boolean>(false);
   const [canMoveImageDown, setCanMoveImageDown] = useState<boolean>(false);
   const [imageAlign, setImageAlign] = useState<'left' | 'center' | 'right' | 'full'>('center');
+
+  const widthTriggerRef = useRef<HTMLButtonElement>(null);
+  const [widthPopoverPos, setWidthPopoverPos] = useState<{ top: number; right: number }>({ top: 0, right: 0 });
+
+  const updateWidthPopoverPos = useCallback(() => {
+    if (widthTriggerRef.current) {
+      const rect = widthTriggerRef.current.getBoundingClientRect();
+      const popoverWidth = 250;
+      const right = Math.max(10, Math.min(window.innerWidth - rect.right, window.innerWidth - popoverWidth - 10));
+      setWidthPopoverPos({
+        top: rect.bottom + 8,
+        right,
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (showWidthMenu) {
+      updateWidthPopoverPos();
+      window.addEventListener('resize', updateWidthPopoverPos);
+      window.addEventListener('scroll', updateWidthPopoverPos, true);
+      return () => {
+        window.removeEventListener('resize', updateWidthPopoverPos);
+        window.removeEventListener('scroll', updateWidthPopoverPos, true);
+      };
+    }
+  }, [showWidthMenu, updateWidthPopoverPos]);
 
   useEscapeKey(() => setShowImageDialog(false), showImageDialog);
   useEscapeKey(() => setShowWidthMenu(false), showWidthMenu);
@@ -1537,6 +1565,7 @@ export const WysiwygEditor: React.FC = () => {
             {/* Width Adjuster Popover Trigger */}
             <div style={{ position: 'relative' }}>
               <button
+                ref={widthTriggerRef}
                 className={`btn-icon btn-sm ${showWidthMenu ? 'active' : ''}`}
                 onClick={() => setShowWidthMenu(prev => !prev)}
                 title="Adjust Editor Width (Editor only - does not affect book)"
@@ -1547,92 +1576,94 @@ export const WysiwygEditor: React.FC = () => {
               </button>
 
               {/* Width Slider Dropdown Popover */}
-              {showWidthMenu && (
-                <>
-                  <div
-                    style={{
-                      position: 'fixed',
-                      inset: 0,
-                      zIndex: 90,
-                    }}
-                    onClick={() => setShowWidthMenu(false)}
-                  />
-                  <div
-                    className="popover-menu-card"
-                    style={{
-                      position: 'absolute',
-                      top: 'calc(100% + 8px)',
-                      right: 0,
-                      zIndex: 100,
-                      background: 'var(--bg-surface-elevated)',
-                      border: '1px solid var(--border-medium)',
-                      borderRadius: 'var(--radius-md)',
-                      boxShadow: 'var(--shadow-lg)',
-                      padding: '1rem',
-                      width: '250px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '0.75rem',
-                    }}
-                    onClick={e => e.stopPropagation()}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
-                        Editor Canvas Width
-                      </span>
-                      <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--accent-primary)' }}>
-                        {editorWidth}px
-                      </span>
-                    </div>
-
-                    <input
-                      type="range"
-                      min="600"
-                      max="1600"
-                      step="20"
-                      value={editorWidth}
-                      onChange={e => setEditorWidth(parseInt(e.target.value, 10))}
-                      style={{ width: '100%', accentColor: 'var(--accent-primary)', cursor: 'pointer' }}
+              {showWidthMenu &&
+                createPortal(
+                  <>
+                    <div
+                      style={{
+                        position: 'fixed',
+                        inset: 0,
+                        zIndex: 9998,
+                      }}
+                      onClick={() => setShowWidthMenu(false)}
                     />
+                    <div
+                      className="popover-menu-card"
+                      style={{
+                        position: 'fixed',
+                        top: `${widthPopoverPos.top}px`,
+                        right: `${widthPopoverPos.right}px`,
+                        zIndex: 9999,
+                        background: 'var(--bg-surface-elevated)',
+                        border: '1px solid var(--border-medium)',
+                        borderRadius: 'var(--radius-md)',
+                        boxShadow: 'var(--shadow-lg)',
+                        padding: '1rem',
+                        width: '250px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '0.75rem',
+                      }}
+                      onClick={e => e.stopPropagation()}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
+                          Editor Canvas Width
+                        </span>
+                        <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--accent-primary)' }}>
+                          {editorWidth}px
+                        </span>
+                      </div>
 
-                    {/* Quick Presets */}
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '4px' }}>
-                      <button
-                        className={`btn btn-sm ${editorWidth === 680 ? 'btn-primary' : 'btn-secondary'}`}
-                        style={{ fontSize: '0.7rem', padding: '0.2rem' }}
-                        onClick={() => setEditorWidth(680)}
-                      >
-                        Compact (680px)
-                      </button>
-                      <button
-                        className={`btn btn-sm ${editorWidth === 820 ? 'btn-primary' : 'btn-secondary'}`}
-                        style={{ fontSize: '0.7rem', padding: '0.2rem' }}
-                        onClick={() => setEditorWidth(820)}
-                      >
-                        Page (820px)
-                      </button>
-                      <button
-                        className={`btn btn-sm ${editorWidth === 1100 ? 'btn-primary' : 'btn-secondary'}`}
-                        style={{ fontSize: '0.7rem', padding: '0.2rem' }}
-                        onClick={() => setEditorWidth(1100)}
-                      >
-                        Wide (1100px)
-                      </button>
-                      <button
-                        className={`btn btn-sm ${editorWidth === 1450 ? 'btn-primary' : 'btn-secondary'}`}
-                        style={{ fontSize: '0.7rem', padding: '0.2rem' }}
-                        onClick={() => setEditorWidth(1450)}
-                      >
-                        Ultra (1450px)
-                      </button>
-                    </div>
+                      <input
+                        type="range"
+                        min="600"
+                        max="1600"
+                        step="20"
+                        value={editorWidth}
+                        onChange={e => setEditorWidth(parseInt(e.target.value, 10))}
+                        style={{ width: '100%', accentColor: 'var(--accent-primary)', cursor: 'pointer' }}
+                      />
 
-                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textAlign: 'center', borderTop: '1px solid var(--border-subtle)', paddingTop: '0.4rem' }}>
-                      Authoring view only (doesn't alter EPUB)
+                      {/* Quick Presets */}
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '4px' }}>
+                        <button
+                          className={`btn btn-sm ${editorWidth === 680 ? 'btn-primary' : 'btn-secondary'}`}
+                          style={{ fontSize: '0.7rem', padding: '0.2rem' }}
+                          onClick={() => setEditorWidth(680)}
+                        >
+                          Compact (680px)
+                        </button>
+                        <button
+                          className={`btn btn-sm ${editorWidth === 820 ? 'btn-primary' : 'btn-secondary'}`}
+                          style={{ fontSize: '0.7rem', padding: '0.2rem' }}
+                          onClick={() => setEditorWidth(820)}
+                        >
+                          Page (820px)
+                        </button>
+                        <button
+                          className={`btn btn-sm ${editorWidth === 1100 ? 'btn-primary' : 'btn-secondary'}`}
+                          style={{ fontSize: '0.7rem', padding: '0.2rem' }}
+                          onClick={() => setEditorWidth(1100)}
+                        >
+                          Wide (1100px)
+                        </button>
+                        <button
+                          className={`btn btn-sm ${editorWidth === 1450 ? 'btn-primary' : 'btn-secondary'}`}
+                          style={{ fontSize: '0.7rem', padding: '0.2rem' }}
+                          onClick={() => setEditorWidth(1450)}
+                        >
+                          Ultra (1450px)
+                        </button>
+                      </div>
+
+                      <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textAlign: 'center', borderTop: '1px solid var(--border-subtle)', paddingTop: '0.4rem' }}>
+                        Authoring view only (doesn't alter EPUB)
+                      </div>
                     </div>
-                  </div>
-                </>
-              )}
+                  </>,
+                  document.body
+                )}
             </div>
 
             <div className="toolbar-separator" />

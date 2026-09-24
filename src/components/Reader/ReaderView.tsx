@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { useEpub } from '../../context/EpubContext';
 import {
   Sun,
@@ -64,6 +65,33 @@ export const ReaderView: React.FC = () => {
   } = useEpub();
 
   const [showWidthMenu, setShowWidthMenu] = useState(false);
+  const widthTriggerRef = useRef<HTMLButtonElement>(null);
+  const [widthPopoverPos, setWidthPopoverPos] = useState<{ top: number; right: number }>({ top: 0, right: 0 });
+
+  const updateWidthPopoverPos = useCallback(() => {
+    if (widthTriggerRef.current) {
+      const rect = widthTriggerRef.current.getBoundingClientRect();
+      const popoverWidth = 240;
+      const right = Math.max(10, Math.min(window.innerWidth - rect.right, window.innerWidth - popoverWidth - 10));
+      setWidthPopoverPos({
+        top: rect.bottom + 8,
+        right,
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (showWidthMenu) {
+      updateWidthPopoverPos();
+      window.addEventListener('resize', updateWidthPopoverPos);
+      window.addEventListener('scroll', updateWidthPopoverPos, true);
+      return () => {
+        window.removeEventListener('resize', updateWidthPopoverPos);
+        window.removeEventListener('scroll', updateWidthPopoverPos, true);
+      };
+    }
+  }, [showWidthMenu, updateWidthPopoverPos]);
+
   useEscapeKey(() => setShowWidthMenu(false), showWidthMenu);
 
   // Author Comments State
@@ -589,6 +617,7 @@ export const ReaderView: React.FC = () => {
             {/* Page Width Adjuster Popover Trigger */}
             <div style={{ position: 'relative', flexShrink: 0 }}>
               <button
+                ref={widthTriggerRef}
                 className={`btn-icon btn-sm ${showWidthMenu ? 'active' : ''}`}
                 onClick={() => setShowWidthMenu(prev => !prev)}
                 title="Adjust Reading Page Width"
@@ -611,112 +640,114 @@ export const ReaderView: React.FC = () => {
               </button>
 
               {/* Width Slider Dropdown Popover */}
-              {showWidthMenu && (
-                <>
-                  <div
-                    style={{
-                      position: 'fixed',
-                      inset: 0,
-                      zIndex: 90,
-                    }}
-                    onClick={() => setShowWidthMenu(false)}
-                  />
-                  <div
-                    className="popover-menu-card"
-                    style={{
-                      position: 'absolute',
-                      top: 'calc(100% + 8px)',
-                      right: 0,
-                      zIndex: 100,
-                      background: 'var(--bg-surface-elevated)',
-                      border: '1px solid var(--border-medium)',
-                      borderRadius: 'var(--radius-md)',
-                      boxShadow: 'var(--shadow-lg)',
-                      padding: '1rem',
-                      width: '240px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '0.75rem',
-                    }}
-                    onClick={e => e.stopPropagation()}
-                  >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
-                      Reading Page Width
-                    </span>
-                    <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--accent-primary)' }}>
-                      {readerMarginWidth}px
-                    </span>
-                  </div>
+              {showWidthMenu &&
+                createPortal(
+                  <>
+                    <div
+                      style={{
+                        position: 'fixed',
+                        inset: 0,
+                        zIndex: 9998,
+                      }}
+                      onClick={() => setShowWidthMenu(false)}
+                    />
+                    <div
+                      className="popover-menu-card"
+                      style={{
+                        position: 'fixed',
+                        top: `${widthPopoverPos.top}px`,
+                        right: `${widthPopoverPos.right}px`,
+                        zIndex: 9999,
+                        background: 'var(--bg-surface-elevated)',
+                        border: '1px solid var(--border-medium)',
+                        borderRadius: 'var(--radius-md)',
+                        boxShadow: 'var(--shadow-lg)',
+                        padding: '1rem',
+                        width: '240px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '0.75rem',
+                      }}
+                      onClick={e => e.stopPropagation()}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
+                          Reading Page Width
+                        </span>
+                        <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--accent-primary)' }}>
+                          {readerMarginWidth}px
+                        </span>
+                      </div>
 
-                  <input
-                    type="range"
-                    min="600"
-                    max="1600"
-                    step="20"
-                    value={readerMarginWidth}
-                    onChange={e => setReaderMarginWidth(parseInt(e.target.value, 10))}
-                    style={{ width: '100%', accentColor: 'var(--accent-primary)', cursor: 'pointer' }}
-                  />
+                      <input
+                        type="range"
+                        min="600"
+                        max="1600"
+                        step="20"
+                        value={readerMarginWidth}
+                        onChange={e => setReaderMarginWidth(parseInt(e.target.value, 10))}
+                        style={{ width: '100%', accentColor: 'var(--accent-primary)', cursor: 'pointer' }}
+                      />
 
-                  {/* Quick Presets */}
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '4px' }}>
-                    <button
-                      className={`btn btn-sm ${readerMarginWidth === 680 ? 'btn-primary' : 'btn-secondary'}`}
-                      style={{ fontSize: '0.7rem', padding: '0.25rem' }}
-                      onClick={() => {
-                        setReaderMarginWidth(680);
-                        setShowWidthMenu(false);
-                      }}
-                    >
-                      Compact (680px)
-                    </button>
-                    <button
-                      className={`btn btn-sm ${readerMarginWidth === 760 ? 'btn-primary' : 'btn-secondary'}`}
-                      style={{ fontSize: '0.7rem', padding: '0.25rem' }}
-                      onClick={() => {
-                        setReaderMarginWidth(760);
-                        setShowWidthMenu(false);
-                      }}
-                    >
-                      Standard (760px)
-                    </button>
-                    <button
-                      className={`btn btn-sm ${readerMarginWidth === 920 ? 'btn-primary' : 'btn-secondary'}`}
-                      style={{ fontSize: '0.7rem', padding: '0.25rem' }}
-                      onClick={() => {
-                        setReaderMarginWidth(920);
-                        setShowWidthMenu(false);
-                      }}
-                    >
-                      Comfort (920px)
-                    </button>
-                    <button
-                      className={`btn btn-sm ${readerMarginWidth === 1150 ? 'btn-primary' : 'btn-secondary'}`}
-                      style={{ fontSize: '0.7rem', padding: '0.25rem' }}
-                      onClick={() => {
-                        setReaderMarginWidth(1150);
-                        setShowWidthMenu(false);
-                      }}
-                    >
-                      Wide (1150px)
-                    </button>
-                  </div>
+                      {/* Quick Presets */}
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '4px' }}>
+                        <button
+                          className={`btn btn-sm ${readerMarginWidth === 680 ? 'btn-primary' : 'btn-secondary'}`}
+                          style={{ fontSize: '0.7rem', padding: '0.25rem' }}
+                          onClick={() => {
+                            setReaderMarginWidth(680);
+                            setShowWidthMenu(false);
+                          }}
+                        >
+                          Compact (680px)
+                        </button>
+                        <button
+                          className={`btn btn-sm ${readerMarginWidth === 760 ? 'btn-primary' : 'btn-secondary'}`}
+                          style={{ fontSize: '0.7rem', padding: '0.25rem' }}
+                          onClick={() => {
+                            setReaderMarginWidth(760);
+                            setShowWidthMenu(false);
+                          }}
+                        >
+                          Standard (760px)
+                        </button>
+                        <button
+                          className={`btn btn-sm ${readerMarginWidth === 920 ? 'btn-primary' : 'btn-secondary'}`}
+                          style={{ fontSize: '0.7rem', padding: '0.25rem' }}
+                          onClick={() => {
+                            setReaderMarginWidth(920);
+                            setShowWidthMenu(false);
+                          }}
+                        >
+                          Comfort (920px)
+                        </button>
+                        <button
+                          className={`btn btn-sm ${readerMarginWidth === 1150 ? 'btn-primary' : 'btn-secondary'}`}
+                          style={{ fontSize: '0.7rem', padding: '0.25rem' }}
+                          onClick={() => {
+                            setReaderMarginWidth(1150);
+                            setShowWidthMenu(false);
+                          }}
+                        >
+                          Wide (1150px)
+                        </button>
+                      </div>
 
-                  <div
-                    style={{
-                      fontSize: '0.68rem',
-                      color: 'var(--text-muted)',
-                      textAlign: 'center',
-                      borderTop: '1px solid var(--border-subtle)',
-                      paddingTop: '0.4rem',
-                    }}
-                  >
-                    Reader view only (doesn't alter EPUB)
-                  </div>
-                </div>
-              </>
-            )}
+                      <div
+                        style={{
+                          fontSize: '0.68rem',
+                          color: 'var(--text-muted)',
+                          textAlign: 'center',
+                          borderTop: '1px solid var(--border-subtle)',
+                          paddingTop: '0.4rem',
+                        }}
+                      >
+                        Reader view only (doesn't alter EPUB)
+                      </div>
+                    </div>
+                  </>,
+                  document.body
+                )}
             </div>
           </div>
 
