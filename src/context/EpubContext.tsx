@@ -815,6 +815,8 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         saveSetting('zenSettings', next);
         if (typeof document !== 'undefined') {
           document.documentElement.setAttribute('data-zen-hide-comments', (isZenMode && next.hideComments) ? 'true' : 'false');
+          const dimOpacity = ((next.focusDimOpacity ?? 35) / 100).toFixed(2);
+          document.documentElement.style.setProperty('--zen-dim-opacity', dimOpacity);
         }
         return next;
       });
@@ -826,8 +828,10 @@ export const EpubProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (typeof document !== 'undefined') {
       document.documentElement.setAttribute('data-zen-mode', isZenMode ? 'true' : 'false');
       document.documentElement.setAttribute('data-zen-hide-comments', (isZenMode && zenSettings.hideComments) ? 'true' : 'false');
+      const dimOpacity = ((zenSettings.focusDimOpacity ?? 35) / 100).toFixed(2);
+      document.documentElement.style.setProperty('--zen-dim-opacity', dimOpacity);
     }
-  }, [isZenMode, zenSettings.hideComments]);
+  }, [isZenMode, zenSettings.hideComments, zenSettings.focusDimOpacity]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

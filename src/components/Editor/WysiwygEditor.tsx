@@ -1814,6 +1814,9 @@ export const WysiwygEditor: React.FC = () => {
           ref={workspaceRef}
           className={`editor-workspace editor-theme-${readerTheme} editor-layout-${editorLayout} ${isCommentsHidden ? 'hide-comment-highlights' : ''} ${isZenMode && zenSettings.typewriterScrolling ? 'zen-typewriter-mode' : ''} ${isZenMode && zenSettings.focusDimming ? 'zen-focus-dimming' : ''}`}
           onClick={handleEditorClick}
+          style={{
+            ['--zen-dim-opacity' as any]: ((zenSettings.focusDimOpacity ?? 35) / 100).toFixed(2),
+          }}
         >
           {customCss && (
             <style

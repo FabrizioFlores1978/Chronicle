@@ -38,6 +38,7 @@ export interface ZenModeSettings {
   autoSwitchOnTyping: boolean;
   typewriterScrolling: boolean;
   focusDimming: boolean;
+  focusDimOpacity: number;
   ghostHud: boolean;
   hideComments: boolean;
 }
@@ -46,6 +47,7 @@ export const DEFAULT_ZEN_SETTINGS: ZenModeSettings = {
   autoSwitchOnTyping: true,
   typewriterScrolling: true,
   focusDimming: true,
+  focusDimOpacity: 35,
   ghostHud: true,
   hideComments: true,
 };

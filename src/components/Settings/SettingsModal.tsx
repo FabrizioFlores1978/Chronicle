@@ -713,17 +713,24 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
                     {/* Mechanic 2: Focus Dimming */}
                     <div
-                      onClick={() => updateZenSettings({ focusDimming: !zenSettings.focusDimming })}
                       style={{
                         padding: '0.85rem 1rem',
                         borderRadius: '10px',
                         backgroundColor: zenSettings.focusDimming ? 'var(--bg-surface-elevated)' : 'var(--bg-surface)',
                         border: zenSettings.focusDimming ? '1px solid var(--accent-primary)' : '1px solid var(--border-subtle)',
-                        cursor: 'pointer',
                         transition: 'all 0.2s ease',
                       }}
                     >
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                      <div
+                        onClick={() => updateZenSettings({ focusDimming: !zenSettings.focusDimming })}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          marginBottom: '6px',
+                          cursor: 'pointer',
+                        }}
+                      >
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600, fontSize: '0.86rem', color: 'var(--text-primary)' }}>
                           <Focus size={16} color="var(--accent-primary)" />
                           Focus Dimming
@@ -731,13 +738,66 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         <input
                           type="checkbox"
                           checked={zenSettings.focusDimming}
-                          onChange={e => e.stopPropagation()}
-                          style={{ accentColor: 'var(--accent-primary)' }}
+                          onChange={e => {
+                            e.stopPropagation();
+                            updateZenSettings({ focusDimming: e.target.checked });
+                          }}
+                          style={{ accentColor: 'var(--accent-primary)', cursor: 'pointer' }}
                         />
                       </div>
                       <p style={{ margin: 0, fontSize: '0.74rem', color: 'var(--text-secondary)', lineHeight: 1.45 }}>
-                        Fades surrounding paragraphs to 35% opacity, brightly spotlighting only your active sentence and thought.
+                        Fades surrounding paragraphs to {zenSettings.focusDimOpacity ?? 35}% visibility, brightly spotlighting only your active sentence and thought.
                       </p>
+
+                      {/* Dimming Visibility Slider */}
+                      {zenSettings.focusDimming && (
+                        <div
+                          style={{
+                            marginTop: '0.75rem',
+                            paddingTop: '0.75rem',
+                            borderTop: '1px solid var(--border-subtle)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '0.35rem',
+                          }}
+                          onClick={e => e.stopPropagation()}
+                        >
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <label
+                              style={{
+                                fontSize: '0.78rem',
+                                fontWeight: 600,
+                                color: 'var(--text-secondary)',
+                                margin: 0,
+                                cursor: 'default',
+                              }}
+                            >
+                              Dimmed Visibility:
+                            </label>
+                            <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--accent-primary)' }}>
+                              {zenSettings.focusDimOpacity ?? 35}%
+                            </span>
+                          </div>
+                          <input
+                            type="range"
+                            min={10}
+                            max={85}
+                            step={5}
+                            value={zenSettings.focusDimOpacity ?? 35}
+                            onChange={e => updateZenSettings({ focusDimOpacity: Number(e.target.value) })}
+                            style={{
+                              width: '100%',
+                              accentColor: 'var(--accent-primary)',
+                              cursor: 'pointer',
+                            }}
+                          />
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.68rem', color: 'var(--text-muted)' }}>
+                            <span>High Focus (10%)</span>
+                            <span>Default (35%)</span>
+                            <span>Subtle (85%)</span>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     {/* Mechanic 3: Ghost HUD (Zero UI) */}
